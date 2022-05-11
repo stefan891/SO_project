@@ -3,6 +3,7 @@
 
 #include "err_exit.h"
 #include "defines.h"
+#include "fifo.h"
 
 char *global_path;       // variabile globale per passare argv[1] al sigHandler
 char **legit_files_path; // matrice di stringhe per salvare il path dei soli file "legali"
@@ -12,7 +13,7 @@ void sigHandler(int signal)
     if (signal == SIGUSR1)
     {
         kill(getpid(), SIGTERM);
-        printf("ricevuto segnale sigterm\n");
+        printf("ricevuto segnale sigusr1\n");
     }
     else if (signal == SIGINT)
     {
@@ -44,7 +45,7 @@ void sigHandler(int signal)
         strcpy(filepath, path);
         strcat(filepath, "/");
 
-        while ((dentry = readdir(dp)) != NULL)      //ad ogni iterazione la funzione readdir avanza automaticamente con la lettura dei files
+        while ((dentry = readdir(dp)) != NULL) // ad ogni iterazione la funzione readdir avanza automaticamente con la lettura dei files
         {
 
             if (dentry->d_type == DT_REG && strncmp("sendme_", dentry->d_name, 7) == 0)
@@ -56,15 +57,15 @@ void sigHandler(int signal)
 
                     printf("\n%s", dentry->d_name);
                     legit_files++;
-                    printf(" file size: %ld\n", statbuf.st_size);
+                    printf(" file size: %ld", statbuf.st_size);
 
                     // con questo modo molto figo, alloco dinamicamente un vettore di stringhe man mano
                     // che trovo i file, in modo da non dover allocare sempre un vettore di 100 stringhe
                     legit_files_path = realloc(legit_files_path, sizeof(char *));
                     legit_files_path[legit_files - 1] = malloc(PATH_MAX * sizeof(char));
-                    strcpy(legit_files_path[legit_files - 1], filepath);    //copio il file path di ogni file "legit" nel vettore di stringhe che sto creando
+                    strcpy(legit_files_path[legit_files - 1], filepath); // copio il file path di ogni file "legit" nel vettore di stringhe che sto creando
 
-                    strcpy(filepath, path); //resetto il contenuto di filepath a /myDir, se no mi aggiunge dietro tutti i nomi dei file attaccati
+                    strcpy(filepath, path); // resetto il contenuto di filepath a /myDir, se no mi aggiunge dietro tutti i nomi dei file attaccati
                     strcat(filepath, "/");
                 }
             }
@@ -74,17 +75,20 @@ void sigHandler(int signal)
             ErrExit("error reading dir.\n");
         //----------------------------------------------------------------------------------------
 
-
-//######################################################## //verifica del vettore di stringhe, ma la puoi cancellare
+        //######################################################## //verifica del vettore di stringhe, ma la puoi cancellare
         printf("\nverifica lettura file legit");
         for (int i = 0; i < legit_files; i++)
+        {
             printf("\n%s", legit_files_path[i]);
-//#######################################################
+            fflush(stdout);
+        }
+            
+        //#######################################################
+
+        int fd=open_FIFO("fifo1",O_RDONLY); //prova apertura fifo creata dal server
+        
     }
 }
-
-
-
 
 int main(int argc, char *argv[])
 {
@@ -94,7 +98,7 @@ int main(int argc, char *argv[])
 
     if (argc != 2)
     {
-        printf("usage: ./client_0.c myDir/\n");
+        printf("usage: ./client_0 myDir/\n");
         exit(1);
     }
     else

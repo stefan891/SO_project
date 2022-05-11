@@ -1,0 +1,490 @@
+make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+# GNU Make 4.2.1
+# Built for x86_64-pc-linux-gnu
+# Copyright (C) 1988-2016 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+
+# Make data base, printed on Wed May 11 10:23:20 2022
+
+# Variables
+
+# 'override' directive
+GNUMAKEFLAGS := 
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# automatic
+?F = $(notdir $?)
+# environment
+DESKTOP_SESSION = ubuntu
+# default
+.SHELLFLAGS := -c
+# environment
+XDG_SESSION_CLASS = user
+# environment
+SNAP_COMMON = /var/snap/code/common
+# environment
+XDG_SESSION_TYPE = x11
+# environment
+VSCODE_LOG_NATIVE = false
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# environment
+IM_CONFIG_PHASE = 1
+# makefile (from 'Makefile', line 2)
+INCLUDES = -I .
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# environment
+XAUTHORITY = /run/user/1000/gdm/Xauthority
+# environment
+GDMSESSION = ubuntu
+# environment
+XMODIFIERS = @im=ibus
+# makefile
+CURDIR := /home/francesco/Desktop/SO_project
+# makefile
+SHELL = /bin/sh
+# environment
+SNAP_DATA = /var/snap/code/95
+# environment
+VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
+# environment
+JOURNAL_STREAM = 8:45833
+# makefile (from 'Makefile', line 1)
+CFLAGS = -Wall -std=gnu99
+# environment
+XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
+# environment
+SNAP_INSTANCE_NAME = code
+# environment
+SNAP_ARCH = amd64
+# makefile (from 'Makefile', line 1)
+MAKEFILE_LIST :=  Makefile
+# automatic
+@F = $(notdir $@)
+# environment
+GIO_LAUNCHED_DESKTOP_FILE = /var/lib/snapd/desktop/applications/code_code.desktop
+# environment
+USERNAME = francesco
+# environment
+XDG_DATA_DIRS = /usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop
+# environment
+DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
+# environment
+VSCODE_VERBOSE_LOGGING = true
+# environment
+_ = /snap/code/95/usr/share/code/code
+# environment
+MANAGERPID = 1511
+# makefile (from 'Makefile', line 9)
+SERVER_OBJS = $(addprefix $(OBJDIR)/, $(SERVER_SRCS:.c=.o))
+# environment
+LESSOPEN = | /usr/bin/lesspipe %s
+# environment
+VSCODE_CWD = /home/francesco
+# environment
+GSETTINGS_SCHEMA_DIR = /snap/code/95/usr/share/glib-2.0/schemas
+# default
+MAKE_HOST := x86_64-pc-linux-gnu
+# environment
+PATH = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+# makefile (from 'Makefile', line 8)
+SERVER_SRCS = defines.c err_exit.c shared_memory.c semaphore.c fifo.c server.c
+# environment
+GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
+# environment
+SESSION_MANAGER = local/ubuntu:@/tmp/.ICE-unix/1718,unix/ubuntu:/tmp/.ICE-unix/1718
+# environment
+XDG_RUNTIME_DIR = /run/user/1000
+# environment
+GDK_PIXBUF_MODULE_FILE = /home/francesco/snap/code/common/.cache/gdk-pixbuf-loaders.cache
+# environment
+SNAP = /snap/code/95
+# environment
+SNAP_VERSION = 57fd6d01
+# environment
+XDG_MENU_PREFIX = gnome-
+# environment
+VSCODE_LOG_STACK = false
+# environment
+DISABLE_WAYLAND = 1
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# environment
+INVOCATION_ID = 96c2027bb074413492cd9704e2cdcaca
+# environment
+GDK_PIXBUF_MODULEDIR = /snap/code/95/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
+# environment
+LS_COLORS = 
+# environment
+XDG_SESSION_DESKTOP = ubuntu
+# environment
+SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
+# environment
+GIO_LAUNCHED_DESKTOP_FILE_PID = 2459
+# automatic
+%F = $(notdir $%)
+# environment
+DISPLAY = :0
+# environment
+VSCODE_PIPE_LOGGING = true
+# environment
+SNAP_INSTANCE_KEY = 
+# environment
+PWD = /home/francesco/Desktop/SO_project
+# default
+.LOADED := 
+# environment
+SSH_AGENT_PID = 1683
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
+# environment
+GTK_MODULES = gail:atk-bridge
+# makefile (from 'Makefile', line 6)
+CLIENT_OBJS = $(addprefix $(OBJDIR)/, $(CLIENT_SRCS:.c=.o))
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+HOME = /home/francesco
+# environment
+LESSCLOSE = /usr/bin/lesspipe %s %s
+# environment
+VSCODE_CLI = 1
+# environment
+VSCODE_CODE_CACHE_PATH = /home/francesco/.config/Code/CachedData/57fd6d0195bb9b9d1b49f6da5db789060795de47
+# environment
+LOGNAME = francesco
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+# environment
+SNAP_LIBRARY_PATH = /var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void
+# environment
+SNAP_CONTEXT = o08NHOu-B8K4PWTUIXIHgQ-agKpDNDpsSCr_KuSt8awZgbI4jo0e
+# environment
+ELECTRON_NO_ATTACH_CONSOLE = 1
+# environment
+SNAP_USER_COMMON = /home/francesco/snap/code/common
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# environment
+GNOME_DESKTOP_SESSION_ID = this-is-deprecated
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# environment
+MAKELEVEL := 0
+# environment
+SNAP_REAL_HOME = /home/francesco
+# default
+MAKE = $(MAKE_COMMAND)
+# default
+MAKECMDGOALS := all
+# environment
+QT_IM_MODULE = ibus
+# environment
+SNAP_USER_DATA = /home/francesco/snap/code/95
+# environment
+SHLVL = 0
+# environment
+GNOME_SHELL_SESSION_MODE = ubuntu
+# environment
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-3736ccf6-8adb-47ce-8459-53b4f846f0ba.sock
+# default
+MAKE_VERSION := 4.2.1
+# environment
+USER = francesco
+# environment
+SNAP_REVISION = 95
+# makefile
+.DEFAULT_GOAL := all
+# environment
+XDG_CURRENT_DESKTOP = Unity
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# default
+MAKE_COMMAND := make
+# default
+.VARIABLES := 
+# automatic
+*F = $(notdir $*)
+# environment
+VSCODE_IPC_HOOK = /run/user/1000/vscode-ef618831-1.67.0-main.sock
+# environment
+BAMF_DESKTOP_FILE_HINT = /var/lib/snapd/desktop/applications/code_code.desktop
+# makefile
+MAKEFLAGS = pqrR
+# environment
+MFLAGS = -pqrR
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# environment
+GDK_BACKEND = x11
+# automatic
++F = $(notdir $+)
+# environment
+QT_ACCESSIBILITY = 1
+# default
+MAKEFILES := 
+# environment
+SNAP_COOKIE = o08NHOu-B8K4PWTUIXIHgQ-agKpDNDpsSCr_KuSt8awZgbI4jo0e
+# makefile (from 'Makefile', line 5)
+CLIENT_SRCS = defines.c err_exit.c shared_memory.c semaphore.c fifo.c client_0.c
+# automatic
+<F = $(notdir $<)
+# makefile (from 'Makefile', line 3)
+OBJDIR = obj
+# environment
+SNAP_NAME = code
+# environment
+LC_ALL = C
+# environment
+GJS_DEBUG_TOPICS = JS ERROR;JS LOG
+# automatic
+^F = $(notdir $^)
+# default
+SUFFIXES := 
+# environment
+SNAP_REEXEC = 
+# environment
+CHROME_DESKTOP = code-url-handler.desktop
+# environment
+WINDOWPATH = 2
+# default
+.INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
+# environment
+GJS_DEBUG_OUTPUT = stderr
+# default
+.RECIPEPREFIX := 
+# environment
+LANG = C
+# environment
+VSCODE_PID = 2499
+# variable set hash-table stats:
+# Load=127/1024=12%, Rehash=0, Collisions=20/161=12%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# . (device 2053, inode 404169): 22 files, no impossibilities.
+
+# 22 files, no impossibilities in 1 directories.
+
+# Implicit Rules
+
+ 
+obj/%.o: %.c
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+# 1 implicit rules, 0 (0.0%) terminal.
+
+# Files
+
+obj/client_0.o: client_0.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'client_0'
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+# Not a target:
+fifo.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+
+obj/fifo.o: fifo.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'fifo'
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+obj/server.o: server.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'server'
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+all: obj client_0 server
+#  Command line target.
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+defines.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+
+.PHONY: run clean
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+client_0: obj/defines.o obj/err_exit.o obj/shared_memory.o obj/semaphore.o obj/fifo.o obj/client_0.o
+#  Implicit rule search has not been done.
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 14):
+	@echo "Making executable: "$@
+	@$(CC) $^ -o $@  -lm
+
+# Not a target:
+err_exit.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+
+obj/shared_memory.o: shared_memory.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'shared_memory'
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-09 19:07:04.439694274
+#  File has been updated.
+#  Successfully updated.
+
+server: obj/defines.o obj/err_exit.o obj/shared_memory.o obj/semaphore.o obj/fifo.o obj/server.o
+#  Implicit rule search has not been done.
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 18):
+	@echo "Making executable: "$@
+	@$(CC) $^ -o $@  -lm
+
+# Not a target:
+semaphore.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+
+obj:
+#  Implicit rule search has not been done.
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 23):
+	@mkdir -p $(OBJDIR)
+
+# Not a target:
+client_0.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+server.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+
+run:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+
+clean:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 29):
+	@rm -vf ${CLIENT_OBJS}
+	@rm -vf ${SERVER_OBJS}
+	@rm -vf client_0
+	@rm -vf server
+	@rm -rf ${OBJDIR}
+	@ipcrm -a
+	@echo "Removed object files and executables..."
+
+obj/err_exit.o: err_exit.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'err_exit'
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+# Not a target:
+shared_memory.c:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+
+obj/semaphore.o: semaphore.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'semaphore'
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+obj/defines.o: defines.c
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'defines'
+#  Last modified 2022-05-09 19:07:04.443694425
+#  File has been updated.
+#  Successfully updated.
+#  recipe to execute (from 'Makefile', line 26):
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+# files hash-table stats:
+# Load=24/1024=2%, Rehash=0, Collisions=0/76=0%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 1 (0) / strings = 44 / storage = 429 B / avg = 9 B
+# current buf: size = 8162 B / used = 429 B / count = 44 / avg = 9 B
+
+# strcache performance: lookups = 83 / hit rate = 46%
+# hash-table stats:
+# Load=44/8192=1%, Rehash=0, Collisions=1/83=1%
+# Finished Make data base on Wed May 11 10:23:20 2022
+
+ 
