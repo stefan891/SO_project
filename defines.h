@@ -4,6 +4,7 @@
 
 #pragma once
 
+#define MSG_BYTES 100
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -17,6 +18,13 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <errno.h>
+
+struct File_piece{
+    ssize_t size;
+    int piece;
+    char content[MSG_BYTES];
+
+};
 
 void divideByFour();
 

@@ -61,21 +61,62 @@ void close_FIFO(int fd, char *name)
     fflush(stdout);
 }
 
-char buffer[100];
 
- char* read_FIFO(int fd)
+struct File_piece file_piece;
+
+ void read_FIFO(int FIFO_fd,int dest_fd)
  {
-     ssize_t Br;
-     do{
-         Br=read(fd,buffer,sizeof (buffer));
-     }while(Br>0);
+     char buffer[MSG_BYTES+1];
+     ssize_t byte_read=-1;
+     ssize_t size;
+     //leggo la dimensione della struct
+     byte_read =read(FIFO_fd,&size,sizeof (ssize_t));
+     int piece=0;
+     //leggo il numero del file
+     read(FIFO_fd,&piece,sizeof (int ));
+     printf("\nnumero file %d\n\n",piece);
+     fflush(stdout);
 
-     return buffer;
+     do{
+
+         if(byte_read==-1)
+             printf("\nWARNING FIFO nothing read");
+         else
+         {
+             byte_read= read(FIFO_fd,buffer,size);
+             if(byte_read==size)
+             {
+                 //buffer[size]='\0';
+                 write(dest_fd,buffer,byte_read);
+             }
+             else
+             {
+                 buffer[size]='\0';
+                 printf("WARNING FIFO byte read not equal to byte write");
+             }
+         }
+     }while(byte_read>0);
+
 
  }
- void write_FIFO(int fd,char*buffer)
-{
-    write(fd,buffer,strlen(buffer));
+ void write_FIFO(int FIFO_fd,int source_fd,int file_number)
+ {
+    do {
+        file_piece.piece=file_number;
+
+        file_piece.size=read(source_fd,file_piece.content,sizeof (file_piece.content));
+        if(file_piece.size==-1)
+            ErrExit("\nFIFO write failed");
+        if(file_piece.size>0)
+        {
+            ssize_t byte_to_send=sizeof (file_piece.size)+sizeof(file_piece.piece)+file_piece.size;
+
+            ssize_t byte_write=write(FIFO_fd,&file_piece,byte_to_send);
+            if(byte_write!=byte_to_send)
+                printf("\nWARNING FIFO byte write not equal to byte read");
+        }
+
+    }while(file_piece.size>0);
 
 }
 

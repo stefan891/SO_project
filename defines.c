@@ -10,9 +10,3 @@ void divideByFour()
     printf("file diviso\n");
 }
 
-struct file_piece{
-    ssize_t size;
-    int piece;
-    char content[50];
-
-};

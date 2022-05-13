@@ -86,7 +86,8 @@ void sigHandler(int signal)
         //#######################################################
 
         int fd=open_FIFO("fifo1",O_RDONLY); //prova apertura fifo creata dal server
-        printf("\nletto: %s",read_FIFO(fd,5));
+        read_FIFO(fd,STDOUT_FILENO);
+        fflush(stdout);
         
     }
 }

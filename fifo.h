@@ -17,5 +17,5 @@ int open_FIFO(char* name, int read_or_write);
 
 void close_FIFO(int fd,char*name);
 
-char* read_FIFO(int fd);
-void write_FIFO(int fd,char*buffer);
+void read_FIFO(int FIFO_fd,int dest_fd);
+void write_FIFO(int FIFO_fd,int source_fd,int file_number);

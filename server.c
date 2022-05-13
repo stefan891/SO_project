@@ -34,8 +34,15 @@ int main(int argc, char *argv[])
         ErrExit("signal handler failed");
 
     global_fd1=open_FIFO("fifo1", O_WRONLY);
-    char buffer[]="ciao mondo";
-    write_FIFO(global_fd1,buffer);
+
+    char file_path[PATH_MAX];
+    getcwd(file_path, PATH_MAX);
+    strcat(file_path, "/myDir/sendme_1");
+    int fd=open(file_path,O_RDWR|S_IWUSR|S_IRUSR);
+    if(fd==-1)
+        ErrExit("open failed");
+
+    write_FIFO(global_fd1,fd,2);
     close_FIFO(global_fd1,"fifo1");
 
     pause();
