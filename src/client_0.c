@@ -41,7 +41,7 @@ void sigHandler(int signal)
         struct stat statbuf;
         int legit_files = 0;
 
-        char filepath[PATH_MAX]; // variabile di supporto guguale a path+nome di ogni file in fondo
+        char filepath[PATH_MAX]; // variabile di supporto uguale a path+nome di ogni file in fondo
         strcpy(filepath, path);
         strcat(filepath, "/");
 
@@ -91,6 +91,7 @@ void sigHandler(int signal)
         
     }
 }
+
 
 int main(int argc, char *argv[])
 {

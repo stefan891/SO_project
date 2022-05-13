@@ -64,6 +64,12 @@ void close_FIFO(int fd, char *name)
 
 struct File_piece file_piece;
 
+ /**
+  * It reads from the FIFO and writes to the destination file
+  *
+  * @param FIFO_fd the file descriptor of the FIFO
+  * @param dest_fd the file descriptor of the file to write to
+  */
  void read_FIFO(int FIFO_fd,int dest_fd)
  {
      char buffer[MSG_BYTES+1];
