@@ -1,4 +1,7 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: Warning: File 'obj' has modification time 19716 s in the future
+make: warning:  Clock skew detected.  Your build may be incomplete.
+
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -6,7 +9,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed May 11 10:23:20 2022
+# Make data base, printed on Wed May 11 07:11:25 2022
 
 # Variables
 
@@ -47,11 +50,11 @@ CURDIR := /home/francesco/Desktop/SO_project
 # makefile
 SHELL = /bin/sh
 # environment
-SNAP_DATA = /var/snap/code/95
+SNAP_DATA = /var/snap/code/96
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
 # environment
-JOURNAL_STREAM = 8:45833
+JOURNAL_STREAM = 8:55491
 # makefile (from 'Makefile', line 1)
 CFLAGS = -Wall -std=gnu99
 # environment
@@ -75,9 +78,9 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-_ = /snap/code/95/usr/share/code/code
+_ = /snap/code/96/usr/share/code/code
 # environment
-MANAGERPID = 1511
+MANAGERPID = 1590
 # makefile (from 'Makefile', line 9)
 SERVER_OBJS = $(addprefix $(OBJDIR)/, $(SERVER_SRCS:.c=.o))
 # environment
@@ -85,7 +88,7 @@ LESSOPEN = | /usr/bin/lesspipe %s
 # environment
 VSCODE_CWD = /home/francesco
 # environment
-GSETTINGS_SCHEMA_DIR = /snap/code/95/usr/share/glib-2.0/schemas
+GSETTINGS_SCHEMA_DIR = /snap/code/96/usr/share/glib-2.0/schemas
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
@@ -95,15 +98,15 @@ SERVER_SRCS = defines.c err_exit.c shared_memory.c semaphore.c fifo.c server.c
 # environment
 GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
-SESSION_MANAGER = local/ubuntu:@/tmp/.ICE-unix/1718,unix/ubuntu:/tmp/.ICE-unix/1718
+SESSION_MANAGER = local/ubuntu:@/tmp/.ICE-unix/1797,unix/ubuntu:/tmp/.ICE-unix/1797
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
 GDK_PIXBUF_MODULE_FILE = /home/francesco/snap/code/common/.cache/gdk-pixbuf-loaders.cache
 # environment
-SNAP = /snap/code/95
+SNAP = /snap/code/96
 # environment
-SNAP_VERSION = 57fd6d01
+SNAP_VERSION = da15b6fd
 # environment
 XDG_MENU_PREFIX = gnome-
 # environment
@@ -113,9 +116,9 @@ DISABLE_WAYLAND = 1
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-INVOCATION_ID = 96c2027bb074413492cd9704e2cdcaca
+INVOCATION_ID = cf3cc52ae26149df8f2755b25e6b5da2
 # environment
-GDK_PIXBUF_MODULEDIR = /snap/code/95/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders
+GDK_PIXBUF_MODULEDIR = /snap/code/96/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -125,7 +128,7 @@ XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 2459
+GIO_LAUNCHED_DESKTOP_FILE_PID = 2935
 # automatic
 %F = $(notdir $%)
 # environment
@@ -139,7 +142,7 @@ PWD = /home/francesco/Desktop/SO_project
 # default
 .LOADED := 
 # environment
-SSH_AGENT_PID = 1683
+SSH_AGENT_PID = 1762
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
@@ -155,7 +158,7 @@ LESSCLOSE = /usr/bin/lesspipe %s %s
 # environment
 VSCODE_CLI = 1
 # environment
-VSCODE_CODE_CACHE_PATH = /home/francesco/.config/Code/CachedData/57fd6d0195bb9b9d1b49f6da5db789060795de47
+VSCODE_CODE_CACHE_PATH = /home/francesco/.config/Code/CachedData/da15b6fd3ef856477bf6f4fb29ba1b7af717770d
 # environment
 LOGNAME = francesco
 # environment
@@ -185,19 +188,19 @@ MAKECMDGOALS := all
 # environment
 QT_IM_MODULE = ibus
 # environment
-SNAP_USER_DATA = /home/francesco/snap/code/95
+SNAP_USER_DATA = /home/francesco/snap/code/96
 # environment
 SHLVL = 0
 # environment
 GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-3736ccf6-8adb-47ce-8459-53b4f846f0ba.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-bf2387e8-9973-4d20-a5a1-11fff81c40bd.sock
 # default
 MAKE_VERSION := 4.2.1
 # environment
 USER = francesco
 # environment
-SNAP_REVISION = 95
+SNAP_REVISION = 96
 # makefile
 .DEFAULT_GOAL := all
 # environment
@@ -211,7 +214,7 @@ MAKE_COMMAND := make
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /run/user/1000/vscode-ef618831-1.67.0-main.sock
+VSCODE_IPC_HOOK = /run/user/1000/vscode-ef618831-1.67.1-main.sock
 # environment
 BAMF_DESKTOP_FILE_HINT = /var/lib/snapd/desktop/applications/code_code.desktop
 # makefile
@@ -263,9 +266,9 @@ GJS_DEBUG_OUTPUT = stderr
 # environment
 LANG = C
 # environment
-VSCODE_PID = 2499
+VSCODE_PID = 2980
 # variable set hash-table stats:
-# Load=127/1024=12%, Rehash=0, Collisions=20/161=12%
+# Load=127/1024=12%, Rehash=0, Collisions=21/167=13%
 
 # Pattern-specific Variable Values
 
@@ -273,13 +276,12 @@ VSCODE_PID = 2499
 
 # Directories
 
-# . (device 2053, inode 404169): 22 files, no impossibilities.
+# . (device 2053, inode 404169): 23 files, no impossibilities.
 
-# 22 files, no impossibilities in 1 directories.
+# 23 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
- 
 obj/%.o: %.c
 #  recipe to execute (from 'Makefile', line 26):
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
@@ -291,7 +293,7 @@ obj/%.o: %.c
 obj/client_0.o: client_0.c
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'client_0'
-#  Last modified 2022-05-09 19:07:04.443694425
+#  Last modified 2022-05-11 12:37:02.13204437
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 26):
@@ -300,14 +302,14 @@ obj/client_0.o: client_0.c
 # Not a target:
 fifo.c:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-09 19:07:04.443694425
+#  Last modified 2022-05-11 12:39:57.328045322
 #  File has been updated.
 #  Successfully updated.
 
 obj/fifo.o: fifo.c
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'fifo'
-#  Last modified 2022-05-09 19:07:04.443694425
+#  Last modified 2022-05-11 12:40:01.988045347
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 26):
@@ -316,9 +318,27 @@ obj/fifo.o: fifo.c
 obj/server.o: server.c
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'server'
-#  Last modified 2022-05-09 19:07:04.443694425
+#  Last modified 2022-05-11 12:39:28.176045163
 #  File has been updated.
-#  Successfully updated.
+#  Needs to be updated (-q is set).
+# automatic
+# @ := obj/server.o
+# automatic
+# % := 
+# automatic
+# * := server
+# automatic
+# + := server.c
+# automatic
+# | := 
+# automatic
+# < := server.c
+# automatic
+# ^ := server.c
+# automatic
+# ? := server.c
+# variable set hash-table stats:
+# Load=8/32=25%, Rehash=0, Collisions=1/16=6%
 #  recipe to execute (from 'Makefile', line 26):
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
@@ -327,7 +347,9 @@ all: obj client_0 server
 #  Implicit rule search has been done.
 #  File does not exist.
 #  File has been updated.
-#  Successfully updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/6=0%
 
 # Not a target:
 defines.c:
@@ -343,7 +365,7 @@ defines.c:
 
 client_0: obj/defines.o obj/err_exit.o obj/shared_memory.o obj/semaphore.o obj/fifo.o obj/client_0.o
 #  Implicit rule search has not been done.
-#  Last modified 2022-05-09 19:07:04.443694425
+#  Last modified 2022-05-11 12:40:02.000045347
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 14):
@@ -360,7 +382,7 @@ err_exit.c:
 obj/shared_memory.o: shared_memory.c
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'shared_memory'
-#  Last modified 2022-05-09 19:07:04.443694425
+#  Last modified 2022-05-11 12:37:02.06404437
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 26):
@@ -375,10 +397,13 @@ Makefile:
 
 server: obj/defines.o obj/err_exit.o obj/shared_memory.o obj/semaphore.o obj/fifo.o obj/server.o
 #  Implicit rule search has not been done.
-#  Last modified 2022-05-09 19:07:04.443694425
+#  Last modified 2022-05-11 12:40:02.012045347
 #  File has been updated.
-#  Successfully updated.
+#  Needs to be updated (-q is set).
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/6=0%
 #  recipe to execute (from 'Makefile', line 18):
+ 
 	@echo "Making executable: "$@
 	@$(CC) $^ -o $@  -lm
 
@@ -391,7 +416,7 @@ semaphore.c:
 
 obj:
 #  Implicit rule search has not been done.
-#  Last modified 2022-05-09 19:07:04.443694425
+#  Last modified 2022-05-11 12:40:01.988045347
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 23):
@@ -400,7 +425,7 @@ obj:
 # Not a target:
 client_0.c:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-09 19:07:04.443694425
+#  Last modified 2022-05-11 12:29:02.840041766
 #  File has been updated.
 #  Successfully updated.
 
@@ -413,7 +438,7 @@ client_0.c:
 # Not a target:
 server.c:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-09 19:07:04.443694425
+#  Last modified 2022-05-11 12:41:33.812045846
 #  File has been updated.
 #  Successfully updated.
 
@@ -440,7 +465,7 @@ clean:
 obj/err_exit.o: err_exit.c
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'err_exit'
-#  Last modified 2022-05-09 19:07:04.443694425
+#  Last modified 2022-05-11 12:37:02.05204437
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 26):
@@ -456,7 +481,7 @@ shared_memory.c:
 obj/semaphore.o: semaphore.c
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'semaphore'
-#  Last modified 2022-05-09 19:07:04.443694425
+#  Last modified 2022-05-11 12:37:02.07204437
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 26):
@@ -465,7 +490,7 @@ obj/semaphore.o: semaphore.c
 obj/defines.o: defines.c
 #  Implicit rule search has been done.
 #  Implicit/static pattern stem: 'defines'
-#  Last modified 2022-05-09 19:07:04.443694425
+#  Last modified 2022-05-11 12:37:02.04004437
 #  File has been updated.
 #  Successfully updated.
 #  recipe to execute (from 'Makefile', line 26):
@@ -479,12 +504,12 @@ obj/defines.o: defines.c
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 44 / storage = 429 B / avg = 9 B
-# current buf: size = 8162 B / used = 429 B / count = 44 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 45 / storage = 434 B / avg = 9 B
+# current buf: size = 8162 B / used = 434 B / count = 45 / avg = 9 B
 
-# strcache performance: lookups = 83 / hit rate = 46%
+# strcache performance: lookups = 84 / hit rate = 46%
 # hash-table stats:
-# Load=44/8192=1%, Rehash=0, Collisions=1/83=1%
-# Finished Make data base on Wed May 11 10:23:20 2022
+# Load=45/8192=1%, Rehash=0, Collisions=1/84=1%
+# Finished Make data base on Wed May 11 07:11:25 2022
 
  

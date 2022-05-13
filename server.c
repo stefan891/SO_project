@@ -34,6 +34,9 @@ int main(int argc, char *argv[])
         ErrExit("signal handler failed");
 
     global_fd1=open_FIFO("fifo1", O_WRONLY);
+    char buffer[]="ciao mondo";
+    write_FIFO(global_fd1,buffer);
+    close_FIFO(global_fd1,"fifo1");
 
     pause();
 

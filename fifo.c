@@ -61,5 +61,36 @@ void close_FIFO(int fd, char *name)
     fflush(stdout);
 }
 
-// char* read_FIFO(int fd);
-// void write_FIFO(int fd,char*buffer,int strlength);
+char buffer[100];
+
+ char* read_FIFO(int fd)
+ {
+     ssize_t Br;
+     do{
+         Br=read(fd,buffer,sizeof (buffer));
+     }while(Br>0);
+
+     return buffer;
+
+ }
+ void write_FIFO(int fd,char*buffer)
+{
+    write(fd,buffer,strlen(buffer));
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

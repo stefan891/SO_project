@@ -14,3 +14,6 @@ echo "Making executable: "server
 cc obj/defines.o obj/err_exit.o obj/shared_memory.o obj/semaphore.o obj/fifo.o obj/server.o -o server  -lm
 make: Leaving directory '/home/francesco/Desktop/SO_project'
  
+make: Warning: File 'obj' has modification time 19716 s in the future
+make: warning:  Clock skew detected.  Your build may be incomplete.
+
