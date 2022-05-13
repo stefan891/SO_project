@@ -2,9 +2,9 @@
 /// @brief Contiene l'implementazione delle funzioni
 ///         specifiche per la gestione delle FIFO.
 
-#include "../inc/err_exit.h"
-#include "../inc/fifo.h"
-#include "../inc/defines.h"
+#include "err_exit.h"
+#include "fifo.h"
+#include "defines.h"
 
 char FIFO_path[PATH_MAX]; // path assoluto file FIFO
 

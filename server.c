@@ -1,11 +1,11 @@
 /// @file sender_manager.c
 /// @brief Contiene l'implementazione del sender_manager.
 
-#include "../inc/err_exit.h"
-#include "../inc/defines.h"
-#include "../inc/shared_memory.h"
-#include "../inc/semaphore.h"
-#include "../inc/fifo.h"
+#include "err_exit.h"
+#include "defines.h"
+#include "shared_memory.h"
+#include "semaphore.h"
+#include "fifo.h"
 
 int global_fd1;
 int global_fd2;

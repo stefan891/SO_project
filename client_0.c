@@ -1,9 +1,9 @@
 /// @file client.c
 /// @brief Contiene l'implementazione del client.
 
-#include "../inc/err_exit.h"
-#include "../inc/defines.h"
-#include "../inc/fifo.h"
+#include "err_exit.h"
+#include "defines.h"
+#include "fifo.h"
 
 char *global_path;       // variabile globale per passare argv[1] al sigHandler
 char **legit_files_path; // matrice di stringhe per salvare il path dei soli file "legali"
