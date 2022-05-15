@@ -4,7 +4,7 @@
 
 #pragma once
 
-#define MSG_BYTES 100
+#define MSG_BYTES 1024
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -20,9 +20,20 @@
 #include <errno.h>
 
 struct File_piece{
-    ssize_t size;
+    ssize_t content_size;
+    ssize_t filepath_size;
     int piece;
+    int additional;
+    char content[MSG_BYTES+PATH_MAX];
+
+};
+
+struct Responce{
+
     char content[MSG_BYTES];
+    char filepath[PATH_MAX];
+    int file_number;
+    int additional;
 
 };
 
