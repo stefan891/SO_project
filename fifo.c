@@ -8,6 +8,11 @@
 
 char FIFO_path[PATH_MAX]; // path assoluto file FIFO
 
+/**
+ * It creates a FIFO in the IPCS folder, if it doesn't already exist
+ *
+ * @param name the name of the FIFO
+ */
 void make_FIFO(char *name)
 {
     errno = 0;
@@ -28,6 +33,14 @@ void make_FIFO(char *name)
         printf("\nFIFO: creata in %s", FIFO_path);
 }
 
+/**
+ * It opens a FIFO with the given name, in the given mode (read or write)
+ *
+ * @param name the name of the FIFO
+ * @param read_or_write 0 for read, 1 for write
+ *
+ * @return The file descriptor of the opened FIFO.
+ */
 int open_FIFO(char *name, int read_or_write)
 {
     getcwd(FIFO_path, PATH_MAX);
@@ -49,6 +62,12 @@ int open_FIFO(char *name, int read_or_write)
     }
 }
 
+/**
+ * It creates a FIFO file, opens it and returns the file descriptor
+ *
+ * @param fd the file descriptor of the FIFO
+ * @param name the name of the FIFO
+ */
 void close_FIFO(int fd, char *name)
 {
     getcwd(FIFO_path, PATH_MAX);
@@ -63,6 +82,7 @@ void close_FIFO(int fd, char *name)
 
 
 struct File_piece file_piece;
+
 
  /**
   * It reads from the FIFO and writes to the destination file
@@ -102,9 +122,15 @@ struct File_piece file_piece;
              }
          }
      }while(byte_read>0);
-
-
  }
+
+ /**
+  * It reads from the source file and writes to the FIFO
+  *
+  * @param FIFO_fd the file descriptor of the FIFO
+  * @param source_fd the file descriptor of the file to be read
+  * @param file_number the number of the file piece
+  */
  void write_FIFO(int FIFO_fd,int source_fd,int file_number)
  {
     do {
