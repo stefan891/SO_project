@@ -82,11 +82,14 @@ void sigHandler(int signal)
             printf("\n%s", legit_files_path[i]);
             fflush(stdout);
         }
-            
         //#######################################################
 
+        struct Responce responce;
         int fd=open_FIFO("fifo1",O_RDONLY); //prova apertura fifo creata dal server
-        read_FIFO(fd,STDOUT_FILENO);
+        responce=read_FIFO(fd);
+        printf("\ncontent: %s\nfilepath: %s\npiece: %d\nadditional: %d",
+               responce.content,responce.filepath,responce.file_number,responce.additional);
+
         fflush(stdout);
         
     }
@@ -109,6 +112,7 @@ int main(int argc, char *argv[])
 
     sigset_t set_segnali;
 
+    //setting maschera segnali per SIGINT e SIGUSR1
     sigfillset(&set_segnali);
     sigdelset(&set_segnali, SIGUSR1);
     sigdelset(&set_segnali, SIGINT);
@@ -117,6 +121,7 @@ int main(int argc, char *argv[])
     if (signal(SIGINT, sigHandler) == SIG_ERR || signal(SIGUSR1, sigHandler) == SIG_ERR)
         ErrExit("signal handler failed");
 
+    //attendo ricezione di segnale SIGINT o SIGUSR1
     pause();
 
     printf("\n\nend\n");

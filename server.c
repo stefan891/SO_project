@@ -15,10 +15,9 @@ void sigHandler(int signal)
     printf("\n/server/:ricevuto segnale sigint,termino\n");
 
     close_FIFO(global_fd1, "fifo1");
-    //close_FIFO(global_fd2, "fifo2");
+    close_FIFO(global_fd2, "fifo2");
 
     kill(getpid(), SIGTERM);
-        
 
 }
 
@@ -42,10 +41,21 @@ int main(int argc, char *argv[])
     if(fd==-1)
         ErrExit("open failed");
 
-    write_FIFO(global_fd1,fd,2);
-    close_FIFO(global_fd1,"fifo1");
+
+    char test[20]="casa/myfile";
+
+    write_FIFO(global_fd1,fd,2,23,test);
+    close(fd);
+
 
     pause();
 
     return 0;
 }
+
+
+
+
+
+
+

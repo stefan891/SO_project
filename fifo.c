@@ -9,7 +9,7 @@
 char FIFO_path[PATH_MAX]; // path assoluto file FIFO
 
 /**
- * It creates a FIFO in the IPCS folder, if it doesn't already exist
+ * It creates a FIFO file in the IPCS directory
  *
  * @param name the name of the FIFO
  */
@@ -31,13 +31,15 @@ void make_FIFO(char *name)
     }
     else
         printf("\nFIFO: creata in %s", FIFO_path);
+
+    fflush(stdout);
 }
 
 /**
- * It opens a FIFO with the given name, in the given mode (read or write)
+ * It opens a FIFO with the given name, in the given mode (read_or_write)
  *
  * @param name the name of the FIFO
- * @param read_or_write 0 for read, 1 for write
+ * @param read_or_write 0 for read, 1 for write (O_RDONLY/O_WRONLY)
  *
  * @return The file descriptor of the opened FIFO.
  */
@@ -53,20 +55,22 @@ int open_FIFO(char *name, int read_or_write)
         ErrExit("\nfifo open failed");
         return fd;
     }
-
     else
     {
         printf("\nFIFO: %s aperta con successo", FIFO_path);
         fflush(stdout);
-        return fd;
     }
+    fflush(stdout);
+    return fd;
 }
 
+
 /**
- * It creates a FIFO file, opens it and returns the file descriptor
+ * close the fifo with the file descriptor
+ * and deletes the file of the fifo with the name
  *
  * @param fd the file descriptor of the FIFO
- * @param name the name of the FIFO
+ * @param name the name of the FIFO (not the entire path)
  */
 void close_FIFO(int fd, char *name)
 {
@@ -81,75 +85,109 @@ void close_FIFO(int fd, char *name)
 }
 
 
-struct File_piece file_piece;
-
 
  /**
-  * It reads from the FIFO and writes to the destination file
+  * It reads from the FIFO file descriptor and reconstructs the Responce structure
+  * struct responce content:
+  * responce.content: the content of the message read
+  * responce.filepath: the content of the filepath of the message read
+  * responce.file_number: the content of the file_number of the message read
+  * responce.additional: the content of number additional of the message read
   *
   * @param FIFO_fd the file descriptor of the FIFO
-  * @param dest_fd the file descriptor of the file to write to
+  *
+  * @return a struct Responce.
   */
- void read_FIFO(int FIFO_fd,int dest_fd)
+ struct Responce read_FIFO(int FIFO_fd)
  {
-     char buffer[MSG_BYTES+1];
-     ssize_t byte_read=-1;
-     ssize_t size;
-     //leggo la dimensione della struct
-     byte_read =read(FIFO_fd,&size,sizeof (ssize_t));
-     int piece=0;
-     //leggo il numero del file
-     read(FIFO_fd,&piece,sizeof (int ));
-     printf("\nnumero file %d\n\n",piece);
+     struct Responce responce;
+     //dicharo tutte le variabili per ricostruire la struttura come era
+     //stata mandata
+     ssize_t content_size=-1;
+     ssize_t filepath_size=-1;
+
+
+     // leggo la dimensione del messaggio (.content_size struttura)
+     if(read(FIFO_fd, &content_size, sizeof(ssize_t))==-1)
+         ErrExit("FIFO read failed");
+     //leggo la dimensione del filepath (.filepath_size struttura)
+     if(read(FIFO_fd,&filepath_size,sizeof (ssize_t))==-1)
+         ErrExit("FIFO read failed");
+
+     printf("\n<read> content size: %ld filepath size: %ld\n", content_size,filepath_size);//debug
+
+     //leggo il numero di file
+     read(FIFO_fd,&responce.file_number,sizeof (int ));
+     //leggo il campo additional
+     read(FIFO_fd,&responce.additional,sizeof (int ));
+
+
+     //leggo la parte di stringa del contenuto
+     read(FIFO_fd,responce.content,content_size);
+     responce.content[content_size]='\0';
+
+     //leggo la restante parte della stringa, contenente il filepath
+     read(FIFO_fd,responce.filepath,filepath_size);
+     responce.filepath[filepath_size]='\0';
+
      fflush(stdout);
 
-     do{
+     return responce;
 
-         if(byte_read==-1)
-             printf("\nWARNING FIFO nothing read");
-         else
-         {
-             byte_read= read(FIFO_fd,buffer,size);
-             if(byte_read==size)
-             {
-                 //buffer[size]='\0';
-                 write(dest_fd,buffer,byte_read);
-             }
-             else
-             {
-                 buffer[size]='\0';
-                 printf("WARNING FIFO byte read not equal to byte write");
-             }
-         }
-     }while(byte_read>0);
  }
 
+
+
+struct File_piece file_piece;   //struttura per scrivere la struct da inviare
+
  /**
-  * It reads from the source file and writes to the FIFO
+  * It reads a piece of file from source_fd, a filepath from *path, and additional information.
+  * puts all in a struct and send it on the FIFO_fd
   *
   * @param FIFO_fd the file descriptor of the FIFO
-  * @param source_fd the file descriptor of the file to be read
-  * @param file_number the number of the file piece
+  * @param source_fd file descriptor of the file to be read
+  * @param file_number the number of the file being sent
+  * @param additional number for any additional information
+  * @param path the path of where the file belongs (for reconstruct the message in the server side)
   */
- void write_FIFO(int FIFO_fd,int source_fd,int file_number)
+ void write_FIFO(int FIFO_fd,int source_fd,int file_number,int additional,char *path)
  {
-    do {
-        file_piece.piece=file_number;
+     //leggo il messaggio (lungo massimo 1024) lo metto in file_piece.content
+     // e salvo la dimensione effettiva letta in file_piece.size
+     file_piece.content_size=read(source_fd,&file_piece.content,sizeof (file_piece.content));
 
-        file_piece.size=read(source_fd,file_piece.content,sizeof (file_piece.content));
-        if(file_piece.size==-1)
-            ErrExit("\nFIFO write failed");
-        if(file_piece.size>0)
-        {
-            ssize_t byte_to_send=sizeof (file_piece.size)+sizeof(file_piece.piece)+file_piece.size;
 
-            ssize_t byte_write=write(FIFO_fd,&file_piece,byte_to_send);
-            if(byte_write!=byte_to_send)
-                printf("\nWARNING FIFO byte write not equal to byte read");
-        }
+     //copio la stinga del path passata, in file_piece.content, subito dopo il messaggio
+     //e la dimensione in .filepath_size
+     strcat(file_piece.content,path);
+     file_piece.filepath_size= strlen(path);
 
-    }while(file_piece.size>0);
+     printf("\n<write> content size: %ld filepath size: %ld\n", file_piece.content_size,file_piece.filepath_size);//debug
+     fflush(stdout);
 
+     if(file_piece.content_size==-1)
+         ErrExit("FIFO source file read failed");
+
+     //copio le informazioni addizionali nella struct
+     file_piece.piece=file_number;
+     file_piece.additional=additional;
+
+     //se non ci sono stati errori (file vuoto, oppure con dei caratteri letti)
+     if(file_piece.content_size>=0)
+     {
+         //calcolo dimensione totale byte struttura da mandare
+         ssize_t byte_to_send= sizeof(file_piece.content_size)+sizeof (file_piece.filepath_size)+sizeof (file_piece.piece)+
+                 sizeof(file_piece.additional)+file_piece.content_size+file_piece.filepath_size;
+
+         //invio struttura tramite fifo
+         ssize_t  byte_write=write(FIFO_fd,&file_piece,byte_to_send);
+         fflush(stdout);
+
+         if(byte_write!=byte_to_send)
+             ErrExit("FIFO write failed");
+     }
+     else
+         printf("\nWARNING file not written to FIFO");
 }
 
 
