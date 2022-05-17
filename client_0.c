@@ -86,8 +86,9 @@ void sigHandler(int signal)
         }
         //#######################################################
 
-        //------creazione e settaggio semaforo di supporto----------------------------
-        int semaforo_supporto=createSemaphore(ftok(getDirectoryPath(),SEMKEY1),1);
+            //creazione e settaggio semaforo di supporto
+        //--------------------------------------------------------------------------
+        int semaforo_supporto=createSemaphore(ftok(NULL,SEMKEY1),1,IPC_CREAT);
         union semun arg;
         arg.val=0;
         if(semctl(semaforo_supporto,0,SETVAL,arg)==-1)
@@ -96,21 +97,68 @@ void sigHandler(int signal)
 
 
         //mi metto in attesa del server su fifo1 per scrivere il n di file
-        //e mando anche l'id di un semaforo per sincronizzarmi dopo
         int global_fd1= open_FIFO("fifo1",O_WRONLY);
-        write_FIFO(global_fd1,0,legit_files,semaforo_supporto,NULL);
+        write_FIFO(global_fd1,0,legit_files,0,NULL);
 
         semOp(semaforo_supporto,0,-1,0);
 
-        int id_memoria=alloc_shared_memory(SHMKEY1,0);
+        int id_memoria=alloc_shared_memory(SHMKEY1,50 * 5120 * sizeof(char));
         char *ptr= get_shared_memory(id_memoria,0);
-        printf("\nptr value %c",ptr[0]);
 
+       // removeSemaphore(semaforo_supporto);
+
+        if(atoi(ptr)>0)
+        {
+            //setto un semaforo mutex per una mutua esclusione sui processi figli
+            int semaforo_mutex=createSemaphore(ftok(NULL,93),1,IPC_CREAT);
+            union semun arg2;
+            arg2.val=1;
+            if(semctl(semaforo_mutex,0,SETVAL,arg2)==-1)
+                ErrExit("semctl failed");
+
+
+
+            //divisione file in 4 e creazione figli
+        //-------------------------------------------------------------------------------------
+            for(int i=0;i<legit_files;i++)
+            {
+                pid_t pid=fork();
+                if(pid==-1)
+                    ErrExit("fork failed");
+
+                //codice eseguito dal child--------------
+
+                else if(pid==0)
+                {
+                    semOp(semaforo_mutex,0,-1,0);
+
+                    printf("\nfiglio %d",i);
+
+                    //divido il file in 4 parti, mi viene ritornata una struttura con 4 stringhe
+                    struct Divide divide;
+                    divide= divideByFour(legit_files_path[i]);
+                    printf("\npart1: %s\npart2: %s\npart3: %s\npart4: %s",divide.part1,divide.part2,divide.part3, divide.part4);
+                    fflush(stdout);
+
+                    semOp(semaforo_mutex,0,1,0);
+                    exit(0);
+                }
+            }
+        //-------------------------------------------------------------------------------------
+            //codice eseguito dal parent
+
+        }
+        else
+            ErrExit("no files to read");
 
 
     }
 }
 
+
+//#########################################################################################################################
+                                                        //MAIN
+//#########################################################################################################################
 
 int main(int argc, char *argv[])
 {
@@ -140,7 +188,9 @@ int main(int argc, char *argv[])
     //attendo ricezione di segnale SIGINT o SIGUSR1
     pause();
 
-    printf("\n\nend\n");
+    while (wait(NULL) != -1);
+
+    printf("\nend\n");
 
     return 0;
 }

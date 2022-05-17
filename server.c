@@ -34,22 +34,30 @@ int main(int argc, char *argv[]) {
     struct Responce risposta = read_FIFO(global_fd1);      //risposta del client_0 sul numero di files
     int n_file = risposta.file_number;
 
-    printf("\n<server>ricevuta n di file %d", n_file);
+    printf("\n<server>ricevuto n di file %d, additional %d", n_file,risposta.additional);
     fflush(stdout);
 
 
     //alloco la schared memory per rispondere al client, poi lo sblocco
 
-    int id_memoria = alloc_shared_memory(ftok(getDirectoryPath(), SHMKEY1), 50 * 5120 * sizeof(char));
+    int id_memoria = alloc_shared_memory(SHMKEY1, 50 * 5120 * sizeof(char));
     char *shmptr = get_shared_memory(id_memoria, 0);
+    if(n_file>0)
+        strcpy(shmptr,"1\0");
+    else
+        strcpy(shmptr,"-1\0");
 
-    shmptr[0] = '1';
-    int semaphore_id = createSemaphore(ftok(getDirectoryPath(), SEMKEY1), 1);
+    printf("\nmemoria allocata");
+    fflush(stdout);
 
+    //leggo il semaforo creato dal client
+    int semaphore_id = createSemaphore(ftok(NULL,SEMKEY1), 1,0);
     semOp(semaphore_id, 0, 1, 0);
-
+    printSemaphoreValue(semaphore_id,1);
 
     pause();
+
+    free_shared_memory(shmptr);
 
     return 0;
 }
