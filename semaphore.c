@@ -6,9 +6,27 @@
 #include "err_exit.h"
 #include "semaphore.h"
 
-
-void semOp(int semid, unsigned short sem_num, short sem_op){
-    struct sembuf sop = {.sem_op = sem_op, .sem_num = sem_num, .sem_flg = 0};
+/**
+ * "semOp() is a wrapper for the semop() system call that makes it easier to use."
+ *
+ * The semop() system call is used to perform operations on semaphores.
+ *
+ * struct sembuf {
+ *     unsigned short sem_num;
+ *     short sem_op;
+ *     short sem_flg;
+ * };
+ * The sem_num field specifies the semaphore number within the semaphore set. The sem_op field specifies the operation to
+ * be performed on the semaphore. The sem_flg field specifies flags that modify the operation
+ *
+ * @param semid The semaphore set identifier returned by semget().
+ * @param sem_num The index of the semaphore in the semaphore set.
+ * @param sem_op The operation to perform on the semaphore. A positive value increments the semaphore, a negative value
+ * decrements it, and 0 is a special value that causes the calling process to block until the semaphore's value is 0.
+ * @param flg example IPC_NOWAIT to perform operation without blocking (put 0 otherwise)
+ */
+void semOp(int semid, unsigned short sem_num, short sem_op, int flg){
+    struct sembuf sop = {.sem_op = sem_op, .sem_num = sem_num, .sem_flg = flg};
 
     if(semop(semid, &sop, 1) == -1)
         ErrExit("semop failed");
@@ -49,16 +67,17 @@ void removeSemaphore(int semid){
  * @param semid the semaphore set identifier
  * @param semVal the array of semaphore values
  */
-void printSemaphoreValue(int semid, unsigned short semVal[]){
+void printSemaphoreValue(int semid, int n_sem){
 
     union semun arg;
+    unsigned short semVal[n_sem];
     arg.array = semVal;
 
     if(semctl(semid, 0, GETALL, arg) == -1)
         ErrExit("semctl GETALL failed");
 
     printf("semaphore set state:\n");
-    for (int i = 0; i < sizeof semVal; i++) {
+    for (int i = 0; i < n_sem; i++) {
         printf("id: %d -->%d\n", i, semVal[i]);
 
     }
