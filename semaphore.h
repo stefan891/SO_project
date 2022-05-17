@@ -16,7 +16,7 @@ union semun{
 void semOp(int semid, unsigned short sem_num, short sem_op, int flg);
 
 
-int createSemaphore(key_t key, int n_sem);
+int createSemaphore(key_t key, int n_sem,int flag);
 
 void removeSemaphore(int semid);
 
