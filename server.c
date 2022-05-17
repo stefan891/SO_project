@@ -10,8 +10,7 @@
 int global_fd1;
 int global_fd2;
 
-void sigHandler(int signal)
-{
+void sigHandler(int signal) {
     printf("\n/server/:ricevuto segnale sigint,termino\n");
 
     close_FIFO(global_fd1, "fifo1");
@@ -21,38 +20,39 @@ void sigHandler(int signal)
 
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     printf("PROCESS ID %d\n", getpid());
     fflush(stdout);
-
-    make_FIFO("fifo1");
-    make_FIFO("fifo2");
 
     if (signal(SIGINT, sigHandler) == SIG_ERR)
         ErrExit("signal handler failed");
 
-    global_fd1=open_FIFO("fifo1", O_WRONLY);
+    make_FIFO("fifo1");
+    make_FIFO("fifo2");
 
-    char file_path[PATH_MAX];
-    getcwd(file_path, PATH_MAX);
-    strcat(file_path, "/myDir/sendme_1");
-    int fd=open(file_path,O_RDWR|S_IWUSR|S_IRUSR);
-    if(fd==-1)
-        ErrExit("open failed");
+    global_fd1 = open_FIFO("fifo1", O_RDONLY);    //mi metto in ascolto del client su fifo1
+    struct Responce risposta = read_FIFO(global_fd1);      //risposta del client_0 sul numero di files
+    int n_file = risposta.file_number;
+
+    printf("\n<server>ricevuta n di file %d", n_file);
+    fflush(stdout);
 
 
-    char test[20]="casa/myfile";
+    //alloco la schared memory per rispondere al client, poi lo sblocco
 
-    write_FIFO(global_fd1,fd,2,23,test);
-    close(fd);
+    int id_memoria = alloc_shared_memory(ftok(getDirectoryPath(), SHMKEY1), 50 * 5120 * sizeof(char));
+    char *shmptr = get_shared_memory(id_memoria, 0);
+
+    shmptr[0] = '1';
+    int semaphore_id = createSemaphore(ftok(getDirectoryPath(), SEMKEY1), 1);
+
+    semOp(semaphore_id, 0, 1, 0);
 
 
     pause();
 
     return 0;
 }
-
 
 
 

@@ -4,6 +4,8 @@
 #include "err_exit.h"
 #include "defines.h"
 #include "fifo.h"
+#include "semaphore.h"
+#include "shared_memory.h"
 
 char *global_path;       // variabile globale per passare argv[1] al sigHandler
 char **legit_files_path; // matrice di stringhe per salvare il path dei soli file "legali"
@@ -84,14 +86,28 @@ void sigHandler(int signal)
         }
         //#######################################################
 
-        struct Responce responce;
-        int fd=open_FIFO("fifo1",O_RDONLY); //prova apertura fifo creata dal server
-        responce=read_FIFO(fd);
-        printf("\ncontent: %s\nfilepath: %s\npiece: %d\nadditional: %d",
-               responce.content,responce.filepath,responce.file_number,responce.additional);
+        //------creazione e settaggio semaforo di supporto----------------------------
+        int semaforo_supporto=createSemaphore(ftok(getDirectoryPath(),SEMKEY1),1);
+        union semun arg;
+        arg.val=0;
+        if(semctl(semaforo_supporto,0,SETVAL,arg)==-1)
+            ErrExit("semctl failed");
+        //---------------------------------------------------------------------------
 
-        fflush(stdout);
-        
+
+        //mi metto in attesa del server su fifo1 per scrivere il n di file
+        //e mando anche l'id di un semaforo per sincronizzarmi dopo
+        int global_fd1= open_FIFO("fifo1",O_WRONLY);
+        write_FIFO(global_fd1,0,legit_files,semaforo_supporto,NULL);
+
+        semOp(semaforo_supporto,0,-1,0);
+
+        int id_memoria=alloc_shared_memory(SHMKEY1,0);
+        char *ptr= get_shared_memory(id_memoria,0);
+        printf("\nptr value %c",ptr[0]);
+
+
+
     }
 }
 

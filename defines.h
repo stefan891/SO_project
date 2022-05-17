@@ -5,6 +5,9 @@
 #pragma once
 
 #define MSG_BYTES 1024
+#define SHMKEY1 10
+#define SEMKEY1 20
+#define MSGQKEY 30
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -19,6 +22,10 @@
 #include <dirent.h>
 #include <errno.h>
 
+//non modificare il content
+//message queue è grande massimo per 3 messaggi
+//la message queue vine occupata da 3 messaggi
+//faremo un semaforo da 3
 struct File_piece{
     ssize_t content_size;
     ssize_t filepath_size;
@@ -28,6 +35,7 @@ struct File_piece{
 
 };
 
+// ms_type > 0 legge tuttim i mess con quel message type
 struct Responce{
 
     char content[MSG_BYTES];
@@ -39,3 +47,4 @@ struct Responce{
 
 void divideByFour();
 
+char* getDirectoryPath();
