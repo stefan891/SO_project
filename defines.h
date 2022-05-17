@@ -6,8 +6,10 @@
 
 #define MSG_BYTES 1024
 #define SHMKEY1 10
-#define SEMKEY1 20
+#define SEMKEY1 11
+#define SEMMUTEXKEY1 14
 #define MSGQKEY 30
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -16,8 +18,9 @@
 #include <unistd.h>
 #include <syscall.h>
 #include <sys/types.h>
-#include <limits.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
+#include <limits.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <errno.h>
@@ -31,20 +34,29 @@ struct File_piece{
     ssize_t filepath_size;
     int piece;
     int additional;
-    char content[MSG_BYTES+PATH_MAX];
+    char content[MSG_BYTES+100];
 
 };
 
-// ms_type > 0 legge tuttim i mess con quel message type
+// ms_type > 0 legge tutti i messaggi con quel message type
 struct Responce{
 
     char content[MSG_BYTES];
-    char filepath[PATH_MAX];
+    char filepath[100];
     int file_number;
     int additional;
 
 };
 
-void divideByFour();
+struct Divide{
+
+    char part1[MSG_BYTES+1];
+    char part2[MSG_BYTES+1];
+    char part3[MSG_BYTES+1];
+    char part4[MSG_BYTES+1];
+
+};
+
+struct Divide divideByFour(char *path);
 
 char* getDirectoryPath();

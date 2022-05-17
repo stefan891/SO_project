@@ -40,11 +40,11 @@ void semOp(int semid, unsigned short sem_num, short sem_op, int flg){
  *
  * @return The semaphore ID
  */
-int createSemaphore(key_t key, int n_sem){
-    int semid = semget(key, n_sem,IPC_CREAT | S_IRUSR | S_IWUSR);
+int createSemaphore(key_t key, int n_sem,int flag){
+    int semid = semget(key, n_sem,flag | S_IRUSR | S_IWUSR);
 
     if(semid == -1)
-        ErrExit("creating semaphore failed");
+        ErrExit("\ncreating semaphore failed");
 
     return semid;
 }
@@ -76,7 +76,7 @@ void printSemaphoreValue(int semid, int n_sem){
     if(semctl(semid, 0, GETALL, arg) == -1)
         ErrExit("semctl GETALL failed");
 
-    printf("semaphore set state:\n");
+    printf("\nsemaphore set state:\n");
     for (int i = 0; i < n_sem; i++) {
         printf("id: %d -->%d\n", i, semVal[i]);
 

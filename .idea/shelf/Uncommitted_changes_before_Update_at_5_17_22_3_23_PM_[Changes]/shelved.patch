@@ -1,0 +1,357 @@
+Index: fifo.c
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/// @file fifo.c\n/// @brief Contiene l'implementazione delle funzioni\n///         specifiche per la gestione delle FIFO.\n\n#include \"err_exit.h\"\n#include \"fifo.h\"\n#include \"defines.h\"\n\nchar FIFO_path[PATH_MAX]; // path assoluto file FIFO\n\n/**\n * It creates a FIFO file in the IPCS directory\n *\n * @param name the name of the FIFO\n */\nvoid make_FIFO(char *name)\n{\n    errno = 0;\n    getcwd(FIFO_path, PATH_MAX);\n    strcat(FIFO_path, \"/IPCS/\");\n    strcat(FIFO_path, name);\n\n    int res = mkfifo(FIFO_path, S_IWUSR | S_IRUSR);\n\n    if (res == -1)\n    {\n        if (errno == EEXIST)\n            printf(\"\\nWARNING %s,: %s\\n\",FIFO_path, strerror(errno));\n        else\n            ErrExit(\"mkfifo failed:\");\n    }\n    else\n        printf(\"\\nFIFO: creata in %s\", FIFO_path);\n\n    fflush(stdout);\n}\n\n/**\n * It opens a FIFO with the given name, in the given mode (read_or_write)\n *\n * @param name the name of the FIFO\n * @param read_or_write 0 for read, 1 for write (O_RDONLY/O_WRONLY)\n *\n * @return The file descriptor of the opened FIFO.\n */\nint open_FIFO(char *name, int read_or_write)\n{\n    getcwd(FIFO_path, PATH_MAX);\n    strcat(FIFO_path, \"/IPCS/\");\n    strcat(FIFO_path, name);\n\n    int fd = open(FIFO_path, read_or_write);\n    if (fd == -1)\n    {\n        ErrExit(\"\\nfifo open failed\");\n        return fd;\n    }\n    else\n    {\n        printf(\"\\nFIFO: %s aperta con successo\", FIFO_path);\n        fflush(stdout);\n    }\n    fflush(stdout);\n    return fd;\n}\n\n\n/**\n * close the fifo with the file descriptor\n * and deletes the file of the fifo with the name\n *\n * @param fd the file descriptor of the FIFO\n * @param name the name of the FIFO (not the entire path)\n */\nvoid close_FIFO(int fd, char *name)\n{\n    getcwd(FIFO_path, PATH_MAX);\n    strcat(FIFO_path, \"/IPCS/\");\n    strcat(FIFO_path, name);\n\n    close(fd);\n    unlink(FIFO_path);\n    printf(\"\\nFIFO: %s rimossa\", FIFO_path);\n    fflush(stdout);\n}\n\n\n\n /**\n  * It reads from the FIFO file descriptor and reconstructs the Responce structure\n  * struct responce content:\n  * responce.content: the content of the message read\n  * responce.filepath: the content of the filepath of the message read\n  * responce.file_number: the content of the file_number of the message read\n  * responce.additional: the content of number additional of the message read\n  *\n  * @param FIFO_fd the file descriptor of the FIFO\n  *\n  * @return a struct Responce.\n  */\n struct Responce read_FIFO(int FIFO_fd)\n {\n     struct Responce responce;\n     //dicharo tutte le variabili per ricostruire la struttura come era\n     //stata mandata\n     ssize_t content_size=-1;\n     ssize_t filepath_size=-1;\n\n\n     // leggo la dimensione del messaggio (.content_size struttura)\n     if(read(FIFO_fd, &content_size, sizeof(ssize_t))==-1)\n         ErrExit(\"FIFO read failed\");\n     //leggo la dimensione del filepath (.filepath_size struttura)\n     if(read(FIFO_fd,&filepath_size,sizeof (ssize_t))==-1)\n         ErrExit(\"FIFO read failed\");\n\n     printf(\"\\n<read> content size: %ld filepath size: %ld\\n\", content_size,filepath_size);//debug\n\n     //leggo il numero di file\n     read(FIFO_fd,&responce.file_number,sizeof (int ));\n     //leggo il campo additional\n     read(FIFO_fd,&responce.additional,sizeof (int ));\n\n\n     //leggo la parte di stringa del contenuto\n     read(FIFO_fd,responce.content,content_size);\n     responce.content[content_size]='\\0';\n\n     //leggo la restante parte della stringa, contenente il filepath\n     read(FIFO_fd,responce.filepath,filepath_size);\n     responce.filepath[filepath_size]='\\0';\n\n     fflush(stdout);\n\n     return responce;\n\n }\n\n\n\nstruct File_piece file_piece;   //struttura per scrivere la struct da inviare\n\n /**\n  * It reads a piece of file from source_fd, a filepath from *path, and additional information.\n  * puts all in a struct and send it on the FIFO_fd\n  *\n  * @param FIFO_fd the file descriptor of the FIFO\n  * @param source_fd file descriptor of the file to be read\n  * @param file_number the number of the file being sent\n  * @param additional number for any additional information\n  * @param path the path of where the file belongs (for reconstruct the message in the server side)\n  */\n void write_FIFO(int FIFO_fd,int source_fd,int file_number,int additional,char *path)\n {\n     //leggo il messaggio (lungo massimo 1024) lo metto in file_piece.content\n     // e salvo la dimensione effettiva letta in file_piece.size\n     file_piece.content_size=read(source_fd,&file_piece.content,sizeof (file_piece.content));\n\n\n     //copio la stinga del path passata, in file_piece.content, subito dopo il messaggio\n     //e la dimensione in .filepath_size\n     strcat(file_piece.content,path);\n     file_piece.filepath_size= strlen(path);\n\n     printf(\"\\n<write> content size: %ld filepath size: %ld\\n\", file_piece.content_size,file_piece.filepath_size);//debug\n     fflush(stdout);\n\n     if(file_piece.content_size==-1)\n         ErrExit(\"FIFO source file read failed\");\n\n     //copio le informazioni addizionali nella struct\n     file_piece.piece=file_number;\n     file_piece.additional=additional;\n\n     //se non ci sono stati errori (file vuoto, oppure con dei caratteri letti)\n     if(file_piece.content_size>=0)\n     {\n         //calcolo dimensione totale byte struttura da mandare\n         ssize_t byte_to_send= sizeof(file_piece.content_size)+sizeof (file_piece.filepath_size)+sizeof (file_piece.piece)+\n                 sizeof(file_piece.additional)+file_piece.content_size+file_piece.filepath_size;\n\n         //invio struttura tramite fifo\n         ssize_t  byte_write=write(FIFO_fd,&file_piece,byte_to_send);\n         fflush(stdout);\n\n         if(byte_write!=byte_to_send)\n             ErrExit(\"FIFO write failed\");\n     }\n     else\n         printf(\"\\nWARNING file not written to FIFO\");\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/fifo.c b/fifo.c
+--- a/fifo.c	
++++ b/fifo.c	
+@@ -25,7 +25,7 @@
+     if (res == -1)
+     {
+         if (errno == EEXIST)
+-            printf("\nWARNING %s,: %s\n",FIFO_path, strerror(errno));
++            printf("\nWARNING <make_fifo> %s,: %s\n",FIFO_path, strerror(errno));
+         else
+             ErrExit("mkfifo failed:");
+     }
+@@ -58,7 +58,6 @@
+     else
+     {
+         printf("\nFIFO: %s aperta con successo", FIFO_path);
+-        fflush(stdout);
+     }
+     fflush(stdout);
+     return fd;
+@@ -67,7 +66,8 @@
+ 
+ /**
+  * close the fifo with the file descriptor
+- * and deletes the file of the fifo with the name
++ * if name!=NULL, also
++ * deletes the file of the fifo with the name
+  *
+  * @param fd the file descriptor of the FIFO
+  * @param name the name of the FIFO (not the entire path)
+@@ -79,11 +79,18 @@
+     strcat(FIFO_path, name);
+ 
+     close(fd);
+-    unlink(FIFO_path);
+-    printf("\nFIFO: %s rimossa", FIFO_path);
+-    fflush(stdout);
+-}
++    printf("\nFIFO:file descriptor %s chiuso", FIFO_path);
++    fflush(stdout);
++
++    if(name!=NULL)
++    {
++        unlink(FIFO_path);
++        printf("\nFIFO: %s rimossa", FIFO_path);
++        fflush(stdout);
++    }
+ 
++}
++
+ 
+ 
+  /**
+@@ -145,22 +152,31 @@
+   * puts all in a struct and send it on the FIFO_fd
+   *
+   * @param FIFO_fd the file descriptor of the FIFO
+-  * @param source_fd file descriptor of the file to be read
++  * @param source_fd file descriptor of the file to be read (if no ned to read file, put 0)
+   * @param file_number the number of the file being sent
+   * @param additional number for any additional information
+-  * @param path the path of where the file belongs (for reconstruct the message in the server side)
++  * @param path the path of where the file belongs (if no need to write any path, put NULL)
+   */
+  void write_FIFO(int FIFO_fd,int source_fd,int file_number,int additional,char *path)
+  {
+      //leggo il messaggio (lungo massimo 1024) lo metto in file_piece.content
+      // e salvo la dimensione effettiva letta in file_piece.size
+-     file_piece.content_size=read(source_fd,&file_piece.content,sizeof (file_piece.content));
++     if(source_fd>0)
++        file_piece.content_size=read(source_fd,&file_piece.content,sizeof (file_piece.content));
++     else
++         file_piece.content_size=0;
+ 
+ 
+      //copio la stinga del path passata, in file_piece.content, subito dopo il messaggio
+      //e la dimensione in .filepath_size
+-     strcat(file_piece.content,path);
+-     file_piece.filepath_size= strlen(path);
++     if(path!=NULL)
++     {
++         strcat(file_piece.content,path);
++         file_piece.filepath_size= strlen(path);
++     }
++     else
++         file_piece.filepath_size=0;
++
+ 
+      printf("\n<write> content size: %ld filepath size: %ld\n", file_piece.content_size,file_piece.filepath_size);//debug
+      fflush(stdout);
+@@ -187,7 +203,7 @@
+              ErrExit("FIFO write failed");
+      }
+      else
+-         printf("\nWARNING file not written to FIFO");
++         printf("\nWARNING <write_fifo> file not written to FIFO");
+ }
+ 
+ 
+Index: semaphore.c
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/// @file semaphore.c\n/// @brief Contiene l'implementazione delle funzioni\n///         specifiche per la gestione dei SEMAFORI.\n\n\n#include \"err_exit.h\"\n#include \"semaphore.h\"\n\n\nvoid semOp(int semid, unsigned short sem_num, short sem_op){\n    struct sembuf sop = {.sem_op = sem_op, .sem_num = sem_num, .sem_flg = 0};\n\n    if(semop(semid, &sop, 1) == -1)\n        ErrExit(\"semop failed\");\n}\n\n/**\n * It creates a semaphore set with the given key and number of semaphores\n *\n * @param key the key to be used to identify the semaphore set.\n * @param n_sem number of semaphores in the set\n *\n * @return The semaphore ID\n */\nint createSemaphore(key_t key, int n_sem){\n    int semid = semget(key, n_sem,IPC_CREAT | S_IRUSR | S_IWUSR);\n\n    if(semid == -1)\n        ErrExit(\"creating semaphore failed\");\n\n    return semid;\n}\n\n/**\n * It removes the semaphore with the given semid\n *\n * @param semid the semaphore ID\n */\nvoid removeSemaphore(int semid){\n    if(semctl(semid, 0, IPC_RMID, NULL) == -1)\n        ErrExit(\"semaphore remove failed\");\n}\n\n/**\n * It prints the value of each semaphore in the semaphore set\n * it have sense if you use it when everything is blocked, otherwise\n * will be printed old values\n *\n * @param semid the semaphore set identifier\n * @param semVal the array of semaphore values\n */\nvoid printSemaphoreValue(int semid, unsigned short semVal[]){\n\n    union semun arg;\n    arg.array = semVal;\n\n    if(semctl(semid, 0, GETALL, arg) == -1)\n        ErrExit(\"semctl GETALL failed\");\n\n    printf(\"semaphore set state:\\n\");\n    for (int i = 0; i < sizeof semVal; i++) {\n        printf(\"id: %d -->%d\\n\", i, semVal[i]);\n\n    }\n}\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/semaphore.c b/semaphore.c
+--- a/semaphore.c	
++++ b/semaphore.c	
+@@ -6,9 +6,27 @@
+ #include "err_exit.h"
+ #include "semaphore.h"
+ 
+-
+-void semOp(int semid, unsigned short sem_num, short sem_op){
+-    struct sembuf sop = {.sem_op = sem_op, .sem_num = sem_num, .sem_flg = 0};
++/**
++ * "semOp() is a wrapper for the semop() system call that makes it easier to use."
++ *
++ * The semop() system call is used to perform operations on semaphores.
++ *
++ * struct sembuf {
++ *     unsigned short sem_num;
++ *     short sem_op;
++ *     short sem_flg;
++ * };
++ * The sem_num field specifies the semaphore number within the semaphore set. The sem_op field specifies the operation to
++ * be performed on the semaphore. The sem_flg field specifies flags that modify the operation
++ *
++ * @param semid The semaphore set identifier returned by semget().
++ * @param sem_num The index of the semaphore in the semaphore set.
++ * @param sem_op The operation to perform on the semaphore. A positive value increments the semaphore, a negative value
++ * decrements it, and 0 is a special value that causes the calling process to block until the semaphore's value is 0.
++ * @param flag example IPC_NOWAIT to perform operation without blocking (put 0 otherwise)
++ */
++void semOp(int semid, unsigned short sem_num, short sem_op,short flag){
++    struct sembuf sop = {.sem_op = sem_op, .sem_num = sem_num, .sem_flg = flag};
+ 
+     if(semop(semid, &sop, 1) == -1)
+         ErrExit("semop failed");
+@@ -49,18 +67,20 @@
+  * @param semid the semaphore set identifier
+  * @param semVal the array of semaphore values
+  */
+-void printSemaphoreValue(int semid, unsigned short semVal[]){
++void printSemaphoreValue(int semid, unsigned short n_sem){
+ 
+     union semun arg;
++    unsigned short semVal[n_sem];
+     arg.array = semVal;
+ 
+     if(semctl(semid, 0, GETALL, arg) == -1)
+         ErrExit("semctl GETALL failed");
+ 
+     printf("semaphore set state:\n");
+-    for (int i = 0; i < sizeof semVal; i++) {
++    for (int i = 0; i < n_sem; i++) {
+         printf("id: %d -->%d\n", i, semVal[i]);
+ 
+     }
+ }
+ 
++
+Index: server.c
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/// @file sender_manager.c\n/// @brief Contiene l'implementazione del sender_manager.\n\n#include \"err_exit.h\"\n#include \"defines.h\"\n#include \"shared_memory.h\"\n#include \"semaphore.h\"\n#include \"fifo.h\"\n\nint global_fd1;\nint global_fd2;\n\nvoid sigHandler(int signal)\n{\n    printf(\"\\n/server/:ricevuto segnale sigint,termino\\n\");\n\n    close_FIFO(global_fd1, \"fifo1\");\n    close_FIFO(global_fd2, \"fifo2\");\n\n    kill(getpid(), SIGTERM);\n\n}\n\nint main(int argc, char *argv[])\n{\n    printf(\"PROCESS ID %d\\n\", getpid());\n    fflush(stdout);\n\n    make_FIFO(\"fifo1\");\n    make_FIFO(\"fifo2\");\n\n    if (signal(SIGINT, sigHandler) == SIG_ERR)\n        ErrExit(\"signal handler failed\");\n\n    global_fd1=open_FIFO(\"fifo1\", O_WRONLY);\n\n    char file_path[PATH_MAX];\n    getcwd(file_path, PATH_MAX);\n    strcat(file_path, \"/myDir/sendme_1\");\n    int fd=open(file_path,O_RDWR|S_IWUSR|S_IRUSR);\n    if(fd==-1)\n        ErrExit(\"open failed\");\n\n\n    char test[20]=\"casa/myfile\";\n\n    write_FIFO(global_fd1,fd,2,23,test);\n    close(fd);\n\n\n    pause();\n\n    return 0;\n}\n\n\n\n\n\n\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/server.c b/server.c
+--- a/server.c	
++++ b/server.c	
+@@ -26,26 +26,27 @@
+     printf("PROCESS ID %d\n", getpid());
+     fflush(stdout);
+ 
+-    make_FIFO("fifo1");
+-    make_FIFO("fifo2");
+-
+     if (signal(SIGINT, sigHandler) == SIG_ERR)
+         ErrExit("signal handler failed");
+ 
+-    global_fd1=open_FIFO("fifo1", O_WRONLY);
++    make_FIFO("fifo1");
++    make_FIFO("fifo2");
+ 
+-    char file_path[PATH_MAX];
+-    getcwd(file_path, PATH_MAX);
+-    strcat(file_path, "/myDir/sendme_1");
+-    int fd=open(file_path,O_RDWR|S_IWUSR|S_IRUSR);
+-    if(fd==-1)
+-        ErrExit("open failed");
++    global_fd1=open_FIFO("fifo1", O_RDONLY);    //mi metto in ascolto del client su fifo1
++    struct Responce risposta= read_FIFO(global_fd1);      //risposta del client_0 sul numero di files
++    int n_file=risposta.file_number;
++    int semaphore_id=risposta.additional;
++    printf("\n<server>ricevuta n di file %d",n_file);
++    fflush(stdout);
+ 
+ 
+-    char test[20]="casa/myfile";
++    //alloco la schared memory per rispondere al client, poi lo sblocco
++    int id_memoria=alloc_shared_memory(SHMKEY1,sizeof (int ));
++    int*shmptr=get_shared_memory(id_memoria,0);
++    *shmptr=14;
+ 
+-    write_FIFO(global_fd1,fd,2,23,test);
+-    close(fd);
++    semOp(semaphore_id,0,1,0);
++
+ 
+ 
+     pause();
+Index: shared_memory.c
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/// @file shared_memory.c\n/// @brief Contiene l'implementazione delle funzioni\n///         specifiche per la gestione della MEMORIA CONDIVISA.\n\n#include <sys/shm.h>\n#include <sys/stat.h>\n#include \"err_exit.h\"\n#include \"shared_memory.h\"\n\n/**\n * It creates a shared memory segment of the specified size, and returns the shared memory ID\n *\n * @param shmKey The key to be used to identify the shared memory segment.\n * @param size The size of the shared memory segment in bytes.\n *\n * @return The shared memory ID.\n */\nint alloc_shared_memory(key_t shmKey, size_t size) {\n\n    int shmid = shmget(shmKey, size, IPC_CREAT | S_IRUSR | S_IWUSR);\n    if (shmid == -1)\n        ErrExit(\"shmget failed\");\n\n    return shmid;\n}\n\n/**\n * It attaches the shared memory segment identified by the shmid parameter to the address space of the calling process\n *\n * @param shmid the shared memory identifier\n * @param shmflg This is a bit mask that specifies the permissions for the shared memory segment. The following are the\n * possible values:\n *\n * @return A pointer to the shared memory.\n */\nvoid *get_shared_memory(int shmid, int shmflg) {\n    //esegue l'attach della memoria condivisa\n    void *ptr_sh = shmat(shmid, NULL, shmflg);\n    if (ptr_sh == (void *) -1)\n        ErrExit(\"shmat failed\");\n\n    return ptr_sh;\n}\n\n/**\n * It creates a shared memory segment of size `size` and returns a pointer to it\n *\n * @param ptr_sh pointer to the shared memory\n */\nvoid free_shared_memory(void *ptr_sh) {\n    //esegue il detach della memoria condivisa\n    if (shmdt(ptr_sh) == -1)\n        ErrExit(\"shmdt failed\");\n}\n\n/**\n * It creates a shared memory segment of size `size` and returns the shared memory identifier\n *\n * @param shmid the shared memory segment ID\n */\nvoid remove_shared_memory(int shmid) {\n    //cancella il segmento di memoria condivisa\n    if (shmctl(shmid, IPC_RMID, NULL) == -1)\n        ErrExit(\"remove failed\");\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/shared_memory.c b/shared_memory.c
+--- a/shared_memory.c	
++++ b/shared_memory.c	
+@@ -8,7 +8,7 @@
+ #include "shared_memory.h"
+ 
+ /**
+- * It creates a shared memory segment of the specified size, and returns the shared memory ID
++ * It creates or get a shared memory segment of the specified size, and returns the shared memory ID
+  *
+  * @param shmKey The key to be used to identify the shared memory segment.
+  * @param size The size of the shared memory segment in bytes.
+Index: defines.h
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/// @file defines.h\n/// @brief Contiene la definizioni di variabili\n///         e funzioni specifiche del progetto.\n\n#pragma once\n\n#define MSG_BYTES 1024\n#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n#include <signal.h>\n\n#include <unistd.h>\n#include <syscall.h>\n#include <sys/types.h>\n#include <limits.h>\n#include <sys/stat.h>\n#include <fcntl.h>\n#include <dirent.h>\n#include <errno.h>\n\nstruct File_piece{\n    ssize_t content_size;\n    ssize_t filepath_size;\n    int piece;\n    int additional;\n    char content[MSG_BYTES+PATH_MAX];\n\n};\n\nstruct Responce{\n\n    char content[MSG_BYTES];\n    char filepath[PATH_MAX];\n    int file_number;\n    int additional;\n\n};\n\nvoid divideByFour();\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/defines.h b/defines.h
+--- a/defines.h	
++++ b/defines.h	
+@@ -5,6 +5,8 @@
+ #pragma once
+ 
+ #define MSG_BYTES 1024
++#define SHMKEY1 6
++#define SHMKEY2 7
+ #include <stdio.h>
+ #include <string.h>
+ #include <stdlib.h>
+Index: fifo.h
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/// @file fifo.h\n/// @brief Contiene la definizioni di variabili e\n///         funzioni specifiche per la gestione delle FIFO.\n\n#pragma once\n\n\n/*crea la fifo nella current working directory/IPCS\n@param name: il nome che si vuole dare alla fifo per identificarla */\nvoid make_FIFO(char* name);\n\n\n/*apre la fifo nella current working directory/IPCS\n@param name: il nome della fifo che si vuole aprire\n@param read_or_write: O_RDNLY O_WRONLY */\nint open_FIFO(char* name, int read_or_write);\n\nvoid close_FIFO(int fd,char*name);\n\nstruct Responce read_FIFO(int FIFO_fd);\nvoid write_FIFO(int FIFO_fd,int source_fd,int file_number,int additional,char* path);
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/fifo.h b/fifo.h
+--- a/fifo.h	
++++ b/fifo.h	
+@@ -18,4 +18,5 @@
+ void close_FIFO(int fd,char*name);
+ 
+ struct Responce read_FIFO(int FIFO_fd);
++
+ void write_FIFO(int FIFO_fd,int source_fd,int file_number,int additional,char* path);
+\ No newline at end of file
+Index: semaphore.h
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/// @file semaphore.h\n/// @brief Contiene la definizioni di variabili e funzioni\n///         specifiche per la gestione dei SEMAFORI.\n\n#pragma once\n#include <sys/sem.h>\n#include <sys/stat.h>\n#include <stdlib.h>\n#include <stdio.h>\n\nunion semun{\n    int val;\n    struct semid_ds *buf;\n    unsigned short *array;\n};\n\nint createSemaphore(key_t key, int n_sem);\n\nint createSemaphore(key_t key, int n_sem);\n\nvoid removeSemaphore(int semid);\n\nvoid printSemaphoreValue(int semid, unsigned short semVal[]);
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/semaphore.h b/semaphore.h
+--- a/semaphore.h	
++++ b/semaphore.h	
+@@ -14,10 +14,12 @@
+     unsigned short *array;
+ };
+ 
++void semOp(int semid, unsigned short sem_num, short sem_op,short flag);
++
+ int createSemaphore(key_t key, int n_sem);
+ 
+ int createSemaphore(key_t key, int n_sem);
+ 
+ void removeSemaphore(int semid);
+ 
+-void printSemaphoreValue(int semid, unsigned short semVal[]);
+\ No newline at end of file
++void printSemaphoreValue(int semid, unsigned short n_sem);
+\ No newline at end of file
+Index: client_0.c
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/// @file client.c\n/// @brief Contiene l'implementazione del client.\n\n#include \"err_exit.h\"\n#include \"defines.h\"\n#include \"fifo.h\"\n\nchar *global_path;       // variabile globale per passare argv[1] al sigHandler\nchar **legit_files_path; // matrice di stringhe per salvare il path dei soli file \"legali\"\n\nvoid sigHandler(int signal)\n{\n    if (signal == SIGUSR1)\n    {\n        kill(getpid(), SIGTERM);\n        printf(\"ricevuto segnale sigusr1\\n\");\n    }\n    else if (signal == SIGINT)\n    {\n\n        // procedura per salutare l'utente\n        //------------------------------------------------------------------------------------\n        char path[PATH_MAX];\n\n        printf(\"\\nciao %s ora inizio l'invio dei file contenuti in \", getlogin());\n\n        getcwd(path, PATH_MAX);\n        strcat(path, \"/\");\n        strcat(path, global_path);\n        printf(\"%s\\n\", path);\n        //------------------------------------------------------------------------------------\n\n        // lettura files nella directory\n        //------------------------------------------------------------------------------------\n        DIR *dp = opendir(path);\n        if (dp == NULL)\n            ErrExit(\"directory inesistente\");\n\n        errno = 0;\n        struct dirent *dentry;\n        struct stat statbuf;\n        int legit_files = 0;\n\n        char filepath[PATH_MAX]; // variabile di supporto uguale a path+nome di ogni file in fondo\n        strcpy(filepath, path);\n        strcat(filepath, \"/\");\n\n        while ((dentry = readdir(dp)) != NULL) // ad ogni iterazione la funzione readdir avanza automaticamente con la lettura dei files\n        {\n\n            if (dentry->d_type == DT_REG && strncmp(\"sendme_\", dentry->d_name, 7) == 0)\n            {\n                stat(strcat(filepath, dentry->d_name), &statbuf); // ad ogni ciclo prendo il path e aggiungo il nome file per recavarne lo statbuf\n\n                if (statbuf.st_size < 4000) // aggiungo solo files minori di 4kb\n                {\n\n                    printf(\"\\n%s\", dentry->d_name);\n                    legit_files++;\n                    printf(\" file size: %ld\", statbuf.st_size);\n\n                    // con questo modo molto figo, alloco dinamicamente un vettore di stringhe man mano\n                    // che trovo i file, in modo da non dover allocare sempre un vettore di 100 stringhe\n                    legit_files_path = realloc(legit_files_path, sizeof(char *));\n                    legit_files_path[legit_files - 1] = malloc(PATH_MAX * sizeof(char));\n                    strcpy(legit_files_path[legit_files - 1], filepath); // copio il file path di ogni file \"legit\" nel vettore di stringhe che sto creando\n\n                    strcpy(filepath, path); // resetto il contenuto di filepath a /myDir, se no mi aggiunge dietro tutti i nomi dei file attaccati\n                    strcat(filepath, \"/\");\n                }\n            }\n            errno = 0;\n        }\n        if (errno != 0)\n            ErrExit(\"error reading dir.\\n\");\n        //----------------------------------------------------------------------------------------\n\n        //######################################################## //verifica del vettore di stringhe, ma la puoi cancellare\n        printf(\"\\nverifica lettura file legit\");\n        for (int i = 0; i < legit_files; i++)\n        {\n            printf(\"\\n%s\", legit_files_path[i]);\n            fflush(stdout);\n        }\n        //#######################################################\n\n        struct Responce responce;\n        int fd=open_FIFO(\"fifo1\",O_RDONLY); //prova apertura fifo creata dal server\n        responce=read_FIFO(fd);\n        printf(\"\\ncontent: %s\\nfilepath: %s\\npiece: %d\\nadditional: %d\",\n               responce.content,responce.filepath,responce.file_number,responce.additional);\n\n        fflush(stdout);\n        \n    }\n}\n\n\nint main(int argc, char *argv[])\n{\n\n    printf(\"PROCESS ID %d\\n\", getpid());\n    fflush(stdout);\n\n    if (argc != 2)\n    {\n        printf(\"usage: ./client_0 myDir/\\n\");\n        exit(1);\n    }\n    else\n        global_path = argv[1];\n\n    sigset_t set_segnali;\n\n    //setting maschera segnali per SIGINT e SIGUSR1\n    sigfillset(&set_segnali);\n    sigdelset(&set_segnali, SIGUSR1);\n    sigdelset(&set_segnali, SIGINT);\n    sigprocmask(SIG_SETMASK, &set_segnali, NULL);\n\n    if (signal(SIGINT, sigHandler) == SIG_ERR || signal(SIGUSR1, sigHandler) == SIG_ERR)\n        ErrExit(\"signal handler failed\");\n\n    //attendo ricezione di segnale SIGINT o SIGUSR1\n    pause();\n\n    printf(\"\\n\\nend\\n\");\n\n    return 0;\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/client_0.c b/client_0.c
+--- a/client_0.c	
++++ b/client_0.c	
+@@ -4,6 +4,8 @@
+ #include "err_exit.h"
+ #include "defines.h"
+ #include "fifo.h"
++#include "semaphore.h"
++#include "shared_memory.h"
+ 
+ char *global_path;       // variabile globale per passare argv[1] al sigHandler
+ char **legit_files_path; // matrice di stringhe per salvare il path dei soli file "legali"
+@@ -84,14 +86,28 @@
+         }
+         //#######################################################
+ 
+-        struct Responce responce;
+-        int fd=open_FIFO("fifo1",O_RDONLY); //prova apertura fifo creata dal server
+-        responce=read_FIFO(fd);
+-        printf("\ncontent: %s\nfilepath: %s\npiece: %d\nadditional: %d",
+-               responce.content,responce.filepath,responce.file_number,responce.additional);
++        //------creazione e settaggio semaforo di supporto----------------------------
++        int semaforo_supporto=createSemaphore(IPC_PRIVATE,1);
++        union semun arg;
++        arg.val=0;
++        if(semctl(semaforo_supporto,0,SETVAL,arg)==-1)
++            ErrExit("semctl failed");
++        //---------------------------------------------------------------------------
++
+ 
+-        fflush(stdout);
+-        
++        //mi metto in attesa del server su fifo1 per scrivere il n di file
++        //e mando anche l'id di un semaforo per sincronizzarmi dopo
++        int global_fd1= open_FIFO("fifo1",O_WRONLY);
++        write_FIFO(global_fd1,0,legit_files,semaforo_supporto,NULL);
++
++        semOp(semaforo_supporto,0,-1,0);
++
++        int id_memoria=alloc_shared_memory(SHMKEY1,0);
++        int*ptr= get_shared_memory(id_memoria,0);
++        printf("\nptr value %d",*ptr);
++
++
++
+     }
+ }
+ 
