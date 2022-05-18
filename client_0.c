@@ -6,6 +6,7 @@
 #include "fifo.h"
 #include "semaphore.h"
 #include "shared_memory.h"
+#include <sys/msg.h>
 
 char *global_path;       // variabile globale per passare argv[1] al sigHandler
 char **legit_files_path; // matrice di stringhe per salvare il path dei soli file "legali"
@@ -90,7 +91,7 @@ void sigHandler(int signal)
         //--------------------------------------------------------------------------
         int semaforo_supporto=createSemaphore(ftok(NULL,SEMKEY1),1,IPC_CREAT);
         union semun arg;
-        arg.val=0;
+        arg.val=(unsigned short)0;
         if(semctl(semaforo_supporto,0,SETVAL,arg)==-1)
             ErrExit("semctl failed");
         //---------------------------------------------------------------------------
@@ -100,7 +101,7 @@ void sigHandler(int signal)
         int global_fd1= open_FIFO("fifo1",O_WRONLY);
         write_FIFO(global_fd1,0,legit_files,0,NULL);
 
-        semOp(semaforo_supporto,0,-1,0);
+        semOp(semaforo_supporto,(unsigned short)0,-1,0);
 
         int id_memoria=alloc_shared_memory(SHMKEY1,50 * 5120 * sizeof(char));
         char *ptr= get_shared_memory(id_memoria,0);
@@ -110,10 +111,16 @@ void sigHandler(int signal)
         if(atoi(ptr)>0)
         {
             //setto un semaforo mutex per una mutua esclusione sui processi figli
-            int semaforo_mutex=createSemaphore(ftok(NULL,93),1,IPC_CREAT);
-            union semun arg2;
-            arg2.val=1;
-            if(semctl(semaforo_mutex,0,SETVAL,arg2)==-1)
+            int semaforo_mutex=createSemaphore(ftok(NULL,SEMMUTEXKEY1),1,IPC_CREAT);
+            arg.val=(unsigned short )1;
+            if(semctl(semaforo_mutex,0,SETVAL,arg)==-1)
+                ErrExit("semctl failed");
+
+            //setto un altro semaforo per bloccare i processi alla creazione del file
+            int semaforo_nfiles=createSemaphore(ftok(NULL,SEMKEY2),1,IPC_CREAT);
+            union semun arg3;
+            arg3.val=(unsigned short)legit_files;
+            if(semctl(semaforo_nfiles,0,SETVAL,arg3)==-1)
                 ErrExit("semctl failed");
 
 
@@ -130,7 +137,7 @@ void sigHandler(int signal)
 
                 else if(pid==0)
                 {
-                    semOp(semaforo_mutex,0,-1,0);
+                    semOp(semaforo_mutex,(unsigned short)0,-1,0);
 
                     printf("\nfiglio %d",i);
 
@@ -140,7 +147,17 @@ void sigHandler(int signal)
                     printf("\npart1: %s\npart2: %s\npart3: %s\npart4: %s",divide.part1,divide.part2,divide.part3, divide.part4);
                     fflush(stdout);
 
-                    semOp(semaforo_mutex,0,1,0);
+                    sleep(1);
+
+                   // semOp(semaforo_nfiles,(unsigned short )0,-1,IPC_NOWAIT);
+
+                    semOp(semaforo_mutex,(unsigned short)0,1,0);
+
+                    //aspetto che il semaforo arrivi a 0 per liberare tutti i figli
+                    //semOp(semaforo_nfiles,(unsigned short)0,0,0);
+                    printSemaphoreValue(semaforo_nfiles,1);
+                    printf("\nfiglio %d finito",i);
+                    fflush(stdout);
                     exit(0);
                 }
             }
@@ -150,7 +167,6 @@ void sigHandler(int signal)
         }
         else
             ErrExit("no files to read");
-
 
     }
 }
@@ -190,7 +206,7 @@ int main(int argc, char *argv[])
 
     while (wait(NULL) != -1);
 
-    printf("\nend\n");
+    printf("\n<parent>end\n");
 
     return 0;
 }

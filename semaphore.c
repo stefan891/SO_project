@@ -25,7 +25,7 @@
  * decrements it, and 0 is a special value that causes the calling process to block until the semaphore's value is 0.
  * @param flg example IPC_NOWAIT to perform operation without blocking (put 0 otherwise)
  */
-void semOp(int semid, unsigned short sem_num, short sem_op, int flg){
+void semOp(int semid, unsigned short sem_num, short sem_op, short flg){
     struct sembuf sop = {.sem_op = sem_op, .sem_num = sem_num, .sem_flg = flg};
 
     if(semop(semid, &sop, 1) == -1)
@@ -40,7 +40,7 @@ void semOp(int semid, unsigned short sem_num, short sem_op, int flg){
  *
  * @return The semaphore ID
  */
-int createSemaphore(key_t key, int n_sem,int flag){
+int createSemaphore(key_t key, int n_sem,short flag){
     int semid = semget(key, n_sem,flag | S_IRUSR | S_IWUSR);
 
     if(semid == -1)
@@ -81,5 +81,6 @@ void printSemaphoreValue(int semid, int n_sem){
         printf("id: %d -->%d\n", i, semVal[i]);
 
     }
+    fflush(stdout);
 }
 

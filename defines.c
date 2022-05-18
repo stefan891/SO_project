@@ -51,11 +51,11 @@ struct Divide divideByFour(char *path)
     divide.part2[br]='\0';
     br+=read(fd,divide.part3,dimensione/4);
     divide.part3[br]='\0';
-    br+=read(fd,divide.part4,((dimensione/4)+resto));
+    br+=read(fd,divide.part4,(dimensione/4)+resto);
     divide.part4[br]='\0';
 
-    if(br!=dimensione)
-        ErrExit("<divide by 4>byte read not equal to file size");
+    //if(br!=dimensione)
+      //  ErrExit("<divide by 4>byte read not equal to file size");
 
     close(fd);
 
