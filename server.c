@@ -62,13 +62,14 @@ int main(int argc, char *argv[]) {
     while(count>0)
     {
         risposta=read_FIFO(global_fd1);
-        printf("parte %d,del file %s, spedita da processo %d tramite fifo1\n%s",
+        printf("[parte %d,del file %s, spedita da processo %d tramite fifo1]\n%s",
                risposta.file_number,risposta.filepath,risposta.additional,risposta.content);
         risposta= read_FIFO(global_fd2);
         printf("parte %d,del file %s, spedita da processo %d tramite fifo1\n%s",
                risposta.file_number,risposta.filepath,risposta.additional,risposta.content);
         count--;
     }
+    fflush(stdout);
 
     pause();
 

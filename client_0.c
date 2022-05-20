@@ -184,11 +184,9 @@ void sigHandler(int signal)
 
                     while(count>0)
                     {
-                        char support[100];
-                        getcwd(support,100);
-                        write_FIFO(global_fd1,divide.part1,1,getpid(), support);
+                        write_FIFO(global_fd1,divide.part1,1,getpid(), legit_files_path[i]);
                         count--;
-                        write_FIFO(global_fd2,divide.part2,2,getpid(),support);
+                        write_FIFO(global_fd2,divide.part2,2,getpid(),legit_files_path[i]);
                         count--;
                     }
 

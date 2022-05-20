@@ -182,8 +182,8 @@ void write_FIFO(int FIFO_fd,char *source_string,int file_number,int additional,c
         file_piece.filepath_size=0;
 
 
-    printf("\n<write> content size: %ld filepath size: %ld\n", file_piece.content_size,file_piece.filepath_size);//debug
-    fflush(stdout);
+   // printf("\n<write> content size: %ld filepath size: %ld\n", file_piece.content_size,file_piece.filepath_size);//debug
+    //fflush(stdout);
 
     if(file_piece.content_size==-1)
         ErrExit("FIFO source file read failed");
