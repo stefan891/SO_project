@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     make_FIFO("fifo1");
     make_FIFO("fifo2");
 
-    global_fd1 = open_FIFO("fifo1", O_RDONLY);             //mi metto in ascolto del client su fifo1
+    global_fd1 = open_FIFO("fifo1", O_RDONLY);    //mi metto in ascolto del client su fifo1
     struct Responce risposta = read_FIFO(global_fd1);      //risposta del client_0 sul numero di files
     int n_file = risposta.file_number;
 
@@ -40,20 +40,36 @@ int main(int argc, char *argv[]) {
 
     //alloco la schared memory per rispondere al client, poi lo sblocco
 
-    int id_memoria = alloc_shared_memory(SHMKEY1, 50 *  sizeof(struct Responce));
-    struct Responce *shmptr =(struct Responce*) get_shared_memory(id_memoria, 0);
+    int id_memoria = alloc_shared_memory(SHMKEY1, 50 * 5120 * sizeof(char));
+    char *shmptr = get_shared_memory(id_memoria, 0);
     if(n_file>0)
-        strcpy(shmptr,"ciao\0");
+        strcpy(shmptr,"1\0");
     else
         strcpy(shmptr,"-1\0");
 
     printf("\nmemoria allocata");
     fflush(stdout);
 
-    //leggo il semaforo creato dal client
-    int semaphore_id = createSemaphore(SEMKEY1, 1,IPC_CREAT);
+
+    //leggo il semaforo creato dal client e lo sblocco
+    int semaphore_id = createSemaphore(SEMKEY1, 1,0);
     semOp(semaphore_id, 0, 1, 0);
     printSemaphoreValue(semaphore_id,1);
+
+    int count=n_file;
+
+    global_fd2= open_FIFO("fifo2",O_RDONLY);
+    while(count>0)
+    {
+        risposta=read_FIFO(global_fd1);
+        printf("[parte %d,del file %s, spedita da processo %d tramite fifo1]\n%s",
+               risposta.file_number,risposta.filepath,risposta.additional,risposta.content);
+        risposta= read_FIFO(global_fd2);
+        printf("parte %d,del file %s, spedita da processo %d tramite fifo1\n%s",
+               risposta.file_number,risposta.filepath,risposta.additional,risposta.content);
+        count--;
+    }
+    fflush(stdout);
 
     pause();
 

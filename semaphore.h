@@ -13,10 +13,10 @@ union semun{
     struct semid_ds *buf;
     unsigned short *array;
 };
-void semOp(int semid, unsigned short sem_num, short sem_op, int flg);
+void semOp(int semid, unsigned short sem_num, short sem_op, short flg);
 
 
-int createSemaphore(key_t key, int n_sem,int flag);
+int createSemaphore(key_t key, int n_sem,short flag);
 
 void removeSemaphore(int semid);
 

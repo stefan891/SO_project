@@ -22,7 +22,7 @@ void sigHandler(int signal)
     {
 
         // procedura per salutare l'utente
-        char path[PATH_MAX];
+        char path[100];
 
         printf("\nciao %s ora inizio l'invio dei file contenuti in ", getlogin());
 
@@ -92,10 +92,11 @@ void sigHandler(int signal)
             ErrExit("semctl failed");
         printf("\nsemaforo_supporto %d",semaforo_supporto);
         fflush(stdout);
+        //---------------------------------------------------------------------------
 
         /**mi metto in attesa del server su fifo1 per scrivere il n di file*/
         int global_fd1= open_FIFO("fifo1",O_WRONLY);
-        write_FIFO(global_fd1,0,legit_files,0,NULL);
+        write_FIFO(global_fd1,NULL,legit_files,0,NULL);
 
         /**mi blocco per aspettare che il server crei la shmem per leggerci*/
         semOp(semaforo_supporto,0,-1,0);
@@ -107,25 +108,34 @@ void sigHandler(int signal)
         removeSemaphore(semaforo_supporto);
 
 
-       printf("valore: %s", ptr);
-
-        if(1)
+        if(atoi(ptr)>0)
         {
 
-            /**creo un semaphore set da 2 mutex per una mutua esclusione sui processi figli*/
+            //creo un semaphore set da 2 mutex per una mutua esclusione sui processi figli
             int semaforo_mutex=createSemaphore(IPC_PRIVATE,2,IPC_CREAT);
 
-            union semun arg2;
             unsigned short semInitVal[] = {1, legit_files};
-            arg2.array = semInitVal;
+            arg.array = semInitVal;
 
-            if (semctl(semaforo_mutex, 0 /*ignored*/, SETALL, arg2) == -1)
-                ErrExit("semctl SETALL failed");
+            if (semctl(semaforo_mutex, 0 /*ignored*/, SETALL, arg) == -1)
+                ErrExit("semctl sem_mutex SETALL failed");
 
             printf("\nsemaforo_mutex %d",semaforo_mutex);
+
+            //creo un set da 4 semafori da 50 per le IPC
+            int semaforo_ipc= createSemaphore(IPC_PRIVATE,4,IPC_CREAT);
+
+            unsigned short sem_ipc_initVal[]={50,50,50,50};
+            arg.array=sem_ipc_initVal;
+            if(semctl(semaforo_ipc,0,SETALL,arg)==-1)
+                ErrExit("semctl sem_ipc failed");
+
+            printf("\nsemaforo_mutex %d",semaforo_ipc);
             fflush(stdout);
 
             //exit(0);
+
+
 
 
 
@@ -152,30 +162,50 @@ void sigHandler(int signal)
                     printf("\npart1: %s\npart2: %s\npart3: %s\npart4: %s",divide.part1,divide.part2,divide.part3, divide.part4);
                     fflush(stdout);
 
-                    sleep(1);
-
                     //decremento il secondo semaforo
                     semOp(semaforo_mutex,1,-1,IPC_NOWAIT);
-
                     //sblocco figlio successivo primo semaforo
                     semOp(semaforo_mutex,0,1,0);
 
                     //aspetto che il secondo semaforo arrivi a 0 per liberare tutti i figli
                     semOp(semaforo_mutex,1,0,0);
-                    //printSemaphoreValue(semaforo_mutex,1);
-                    printf("\nfiglio %d finito",i);
+
+                    //tutti i figli,una volta letto le 4 parti, vengono liberati insieme
+                    printf("\nfiglio %d finito\n",i);
+                    fflush(stdout);
+
+                    //ciclo while per mandare i messaggi
+                    int count=2;
+                    int global_fd2= open_FIFO("fifo2",O_WRONLY);
+
+                    while(count>0)
+                    {
+                        write_FIFO(global_fd1,divide.part1,1,getpid(), legit_files_path[i]);
+                        count--;
+                        write_FIFO(global_fd2,divide.part2,2,getpid(),legit_files_path[i]);
+                        count--;
+                    }
+
+                    printf("\nfiglio %d file inviati\n",i);
+                    fflush(stdout);
+
                     exit(0);
                 }
 
             }
-            //codice eseguito dal parent
+            //codice eseguito dal parent---------------------------------
             //aspetto tutti i figli
             while(wait(NULL)!=-1);
+            removeSemaphore(semaforo_ipc);
             removeSemaphore(semaforo_mutex);
             return;
+        //-------------------------------------------------------------------------------------
+
+
         }
         else
             ErrExit("no files to read");
+
 
     }
 }
@@ -210,6 +240,7 @@ int main(int argc, char *argv[])
     //attendo ricezione di segnale SIGINT o SIGUSR1
     pause();
 
+    while (wait(NULL) != -1);
 
     printf("\n<parent>end\n");
 

@@ -28,10 +28,8 @@
 void semOp(int semid, unsigned short sem_num, short sem_op, int flg){
     struct sembuf sop = {.sem_op = sem_op, .sem_num = sem_num, .sem_flg = flg};
 
-    if(semop(semid, &sop, 1) == -1){
-        printf("semid: %d\n", semid);
+    if(semop(semid, &sop, 1) == -1)
         ErrExit("semop failed");
-    }
 }
 
 /**
@@ -44,7 +42,7 @@ void semOp(int semid, unsigned short sem_num, short sem_op, int flg){
  */
 int createSemaphore(key_t key, int n_sem,int flag){
     int semid = semget(key, n_sem,flag | S_IRUSR | S_IWUSR);
-    
+
     if(semid == -1)
         ErrExit("\ncreating semaphore failed");
 
@@ -83,6 +81,7 @@ void printSemaphoreValue(int semid, int n_sem){
         printf("id: %d -->%d\n", i, semVal[i]);
 
     }
+    fflush(stdout);
 }
 
 /**
