@@ -18,23 +18,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f00e4058-c56f-4f9b-b8e8-9eea58ca15ab" name="Changes" comment="invio primi 2 pezzi su fifo">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_13_22_4_20_PM_[Changes]1/client_0" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_13_22_4_20_PM_[Changes]1/client_0.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_13_22_4_20_PM_[Changes]1/defines.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_13_22_4_20_PM_[Changes]1/err_exit.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_13_22_4_20_PM_[Changes]1/fifo.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_13_22_4_20_PM_[Changes]1/semaphore.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_13_22_4_20_PM_[Changes]1/server" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_13_22_4_20_PM_[Changes]1/server.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_13_22_4_20_PM_[Changes]1/shared_memory.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_13_22_4_20_PM_[Changes]1/shelved.patch" beforeDir="false" />
+    <list default="true" id="f00e4058-c56f-4f9b-b8e8-9eea58ca15ab" name="Changes" comment="modifica secondaria funzione divideByFour">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client_0.c" beforeDir="false" afterPath="$PROJECT_DIR$/client_0.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/defines.c" beforeDir="false" afterPath="$PROJECT_DIR$/defines.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fifo.c" beforeDir="false" afterPath="$PROJECT_DIR$/fifo.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server.c" beforeDir="false" afterPath="$PROJECT_DIR$/server.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -238,7 +223,8 @@
       <workItem from="1652940390483" duration="5000" />
       <workItem from="1652940419867" duration="6763000" />
       <workItem from="1653026824806" duration="8263000" />
-      <workItem from="1653058590264" duration="1000" />
+      <workItem from="1653058590264" duration="304000" />
+      <workItem from="1653058952522" duration="499000" />
     </task>
     <task id="LOCAL-00001" summary="some changes">
       <created>1652454328295</created>
@@ -261,7 +247,14 @@
       <option name="project" value="LOCAL" />
       <updated>1653033411597</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="modifica secondaria funzione divideByFour">
+      <created>1653058707946</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1653058707946</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -325,7 +318,8 @@
     <MESSAGE value="some changes" />
     <MESSAGE value="fifo versione finale" />
     <MESSAGE value="invio primi 2 pezzi su fifo" />
-    <option name="LAST_COMMIT_MESSAGE" value="invio primi 2 pezzi su fifo" />
+    <MESSAGE value="modifica secondaria funzione divideByFour" />
+    <option name="LAST_COMMIT_MESSAGE" value="modifica secondaria funzione divideByFour" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
