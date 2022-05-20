@@ -6,6 +6,7 @@
 #include "fifo.h"
 #include "semaphore.h"
 #include "shared_memory.h"
+#include <sys/msg.h>
 
 char *global_path;       // variabile globale per passare argv[1] al sigHandler
 char **legit_files_path; // matrice di stringhe per salvare il path dei soli file "legali"
@@ -21,7 +22,6 @@ void sigHandler(int signal)
     {
 
         // procedura per salutare l'utente
-        //------------------------------------------------------------------------------------
         char path[PATH_MAX];
 
         printf("\nciao %s ora inizio l'invio dei file contenuti in ", getlogin());
@@ -30,10 +30,8 @@ void sigHandler(int signal)
         strcat(path, "/");
         strcat(path, global_path);
         printf("%s\n", path);
-        //------------------------------------------------------------------------------------
 
         // lettura files nella directory
-        //------------------------------------------------------------------------------------
         DIR *dp = opendir(path);
         if (dp == NULL)
             ErrExit("directory inesistente");
@@ -47,12 +45,14 @@ void sigHandler(int signal)
         strcpy(filepath, path);
         strcat(filepath, "/");
 
-        while ((dentry = readdir(dp)) != NULL) // ad ogni iterazione la funzione readdir avanza automaticamente con la lettura dei files
+        /** ad ogni iterazione la funzione readdir avanza automaticamente con la lettura dei files*/
+        while ((dentry = readdir(dp)) != NULL)
         {
 
             if (dentry->d_type == DT_REG && strncmp("sendme_", dentry->d_name, 7) == 0)
             {
-                stat(strcat(filepath, dentry->d_name), &statbuf); // ad ogni ciclo prendo il path e aggiungo il nome file per recavarne lo statbuf
+                /** ad ogni ciclo prendo il path e aggiungo il nome file per recavarne lo statbuf*/
+                stat(strcat(filepath, dentry->d_name), &statbuf);
 
                 if (statbuf.st_size < 4000) // aggiungo solo files minori di 4kb
                 {
@@ -61,8 +61,8 @@ void sigHandler(int signal)
                     legit_files++;
                     printf(" file size: %ld", statbuf.st_size);
 
-                    // con questo modo molto figo, alloco dinamicamente un vettore di stringhe man mano
-                    // che trovo i file, in modo da non dover allocare sempre un vettore di 100 stringhe
+                    /** con questo modo molto figo, alloco dinamicamente un vettore di stringhe man mano
+                     che trovo i file, in modo da non dover allocare sempre un vettore di 100 stringhe*/
                     legit_files_path = realloc(legit_files_path, sizeof(char *));
                     legit_files_path[legit_files - 1] = malloc(PATH_MAX * sizeof(char));
                     strcpy(legit_files_path[legit_files - 1], filepath); // copio il file path di ogni file "legit" nel vettore di stringhe che sto creando
@@ -75,64 +75,76 @@ void sigHandler(int signal)
         }
         if (errno != 0)
             ErrExit("error reading dir.\n");
-        //----------------------------------------------------------------------------------------
 
-        //######################################################## //verifica del vettore di stringhe, ma la puoi cancellare
+        /**verifica del vettore di stringhe, ma la puoi cancellare*/
         printf("\nverifica lettura file legit");
         for (int i = 0; i < legit_files; i++)
         {
             printf("\n%s", legit_files_path[i]);
             fflush(stdout);
         }
-        //#######################################################
 
-            //creazione e settaggio semaforo di supporto
-        //--------------------------------------------------------------------------
-        int semaforo_supporto=createSemaphore(ftok(NULL,SEMKEY1),1,IPC_CREAT);
+        /**creazione e settaggio semaforo di supporto*/
+        int semaforo_supporto=createSemaphore(SEMKEY1,1,IPC_CREAT);
         union semun arg;
         arg.val=0;
         if(semctl(semaforo_supporto,0,SETVAL,arg)==-1)
             ErrExit("semctl failed");
-        //---------------------------------------------------------------------------
+        printf("\nsemaforo_supporto %d",semaforo_supporto);
+        fflush(stdout);
 
-
-        //mi metto in attesa del server su fifo1 per scrivere il n di file
+        /**mi metto in attesa del server su fifo1 per scrivere il n di file*/
         int global_fd1= open_FIFO("fifo1",O_WRONLY);
         write_FIFO(global_fd1,0,legit_files,0,NULL);
 
+        /**mi blocco per aspettare che il server crei la shmem per leggerci*/
         semOp(semaforo_supporto,0,-1,0);
 
+        /**mi aggancio alla shmem creata dal server*/
         int id_memoria=alloc_shared_memory(SHMKEY1,50 * 5120 * sizeof(char));
         char *ptr= get_shared_memory(id_memoria,0);
 
-       // removeSemaphore(semaforo_supporto);
+        removeSemaphore(semaforo_supporto);
 
-        if(atoi(ptr)>0)
+
+       printf("valore: %s", ptr);
+
+        if(1)
         {
-            //setto un semaforo mutex per una mutua esclusione sui processi figli
-            int semaforo_mutex=createSemaphore(ftok(NULL,93),1,IPC_CREAT);
+
+            /**creo un semaphore set da 2 mutex per una mutua esclusione sui processi figli*/
+            int semaforo_mutex=createSemaphore(IPC_PRIVATE,2,IPC_CREAT);
+
             union semun arg2;
-            arg2.val=1;
-            if(semctl(semaforo_mutex,0,SETVAL,arg2)==-1)
-                ErrExit("semctl failed");
+            unsigned short semInitVal[] = {1, legit_files};
+            arg2.array = semInitVal;
+
+            if (semctl(semaforo_mutex, 0 /*ignored*/, SETALL, arg2) == -1)
+                ErrExit("semctl SETALL failed");
+
+            printf("\nsemaforo_mutex %d",semaforo_mutex);
+            fflush(stdout);
+
+            //exit(0);
 
 
 
-            //divisione file in 4 e creazione figli
-        //-------------------------------------------------------------------------------------
+            /**divisione file in 4 e creazione figli*/
             for(int i=0;i<legit_files;i++)
             {
                 pid_t pid=fork();
                 if(pid==-1)
                     ErrExit("fork failed");
 
-                //codice eseguito dal child--------------
+                    /**codice eseguito dal child*/
 
                 else if(pid==0)
                 {
+                    /**mutua esclusione sul primo semaforo*/
                     semOp(semaforo_mutex,0,-1,0);
 
                     printf("\nfiglio %d",i);
+                    fflush(stdout);
 
                     //divido il file in 4 parti, mi viene ritornata una struttura con 4 stringhe
                     struct Divide divide;
@@ -140,26 +152,36 @@ void sigHandler(int signal)
                     printf("\npart1: %s\npart2: %s\npart3: %s\npart4: %s",divide.part1,divide.part2,divide.part3, divide.part4);
                     fflush(stdout);
 
+                    sleep(1);
+
+                    //decremento il secondo semaforo
+                    semOp(semaforo_mutex,1,-1,IPC_NOWAIT);
+
+                    //sblocco figlio successivo primo semaforo
                     semOp(semaforo_mutex,0,1,0);
+
+                    //aspetto che il secondo semaforo arrivi a 0 per liberare tutti i figli
+                    semOp(semaforo_mutex,1,0,0);
+                    //printSemaphoreValue(semaforo_mutex,1);
+                    printf("\nfiglio %d finito",i);
                     exit(0);
                 }
-            }
-        //-------------------------------------------------------------------------------------
-            //codice eseguito dal parent
 
+            }
+            //codice eseguito dal parent
+            //aspetto tutti i figli
+            while(wait(NULL)!=-1);
+            removeSemaphore(semaforo_mutex);
+            return;
         }
         else
             ErrExit("no files to read");
-
 
     }
 }
 
 
-//#########################################################################################################################
-                                                        //MAIN
-//#########################################################################################################################
-
+//MAIN
 int main(int argc, char *argv[])
 {
 
@@ -188,9 +210,8 @@ int main(int argc, char *argv[])
     //attendo ricezione di segnale SIGINT o SIGUSR1
     pause();
 
-    while (wait(NULL) != -1);
 
-    printf("\nend\n");
+    printf("\n<parent>end\n");
 
     return 0;
 }

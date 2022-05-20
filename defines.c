@@ -5,13 +5,14 @@
 #include "defines.h"
 #include "err_exit.h"
 char Buffer[PATH_MAX];
-
+struct stat buffer_file;
 
 
 struct Divide divideByFour(char *path)
 {
     //apro il file con fopen per leggere solo i caratteri
-    FILE *f= fopen(path,"r");
+    int fd= open(path,O_RDONLY);
+    fstat(fd, &buffer_file);
     struct Divide divide;
     divide.part1[0]='\0';
     divide.part2[0]='\0';
@@ -19,29 +20,13 @@ struct Divide divideByFour(char *path)
     divide.part4[0]='\0';
 
     long resto=0;
-    int ch=0;
-    long dimensione=0;
+    long dimensione=buffer_file.st_size;
     long br=0;
 
-    if(f==NULL)
+    if(fd==-1)
         ErrExit("\n<divide by 4>open failed");
 
-    //conto il numero caratteri nel file
-    while (1) {
-        ch = fgetc(f);
-        if (ch == EOF)
-            break;
-        ++dimensione;
-    }
-    fclose(f);
-
     resto=dimensione%4;
-
-    //riapro il file con la open normale
-    int fd= open(path,O_RDONLY);
-
-    //calcolo la dimensione ed eventuale resto da aggiungere all'ultima parte
-
 
 
     //inserisco le 4 parti nella struttura

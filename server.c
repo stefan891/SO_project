@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     make_FIFO("fifo1");
     make_FIFO("fifo2");
 
-    global_fd1 = open_FIFO("fifo1", O_RDONLY);    //mi metto in ascolto del client su fifo1
+    global_fd1 = open_FIFO("fifo1", O_RDONLY);             //mi metto in ascolto del client su fifo1
     struct Responce risposta = read_FIFO(global_fd1);      //risposta del client_0 sul numero di files
     int n_file = risposta.file_number;
 
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     int id_memoria = alloc_shared_memory(SHMKEY1, 50 * 5120 * sizeof(char));
     char *shmptr = get_shared_memory(id_memoria, 0);
     if(n_file>0)
-        strcpy(shmptr,"1\0");
+        strcpy(shmptr,"ciao\0");
     else
         strcpy(shmptr,"-1\0");
 
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
     fflush(stdout);
 
     //leggo il semaforo creato dal client
-    int semaphore_id = createSemaphore(ftok(NULL,SEMKEY1), 1,0);
+    int semaphore_id = createSemaphore(SEMKEY1, 1,IPC_CREAT);
     semOp(semaphore_id, 0, 1, 0);
     printSemaphoreValue(semaphore_id,1);
 
