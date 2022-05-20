@@ -146,6 +146,7 @@ struct Responce read_FIFO(int FIFO_fd)
 
 
 struct File_piece file_piece;   //struttura per scrivere la struct da inviare
+static const struct File_piece empty_file_piece;
 
 /**
  * It reads a piece of file from source_fd, a filepath from *path, and additional information.
@@ -157,14 +158,17 @@ struct File_piece file_piece;   //struttura per scrivere la struct da inviare
  * @param additional number for any additional information
  * @param path the path of where the file belongs (if no need to write any path, put NULL)
  */
-void write_FIFO(int FIFO_fd,int source_fd,int file_number,int additional,char *path)
+void write_FIFO(int FIFO_fd,char *source_string,int file_number,int additional,char *path)
 {
+    file_piece=empty_file_piece;
+
     //leggo il messaggio (lungo massimo 1024) lo metto in file_piece.content
     // e salvo la dimensione effettiva letta in file_piece.size
-    if(source_fd>0)
-        file_piece.content_size=read(source_fd,&file_piece.content,sizeof (file_piece.content));
-    else
-        file_piece.content_size=0;
+    if(source_string!=NULL)
+    {
+        strcpy(file_piece.content,source_string);
+        file_piece.content_size= strlen(source_string);
+    }
 
 
     //copio la stinga del path passata, in file_piece.content, subito dopo il messaggio

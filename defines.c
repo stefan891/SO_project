@@ -6,17 +6,14 @@
 #include "err_exit.h"
 char Buffer[PATH_MAX];
 
-
+struct Divide divide;
+static const struct Divide empty_divide;
 
 struct Divide divideByFour(char *path)
 {
+    divide=empty_divide;
     //apro il file con fopen per leggere solo i caratteri
     FILE *f= fopen(path,"r");
-    struct Divide divide;
-    divide.part1[0]='\0';
-    divide.part2[0]='\0';
-    divide.part3[0]='\0';
-    divide.part4[0]='\0';
 
     long resto=0;
     int ch=0;
@@ -43,7 +40,6 @@ struct Divide divideByFour(char *path)
     //calcolo la dimensione ed eventuale resto da aggiungere all'ultima parte
 
 
-
     //inserisco le 4 parti nella struttura
     br+=read(fd,divide.part1,dimensione/4);
     divide.part1[br]='\0';
@@ -51,11 +47,11 @@ struct Divide divideByFour(char *path)
     divide.part2[br]='\0';
     br+=read(fd,divide.part3,dimensione/4);
     divide.part3[br]='\0';
-    br+=read(fd,divide.part4,((dimensione/4)+resto));
+    br+=read(fd,divide.part4,(dimensione/4)+resto);
     divide.part4[br]='\0';
 
-    if(br!=dimensione)
-        ErrExit("<divide by 4>byte read not equal to file size");
+    //if(br!=dimensione)
+      //  ErrExit("<divide by 4>byte read not equal to file size");
 
     close(fd);
 
