@@ -4,6 +4,7 @@
 
 #include "defines.h"
 #include "err_exit.h"
+
 char Buffer[PATH_MAX];
 struct stat buffer_file;
 
@@ -14,17 +15,13 @@ struct Divide divideByFour(char *path)
     int fd= open(path,O_RDONLY);
     fstat(fd, &buffer_file);
     struct Divide divide;
-    divide.part1[0]='\0';
-    divide.part2[0]='\0';
-    divide.part3[0]='\0';
-    divide.part4[0]='\0';
 
     long resto=0;
     long dimensione=buffer_file.st_size;
     long br=0;
 
     if(fd==-1)
-        ErrExit("\n<divide by 4>open failed");
+        ErrExit("\n<divide by 4> open failed");
 
     resto=dimensione%4;
 

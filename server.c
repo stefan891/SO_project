@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
 
     //alloco la schared memory per rispondere al client, poi lo sblocco
 
-    int id_memoria = alloc_shared_memory(SHMKEY1, 50 * 5120 * sizeof(char));
-    char *shmptr = get_shared_memory(id_memoria, 0);
+    int id_memoria = alloc_shared_memory(SHMKEY1, 50 *  sizeof(struct Responce));
+    struct Responce *shmptr =(struct Responce*) get_shared_memory(id_memoria, 0);
     if(n_file>0)
         strcpy(shmptr,"ciao\0");
     else

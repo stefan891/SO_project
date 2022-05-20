@@ -101,7 +101,7 @@ void sigHandler(int signal)
         semOp(semaforo_supporto,0,-1,0);
 
         /**mi aggancio alla shmem creata dal server*/
-        int id_memoria=alloc_shared_memory(SHMKEY1,50 * 5120 * sizeof(char));
+        int id_memoria=alloc_shared_memory(SHMKEY1,50 * sizeof(char));
         char *ptr= get_shared_memory(id_memoria,0);
 
         removeSemaphore(semaforo_supporto);

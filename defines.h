@@ -43,10 +43,10 @@ struct File_piece{
 // ms_type > 0 legge tutti i messaggi con quel message type
 struct Responce{
 
-    char content[MSG_BYTES];
-    char filepath[100];
-    int file_number;
-    int additional;
+    char content[MSG_BYTES];    //contenuto del messaggio
+    char filepath[100];         //path del mittente
+    int file_number;            //segment of the file delivered
+    int additional;             //pid of the trocess
 
 };
 
