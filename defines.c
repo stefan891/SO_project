@@ -6,17 +6,14 @@
 #include "err_exit.h"
 char Buffer[PATH_MAX];
 
-
+struct Divide divide;
+static const struct Divide empty_divide;
 
 struct Divide divideByFour(char *path)
 {
+    divide=empty_divide;
     //apro il file con fopen per leggere solo i caratteri
     FILE *f= fopen(path,"r");
-    struct Divide divide;
-    divide.part1[0]='\0';
-    divide.part2[0]='\0';
-    divide.part3[0]='\0';
-    divide.part4[0]='\0';
 
     long resto=0;
     int ch=0;
@@ -41,7 +38,6 @@ struct Divide divideByFour(char *path)
     int fd= open(path,O_RDONLY);
 
     //calcolo la dimensione ed eventuale resto da aggiungere all'ultima parte
-
 
 
     //inserisco le 4 parti nella struttura

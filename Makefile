@@ -28,7 +28,7 @@ $(OBJDIR)/%.o: %.c
 clean:
 	@rm -vf ${CLIENT_OBJS}
 	@rm -vf ${SERVER_OBJS}
-	@rm -vf client_0
+	@rm -vf client_1
 	@rm -vf server
 	@rm -rf ${OBJDIR}
 	@ipcrm -a

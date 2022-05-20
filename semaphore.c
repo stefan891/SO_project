@@ -5,6 +5,7 @@
 
 #include "err_exit.h"
 #include "semaphore.h"
+#include "errno.h"
 
 /**
  * "semOp() is a wrapper for the semop() system call that makes it easier to use."
@@ -26,10 +27,17 @@
  * @param flg example IPC_NOWAIT to perform operation without blocking (put 0 otherwise)
  */
 void semOp(int semid, unsigned short sem_num, short sem_op, short flg){
+    errno=0;
     struct sembuf sop = {.sem_op = sem_op, .sem_num = sem_num, .sem_flg = flg};
 
     if(semop(semid, &sop, 1) == -1)
-        ErrExit("semop failed");
+    {
+        if(errno==EAGAIN)
+            printf("semaphore would have blocked\n");
+        else
+            ErrExit("semop failed");
+    }
+
 }
 
 /**
