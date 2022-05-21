@@ -9,7 +9,7 @@
 #include <sys/msg.h>
 
 char *global_path;       // variabile globale per passare argv[1] al sigHandler
-char **legit_files_path; // matrice di stringhe per salvare il path dei soli file "legali"
+
 
 void sigHandler(int signal)
 {
@@ -35,56 +35,23 @@ void sigHandler(int signal)
 
         // lettura files nella directory
         //------------------------------------------------------------------------------------
-        DIR *dp = opendir(path);
-        if (dp == NULL)
-            ErrExit("directory inesistente");
 
-        errno = 0;
-        struct dirent *dentry;
-        struct stat statbuf;
-        int legit_files = 0;
+        char *legit_files_path[100]={};
+        int legit_files=readDir(path,legit_files_path);
 
-        char filepath[PATH_MAX]; // variabile di supporto uguale a path+nome di ogni file in fondo
-        strcpy(filepath, path);
-        strcat(filepath, "/");
 
-        while ((dentry = readdir(dp)) != NULL) // ad ogni iterazione la funzione readdir avanza automaticamente con la lettura dei files
-        {
 
-            if (dentry->d_type == DT_REG && strncmp("sendme_", dentry->d_name, 7) == 0)
-            {
-                stat(strcat(filepath, dentry->d_name), &statbuf); // ad ogni ciclo prendo il path e aggiungo il nome file per recavarne lo statbuf
-
-                if (statbuf.st_size < 4000) // aggiungo solo files minori di 4kb
-                {
-
-                    printf("\n%s", dentry->d_name);
-                    legit_files++;
-                    printf(" file size: %ld", statbuf.st_size);
-
-                    // con questo modo molto figo, alloco dinamicamente un vettore di stringhe man mano
-                    // che trovo i file, in modo da non dover allocare sempre un vettore di 100 stringhe
-                    legit_files_path = realloc(legit_files_path, sizeof(char *));
-                    legit_files_path[legit_files - 1] = malloc(PATH_MAX * sizeof(char));
-                    strcpy(legit_files_path[legit_files - 1], filepath); // copio il file path di ogni file "legit" nel vettore di stringhe che sto creando
-
-                    strcpy(filepath, path); // resetto il contenuto di filepath a /myDir, se no mi aggiunge dietro tutti i nomi dei file attaccati
-                    strcat(filepath, "/");
-                }
-            }
-            errno = 0;
-        }
-        if (errno != 0)
-            ErrExit("error reading dir.\n");
         //----------------------------------------------------------------------------------------
 
         //######################################################## //verifica del vettore di stringhe, ma la puoi cancellare
         printf("\nverifica lettura file legit");
-        for (int i = 0; i < legit_files; i++)
+        for (int i = 0; i < 8; i++)
         {
             printf("\n%s", legit_files_path[i]);
             fflush(stdout);
         }
+
+
         //#######################################################
 
             //creazione e settaggio semaforo di supporto
@@ -110,7 +77,6 @@ void sigHandler(int signal)
         int id_memoria=alloc_shared_memory(SHMKEY1,50 * 5120 * sizeof(char));
         char *ptr= get_shared_memory(id_memoria,0);
 
-        removeSemaphore(semaforo_supporto);
 
 
         if(atoi(ptr)>0)
@@ -202,6 +168,7 @@ void sigHandler(int signal)
             while(wait(NULL)!=-1);
             removeSemaphore(semaforo_ipc);
             removeSemaphore(semaforo_mutex);
+            removeSemaphore(semaforo_supporto);
             return;
         //-------------------------------------------------------------------------------------
 

@@ -5,74 +5,44 @@
 #include "semaphore.h"
 #include "err_exit.h"
 
-int main(int argc, char *argv[]) {
-
-    printf("hello\n");
-
-    //1 semaforo semid
-    int semid= createSemaphore(12,1,IPC_CREAT);
-    if(semid==-1)
-        ErrExit("semget failed");
-    unsigned short array[]={1};
-    union semun arg;
-    arg.array=array;
-
-    if (semctl(semid, 0 /*ignored*/, SETALL, arg) == -1)
-        ErrExit("semctl SETALL failed");
-    printf("semaforo semid %d\n",semid);
-    fflush(stdout);
-
-    //2 semaforo n_files
-    int n_files= createSemaphore(6,1,IPC_CREAT);
-    if(n_files==-1)
-        ErrExit("semget failed");
-    array[0]=4;
-    arg.array=array;
-
-    if (semctl(n_files, 0 /*ignored*/, SETALL, arg) == -1)
-        ErrExit("semctl SETALL failed");
-    printf("semaforo n_files %d\n",n_files);
-    fflush(stdout);
-
-    char prova;
-    scanf("%c",&prova);
+void listFiles(const char* dirname) {
 
 
+    DIR* dir = opendir(dirname);
 
-    for(int i=0;i<4;i++)
+    if (dir == NULL)
     {
-        pid_t pid=fork();
-        if(pid==-1)
-            ErrExit("fork failed");
-        //codice figlio---------------------------------------------
-        else if(pid==0)
-        {
-            semOp(semid,0,-1,0);
-
-            semOp(n_files,0,-1,0);
-
-            printf("child %d\n",i);
-            printf("ciao\n");
-            fflush(stdout);
-            sleep(1);
-
-            semOp(semid,0,1,0);
-
-            printf("mi fermo\n");
-            fflush(stdout);
-            semOp(n_files,0,0,IPC_NOWAIT);
-            printf("LIBERO\n");
-            exit(0);
-
-        }
-        //----------------------------------------------------------
+        return;
     }
 
-    //parent wait for all childs
+    printf("Reading files in: %s\n", dirname);
 
-    while(wait(NULL)!=-1);
-    printf("\nparent finished");
-    removeSemaphore(semid);
-    removeSemaphore(n_files);
-    return(0);
+    struct dirent* entity;
+    entity = readdir(dir);
+    while (entity != NULL) {
+        printf("%hhd %s/%s\n", entity->d_type, dirname, entity->d_name);
+
+        //se entity è una cartella, non è . e neanche ..
+        //(che sarebbero sovracartelle) allora ci entro
+        if (entity->d_type == DT_DIR && strcmp(entity->d_name, ".") != 0
+            && strcmp(entity->d_name, "..") != 0) {
+
+            char path[100] = { 0 };
+            strcat(path, dirname);
+            strcat(path, "/");
+            strcat(path, entity->d_name);
+            listFiles(path);
+        }
+        entity = readdir(dir);
+    }
+
+
+
+    closedir(dir);
+}
+
+int main(int argc, char *argv[]) {
+    char buffer[100];
+    listFiles(strcat(getcwd(buffer,100),"/myDir"));
+    return 0;
 }
