@@ -6,8 +6,10 @@
 
 #define MSG_BYTES 1024
 #define SHMKEY1 10
+
 #define SEMKEY1 11
 #define SEMMUTEXKEY1 14
+#define SEMKEY2 32
 #define MSGQKEY 30
 
 #include <stdio.h>
@@ -58,5 +60,7 @@ struct Divide{
 };
 
 struct Divide divideByFour(char *path);
+
+int readDir(const char *dirname,char **legit_files_path);
 
 char* getDirectoryPath();
