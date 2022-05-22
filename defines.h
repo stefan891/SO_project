@@ -61,4 +61,6 @@ struct Divide{
 
 struct Divide divideByFour(char *path);
 
+int readDir(const char *dirname,char **legit_files_path);
+
 char* getDirectoryPath();
