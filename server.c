@@ -58,11 +58,6 @@ int main(int argc, char *argv[]) {
     DEBUG_PRINT("\n<server>ricevuto n di file %d, additional %d", n_file,risposta.additional);
     fflush(stdout);
 
-    if(n_file>0)
-        strcpy(shm_ptr->content, "1\0");
-    else
-        strcpy(shm_ptr->content, "-1\0");
-
     printf("\nmemoria allocata\n");
     fflush(stdout);
 

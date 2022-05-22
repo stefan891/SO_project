@@ -56,7 +56,7 @@ void sigHandler(int signal)
 
             //creazione e settaggio semaforo di supporto
         //--------------------------------------------------------------------------
-        int semaforo_supporto=createSemaphore(ftok(NULL,SEMKEY1),1,IPC_CREAT);
+        int semaforo_supporto=createSemaphore(SEMKEY1,1,IPC_CREAT);
         union semun arg;
         arg.val=(unsigned short)0;
         if(semctl(semaforo_supporto,0,SETVAL,arg)==-1)
@@ -74,12 +74,13 @@ void sigHandler(int signal)
         semOp(semaforo_supporto,(unsigned short)0,-1,0);
 
         //mi aggancio alla shmem creata dal server
-        int id_memoria=alloc_shared_memory(SHMKEY1,50 * 5120 * sizeof(char));
-        char *ptr= get_shared_memory(id_memoria,0);
+        int id_memoria=alloc_shared_memory(SHMKEY1,50 * sizeof(struct Responce));
+        struct Responce *ptr= get_shared_memory(id_memoria,0);
+        
 
 
 
-        if(atoi(ptr)>0)
+        if(ptr>0)
         {
 
             //creo un semaphore set da 2 mutex per una mutua esclusione sui processi figli
