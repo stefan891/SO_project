@@ -5,11 +5,12 @@
 #pragma once
 
 #define MSG_BYTES 1024
-#define SHMKEY1 10
+#define SHMKEY1 20
+#define SHMKEY_SUPP 21
 
 #define SEMKEY1 11
 #define SEMMUTEXKEY1 14
-#define SEMKEY2 32
+#define SEMKEY2 12
 #define MSGQKEY 30
 
 #include <stdio.h>
@@ -26,6 +27,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <errno.h>
+#include "debug.h"
 
 //non modificare il content
 //message queue è grande massimo per 3 messaggi
@@ -43,10 +45,10 @@ struct File_piece{
 // ms_type > 0 legge tutti i messaggi con quel message type
 struct Responce{
 
-    char content[MSG_BYTES];
-    char filepath[100];
-    int file_number;
-    int additional;
+    char content[MSG_BYTES];    //contenuto del messaggio
+    char filepath[100];         //path del mittente
+    int file_number;            //segment of the file delivered
+    int additional;             //pid of the trocess
 
 };
 

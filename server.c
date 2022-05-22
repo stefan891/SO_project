@@ -10,6 +10,8 @@
 int global_fd1;
 int global_fd2;
 
+
+
 void sigHandler(int signal) {
     printf("\n/server/:ricevuto segnale sigint,termino\n");
 
@@ -27,32 +29,41 @@ int main(int argc, char *argv[]) {
     if (signal(SIGINT, sigHandler) == SIG_ERR)
         ErrExit("signal handler failed");
 
+    //fifo
+
     make_FIFO("fifo1");
     make_FIFO("fifo2");
 
+    //shared memory
+
+    //alloco la schared memory per rispondere al client, poi lo sblocco
+    int shm_id = alloc_shared_memory(SHMKEY1, 50 * sizeof(struct Responce));
+    struct Responce *shm_ptr = (struct Responce*)get_shared_memory(shm_id, IPC_CREAT);
+    DEBUG_PRINT("memoria condivisa allocata e connessa\n");
+
+    //allocamento
+    int shm_check_id = alloc_shared_memory(SHMKEY_SUPP, 50 * sizeof(int));
+    int *shm_check_ptr = (int *) get_shared_memory(shm_check_id, IPC_CREAT);
+    DEBUG_PRINT("shared memory di supporto allocata e connessa");
+
+    //message queue
+
+    //..
+
+    //comunicazione con il client_0
     global_fd1 = open_FIFO("fifo1", O_RDONLY);    //mi metto in ascolto del client su fifo1
     struct Responce risposta = read_FIFO(global_fd1);      //risposta del client_0 sul numero di files
     int n_file = risposta.file_number;
 
-    printf("\n<server>ricevuto n di file %d, additional %d", n_file,risposta.additional);
+    DEBUG_PRINT("\n<server>ricevuto n di file %d, additional %d", n_file,risposta.additional);
     fflush(stdout);
 
-
-    //alloco la schared memory per rispondere al client, poi lo sblocco
-
-    int id_memoria = alloc_shared_memory(SHMKEY1, 50 * 5120 * sizeof(char));
-    char *shmptr = get_shared_memory(id_memoria, 0);
-    if(n_file>0)
-        strcpy(shmptr,"1\0");
-    else
-        strcpy(shmptr,"-1\0");
-
-    printf("\nmemoria allocata");
+    printf("\nmemoria allocata\n");
     fflush(stdout);
 
 
     //leggo il semaforo creato dal client e lo sblocco
-    int semaphore_id = createSemaphore(ftok(NULL,SEMKEY1), 1,0);
+    int semaphore_id = createSemaphore(SEMKEY1, 1,0);
     semOp(semaphore_id, 0, 1, 0);
     printSemaphoreValue(semaphore_id,1);
 
@@ -73,7 +84,7 @@ int main(int argc, char *argv[]) {
 
     pause();
 
-    free_shared_memory(shmptr);
+    free_shared_memory(shm_ptr);
 
     return 0;
 }
