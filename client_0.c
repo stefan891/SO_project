@@ -9,7 +9,7 @@
 #include <sys/msg.h>
 
 char *global_path;       // variabile globale per passare argv[1] al sigHandler
-char **legit_files_path; // matrice di stringhe per salvare il path dei soli file "legali"
+
 
 void sigHandler(int signal)
 {
@@ -22,6 +22,7 @@ void sigHandler(int signal)
     {
 
         // procedura per salutare l'utente
+        //------------------------------------------------------------------------------------
         char path[100];
 
         printf("\nciao %s ora inizio l'invio dei file contenuti in ", getlogin());
@@ -30,82 +31,52 @@ void sigHandler(int signal)
         strcat(path, "/");
         strcat(path, global_path);
         printf("%s\n", path);
+        //------------------------------------------------------------------------------------
 
         // lettura files nella directory
-        DIR *dp = opendir(path);
-        if (dp == NULL)
-            ErrExit("directory inesistente");
+        //------------------------------------------------------------------------------------
 
-        errno = 0;
-        struct dirent *dentry;
-        struct stat statbuf;
-        int legit_files = 0;
+        char *legit_files_path[100]={};
+        int legit_files=readDir(path,legit_files_path);
 
-        char filepath[PATH_MAX]; // variabile di supporto uguale a path+nome di ogni file in fondo
-        strcpy(filepath, path);
-        strcat(filepath, "/");
 
-        /** ad ogni iterazione la funzione readdir avanza automaticamente con la lettura dei files*/
-        while ((dentry = readdir(dp)) != NULL)
-        {
 
-            if (dentry->d_type == DT_REG && strncmp("sendme_", dentry->d_name, 7) == 0)
-            {
-                /** ad ogni ciclo prendo il path e aggiungo il nome file per recavarne lo statbuf*/
-                stat(strcat(filepath, dentry->d_name), &statbuf);
+        //----------------------------------------------------------------------------------------
 
-                if (statbuf.st_size < 4000) // aggiungo solo files minori di 4kb
-                {
-
-                    printf("\n%s", dentry->d_name);
-                    legit_files++;
-                    printf(" file size: %ld", statbuf.st_size);
-
-                    /** con questo modo molto figo, alloco dinamicamente un vettore di stringhe man mano
-                     che trovo i file, in modo da non dover allocare sempre un vettore di 100 stringhe*/
-                    legit_files_path = realloc(legit_files_path, sizeof(char *));
-                    legit_files_path[legit_files - 1] = malloc(PATH_MAX * sizeof(char));
-                    strcpy(legit_files_path[legit_files - 1], filepath); // copio il file path di ogni file "legit" nel vettore di stringhe che sto creando
-
-                    strcpy(filepath, path); // resetto il contenuto di filepath a /myDir, se no mi aggiunge dietro tutti i nomi dei file attaccati
-                    strcat(filepath, "/");
-                }
-            }
-            errno = 0;
-        }
-        if (errno != 0)
-            ErrExit("error reading dir.\n");
-
-        /**verifica del vettore di stringhe, ma la puoi cancellare*/
+        //######################################################## //verifica del vettore di stringhe, ma la puoi cancellare
         printf("\nverifica lettura file legit");
-        for (int i = 0; i < legit_files; i++)
+        for (int i = 0; i < 8; i++)
         {
             printf("\n%s", legit_files_path[i]);
             fflush(stdout);
         }
 
-        /**creazione e settaggio semaforo di supporto*/
-        int semaforo_supporto=createSemaphore(SEMKEY1,1,IPC_CREAT);
+
+        //#######################################################
+
+            //creazione e settaggio semaforo di supporto
+        //--------------------------------------------------------------------------
+        int semaforo_supporto=createSemaphore(ftok(NULL,SEMKEY1),1,IPC_CREAT);
         union semun arg;
-        arg.val=0;
+        arg.val=(unsigned short)0;
         if(semctl(semaforo_supporto,0,SETVAL,arg)==-1)
             ErrExit("semctl failed");
         printf("\nsemaforo_supporto %d",semaforo_supporto);
         fflush(stdout);
         //---------------------------------------------------------------------------
 
-        /**mi metto in attesa del server su fifo1 per scrivere il n di file*/
+
+        //mi metto in attesa del server su fifo1 per scrivere il n di file
         int global_fd1= open_FIFO("fifo1",O_WRONLY);
         write_FIFO(global_fd1,NULL,legit_files,0,NULL);
 
-        /**mi blocco per aspettare che il server crei la shmem per leggerci*/
-        semOp(semaforo_supporto,0,-1,0);
+        //mi blocco per aspettare che il server crei la shmem per leggerci
+        semOp(semaforo_supporto,(unsigned short)0,-1,0);
 
-        /**mi aggancio alla shmem creata dal server*/
-        int id_memoria=alloc_shared_memory(SHMKEY1,50 * sizeof(struct Responce));
+        //mi aggancio alla shmem creata dal server
+        int id_memoria=alloc_shared_memory(SHMKEY1,50 * 5120 * sizeof(char));
         char *ptr= get_shared_memory(id_memoria,0);
 
-        removeSemaphore(semaforo_supporto);
 
 
         if(atoi(ptr)>0)
@@ -137,20 +108,19 @@ void sigHandler(int signal)
 
 
 
-
-
-            /**divisione file in 4 e creazione figli*/
+            //divisione file in 4 e creazione figli
+        //-------------------------------------------------------------------------------------
             for(int i=0;i<legit_files;i++)
             {
                 pid_t pid=fork();
                 if(pid==-1)
                     ErrExit("fork failed");
 
-                    /**codice eseguito dal child*/
+                //codice eseguito dal child--------------
 
                 else if(pid==0)
                 {
-                    /**mutua esclusione sul primo semaforo*/
+                    //mutua esclusione sul primo semaforo
                     semOp(semaforo_mutex,0,-1,0);
 
                     printf("\nfiglio %d",i);
@@ -198,6 +168,7 @@ void sigHandler(int signal)
             while(wait(NULL)!=-1);
             removeSemaphore(semaforo_ipc);
             removeSemaphore(semaforo_mutex);
+            removeSemaphore(semaforo_supporto);
             return;
         //-------------------------------------------------------------------------------------
 
@@ -206,12 +177,14 @@ void sigHandler(int signal)
         else
             ErrExit("no files to read");
 
-
     }
 }
 
 
-//MAIN
+//#########################################################################################################################
+                                                        //MAIN
+//#########################################################################################################################
+
 int main(int argc, char *argv[])
 {
 
@@ -240,7 +213,6 @@ int main(int argc, char *argv[])
     //attendo ricezione di segnale SIGINT o SIGUSR1
     pause();
 
-    while (wait(NULL) != -1);
 
     printf("\n<parent>end\n");
 
