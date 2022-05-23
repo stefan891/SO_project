@@ -56,7 +56,7 @@ void sigHandler(int signal)
 
             //creazione e settaggio semaforo di supporto
         //--------------------------------------------------------------------------
-        int semaforo_supporto=createSemaphore(ftok(NULL,SEMKEY1),1,IPC_CREAT);
+        int semaforo_supporto=createSemaphore(SEMKEY1,1,IPC_CREAT);
         union semun arg;
         arg.val=(unsigned short)0;
         if(semctl(semaforo_supporto,0,SETVAL,arg)==-1)
@@ -64,6 +64,17 @@ void sigHandler(int signal)
         printf("\nsemaforo_supporto %d",semaforo_supporto);
         fflush(stdout);
         //---------------------------------------------------------------------------
+        //creo un set da 4 semafori da 50 per le IPC, da sincronizzare col server
+        int semaforo_ipc= createSemaphore(SEMIPCKEY,4,IPC_CREAT);
+                                          //FIFO_1 FIFO_2  MSGQ  SHMEM
+        unsigned short sem_ipc_initVal[]={2,2,50,50};
+        arg.array=sem_ipc_initVal;
+        if(semctl(semaforo_ipc,0,SETALL,arg)==-1)
+            ErrExit("semctl sem_ipc failed");
+        printf("\nsemaforo_ipc %d",semaforo_ipc);
+        fflush(stdout);
+
+
 
 
         //mi metto in attesa del server su fifo1 per scrivere il n di file
@@ -92,17 +103,9 @@ void sigHandler(int signal)
                 ErrExit("semctl sem_mutex SETALL failed");
 
             printf("\nsemaforo_mutex %d",semaforo_mutex);
-
-            //creo un set da 4 semafori da 50 per le IPC
-            int semaforo_ipc= createSemaphore(IPC_PRIVATE,4,IPC_CREAT);
-
-            unsigned short sem_ipc_initVal[]={50,50,50,50};
-            arg.array=sem_ipc_initVal;
-            if(semctl(semaforo_ipc,0,SETALL,arg)==-1)
-                ErrExit("semctl sem_ipc failed");
-
-            printf("\nsemaforo_mutex %d",semaforo_ipc);
             fflush(stdout);
+
+            int global_fd2= open_FIFO("fifo2",O_WRONLY);
 
             //exit(0);
 
@@ -146,12 +149,13 @@ void sigHandler(int signal)
 
                     //ciclo while per mandare i messaggi
                     int count=2;
-                    int global_fd2= open_FIFO("fifo2",O_WRONLY);
-
                     while(count>0)
                     {
+                        semOp(semaforo_ipc,0,-1,0);
                         write_FIFO(global_fd1,divide.part1,1,getpid(), legit_files_path[i]);
                         count--;
+
+                        semOp(semaforo_ipc,1,-1,0);
                         write_FIFO(global_fd2,divide.part2,2,getpid(),legit_files_path[i]);
                         count--;
                     }
@@ -166,7 +170,7 @@ void sigHandler(int signal)
             //codice eseguito dal parent---------------------------------
             //aspetto tutti i figli
             while(wait(NULL)!=-1);
-            removeSemaphore(semaforo_ipc);
+            //removeSemaphore(semaforo_ipc);
             removeSemaphore(semaforo_mutex);
             removeSemaphore(semaforo_supporto);
             return;

@@ -39,7 +39,6 @@ int main(int argc, char *argv[]) {
 
 
     //alloco la schared memory per rispondere al client, poi lo sblocco
-
     int id_memoria = alloc_shared_memory(SHMKEY1, 50 * 5120 * sizeof(char));
     char *shmptr = get_shared_memory(id_memoria, 0);
     if(n_file>0)
@@ -51,25 +50,34 @@ int main(int argc, char *argv[]) {
     fflush(stdout);
 
 
+    //leggo il semaforo per le 4 ipc creato dal client
+    //FIFO_1 FIFO_2  MSGQ  SHMEM
+    int semaforo_ipc = createSemaphore(SEMIPCKEY,4,0);
+
     //leggo il semaforo creato dal client e lo sblocco
-    int semaphore_id = createSemaphore(ftok(NULL,SEMKEY1), 1,0);
-    semOp(semaphore_id, 0, 1, 0);
-    printSemaphoreValue(semaphore_id,1);
+    int semaforo_supporto = createSemaphore(SEMKEY1, 1,0);
+    semOp(semaforo_supporto, 0, 1, 0);
+    printSemaphoreValue(semaforo_supporto,1);
 
     int count=n_file;
 
     global_fd2= open_FIFO("fifo2",O_RDONLY);
     while(count>0)
     {
+        sleep(2);
         risposta=read_FIFO(global_fd1);
         printf("[parte %d,del file %s, spedita da processo %d tramite fifo1]\n%s",
                risposta.file_number,risposta.filepath,risposta.additional,risposta.content);
+        semOp(semaforo_ipc,0,1,0);
+
         risposta= read_FIFO(global_fd2);
-        printf("parte %d,del file %s, spedita da processo %d tramite fifo1\n%s",
+        printf("parte %d,del file %s, spedita da processo %d tramite fifo2\n%s",
                risposta.file_number,risposta.filepath,risposta.additional,risposta.content);
+        semOp(semaforo_ipc,1,1,0);
         count--;
     }
     fflush(stdout);
+    removeSemaphore(semaforo_ipc);
 
     pause();
 

@@ -8,7 +8,7 @@
 #define SHMKEY1 10
 
 #define SEMKEY1 11
-#define SEMMUTEXKEY1 14
+#define SEMIPCKEY 14
 #define SEMKEY2 32
 #define MSGQKEY 30
 
