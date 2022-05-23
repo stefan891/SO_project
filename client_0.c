@@ -144,7 +144,7 @@ void sigHandler(int signal)
                     fflush(stdout);
 
                     // ciclo while per mandare i messaggi
-                    int count = 3;
+                    int count = 2;
 
 
                     while (count > 0)

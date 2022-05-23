@@ -71,12 +71,13 @@ int main(int argc, char *argv[]) {
     printSemaphoreValue(semaforo_supporto,1);
 
     int count=n_file;
+    DEBUG_PRINT("nfile = %d", n_file);
 
     global_fd2= open_FIFO("fifo2",O_RDONLY);
 
     while(count>0)
     {
-        sleep(2);
+        sleep(1);
         risposta=read_FIFO(global_fd1);
         printf("[parte %d,del file %s, spedita da processo %d tramite fifo1]\n%s",
                risposta.file_number,risposta.filepath,risposta.additional,risposta.content);
@@ -104,13 +105,12 @@ int main(int argc, char *argv[]) {
         shm_support_array[i] = true;
         semOp(semid_shm_mutex, 0, 1, 0);
 
-        count--;*/
+        */
     }
     fflush(stdout);
-    removeSemaphore(semaforo_ipc);
 
     pause();
-
+    removeSemaphore(semaforo_ipc);
     free_shared_memory(shm_ptr);
 
     return 0;

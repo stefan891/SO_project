@@ -12,7 +12,6 @@
 #define SEMIPCKEY 14
 #define SEMKEY2 32
 #define SEMMUTEXKEY1 14
-#define SEMKEY2 12
 #define MSGQKEY 30
 
 #include <stdio.h>
