@@ -1,9 +1,7 @@
 /// @file fifo.h
 /// @brief Contiene la definizioni di variabili e
 ///         funzioni specifiche per la gestione delle FIFO.
-
 #pragma once
-
 
 /*crea la fifo nella current working directory/IPCS
 @param name: il nome che si vuole dare alla fifo per identificarla */

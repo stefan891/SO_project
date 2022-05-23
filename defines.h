@@ -6,7 +6,7 @@
 
 #define MSG_BYTES 1024
 #define SHMKEY1 20
-#define SHMKEY_SUPP 21
+#define SHMKEY_SUPP_MUTEX 21
 
 #define SEMKEY1 11
 #define SEMMUTEXKEY1 14
@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <errno.h>
+#include <stdbool.h>
 #include "debug.h"
 
 //non modificare il content
@@ -60,6 +61,8 @@ struct Divide{
     char part4[MSG_BYTES+1];
 
 };
+
+bool shm_support_array[50];
 
 struct Divide divideByFour(char *path);
 

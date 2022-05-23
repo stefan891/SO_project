@@ -130,3 +130,15 @@ int semOpNoBlocc(int semid, unsigned short sem_num, short sem_op) {
     return 0;
 }
 
+
+int semWaitNoBloc(int semid, int sem_num){
+    return semOpNoBlocc(semid, sem_num, -1);
+}
+
+void semSetVal(int semid, int values){
+    union semun arg;
+    arg.val = values;
+
+    if(semctl(semid, 0/*ignored*/, SETVAL, arg) == -1)
+        ErrExit("semctl SETALL failed");
+}
