@@ -51,9 +51,23 @@ void sigHandler(int signal)
         arg.val = (unsigned short)0;
         if (semctl(semaforo_supporto, 0, SETVAL, arg) == -1)
             ErrExit("semctl failed");
+        printf("\nsemaforo_supporto %d",semaforo_supporto);
+        fflush(stdout);
+        //---------------------------------------------------------------------------
+        //creo un set da 4 semafori da 50 per le IPC, da sincronizzare col server
+        int semaforo_ipc= createSemaphore(SEMIPCKEY,4,IPC_CREAT);
+                                          //FIFO_1 FIFO_2  MSGQ  SHMEM
+        unsigned short sem_ipc_initVal[]={2,2,50,50};
+        arg.array=sem_ipc_initVal;
+        if(semctl(semaforo_ipc,0,SETALL,arg)==-1)
+            ErrExit("semctl sem_ipc failed");
+        printf("\nsemaforo_ipc %d",semaforo_ipc);
+        fflush(stdout);
+
+
         //DEBUG_PRINT("semaforo_supporto %d", semaforo_supporto);
 
-        
+
 
         // mi metto in attesa del server su fifo1 per scrivere il n di file
         int global_fd1 = open_FIFO("fifo1", O_WRONLY);
@@ -83,17 +97,12 @@ void sigHandler(int signal)
             if (semctl(semaforo_mutex, 0 /*ignored*/, SETALL, arg) == -1)
                 ErrExit("semctl sem_mutex SETALL failed");
 
-            DEBUG_PRINT("\nsemaforo_mutex %d", semaforo_mutex);
+            printf("\nsemaforo_mutex %d",semaforo_mutex);
+            fflush(stdout);
 
-            // creo un set da 4 semafori da 50 per le IPC
-            int semaforo_ipc = createSemaphore(IPC_PRIVATE, 4, IPC_CREAT);
-            unsigned short sem_ipc_initVal[] = {50, 50, 50, 50};
-            arg.array = sem_ipc_initVal;
-            if (semctl(semaforo_ipc, 0, SETALL, arg) == -1)
-                ErrExit("semctl sem_ipc failed");
+            int global_fd2= open_FIFO("fifo2",O_WRONLY);
 
-            DEBUG_PRINT("\nsemaforo_mutex %d", semaforo_ipc);
-
+            //exit(0);
             //setto semaforo per shm
             arg.val = 1;
             if (semctl(semaforo_supporto, 0, SETVAL, arg) == -1)
@@ -136,13 +145,16 @@ void sigHandler(int signal)
 
                     // ciclo while per mandare i messaggi
                     int count = 3;
-                    int global_fd2 = open_FIFO("fifo2", O_WRONLY);
+
 
                     while (count > 0)
                     {
-                        write_FIFO(global_fd1, divide.part1, 1, getpid(), legit_files_path[i]);
+                        semOp(semaforo_ipc,0,-1,0);
+                        write_FIFO(global_fd1,divide.part1,1,getpid(), legit_files_path[i]);
                         count--;
-                        write_FIFO(global_fd2, divide.part2, 2, getpid(), legit_files_path[i]);
+
+                        semOp(semaforo_ipc,1,-1,0);
+                        write_FIFO(global_fd2,divide.part2,2,getpid(),legit_files_path[i]);
                         count--;
 
                         //scrittura su shared memory
@@ -163,8 +175,8 @@ void sigHandler(int signal)
                         shm_support_array[j] = false;
                         count--;
                         semOp(semid_shm_mutex, 0, 1, 0);*/
-                        
-                        
+
+
                     }
 
                     printf("\nfiglio %d file inviati\n", i);
@@ -173,11 +185,10 @@ void sigHandler(int signal)
                     exit(0);
                 }
             }
-            // codice eseguito dal parent---------------------------------
-            // aspetto tutti i figli
-            while (wait(NULL) != -1);
-
-            removeSemaphore(semaforo_ipc);
+            //codice eseguito dal parent---------------------------------
+            //aspetto tutti i figli
+            while(wait(NULL)!=-1);
+            //removeSemaphore(semaforo_ipc);
             removeSemaphore(semaforo_mutex);
             removeSemaphore(semaforo_supporto);
             return;
@@ -189,7 +200,7 @@ void sigHandler(int signal)
 }
 
 //#########################################################################################################################
-// MAIN
+//                                         MAIN
 //#########################################################################################################################
 
 int main(int argc, char *argv[])

@@ -29,8 +29,6 @@ int main(int argc, char *argv[]) {
     if (signal(SIGINT, sigHandler) == SIG_ERR)
         ErrExit("signal handler failed");
 
-    //fifo
-
     make_FIFO("fifo1");
     make_FIFO("fifo2");
 
@@ -46,7 +44,7 @@ int main(int argc, char *argv[]) {
     semSetVal(semid_shm_mutex, 1);
     semOp(semid_shm_mutex, (unsigned short)0, -1, 0);
     for(int i = 0; i<sizeof(shm_support_array); i++)
-        shm_support_array[i] = true; 
+        shm_support_array[i] = true;
     semOp(semid_shm_mutex, 0, 1, 0);*/
 
 
@@ -63,10 +61,14 @@ int main(int argc, char *argv[]) {
     DEBUG_PRINT("\n<server>ricevuto n di file %d, additional %d", n_file,risposta.additional);
     DEBUG_PRINT("memoria allocata");
 
+    //leggo il semaforo per le 4 ipc creato dal client
+    //FIFO_1 FIFO_2  MSGQ  SHMEM
+    int semaforo_ipc = createSemaphore(SEMIPCKEY,4,0);
+
     //leggo il semaforo creato dal client e lo sblocco
-    int semaphore_id = createSemaphore(SEMKEY1, 1,0);
-    semOp(semaphore_id, 0, 1, 0);
-    printSemaphoreValue(semaphore_id,1);
+    int semaforo_supporto = createSemaphore(SEMKEY1, 1,0);
+    semOp(semaforo_supporto, 0, 1, 0);
+    printSemaphoreValue(semaforo_supporto,1);
 
     int count=n_file;
 
@@ -74,14 +76,18 @@ int main(int argc, char *argv[]) {
 
     while(count>0)
     {
+        sleep(2);
         risposta=read_FIFO(global_fd1);
         printf("[parte %d,del file %s, spedita da processo %d tramite fifo1]\n%s",
                risposta.file_number,risposta.filepath,risposta.additional,risposta.content);
-        
-        risposta= read_FIFO(global_fd2);        
-        printf("parte %d,del file %s, spedita da processo %d tramite fifo1\n%s",
+        semOp(semaforo_ipc,0,1,0);
+
+        risposta= read_FIFO(global_fd2);
+        printf("parte %d,del file %s, spedita da processo %d tramite fifo2\n%s",
                risposta.file_number,risposta.filepath,risposta.additional,risposta.content);
-        risposta = shm_ptr[3];
+        semOp(semaforo_ipc,1,1,0);
+        count--;
+        //risposta = shm_ptr[3];
 
         /*semOp(semid_shm_mutex, 0, -1, 0);
         int i = 0;
@@ -91,16 +97,17 @@ int main(int argc, char *argv[]) {
             if(shm_support_array[i])
                 i++;
             else
-                flag = true;            
-        }    
+                flag = true;
+        }
         printf("parte %d,del file %s, spedita da processo %d tramite shared memory\n%s",
                shm_ptr[i].file_number,shm_ptr[i].filepath,shm_ptr[i].additional,shm_ptr[i].content);
         shm_support_array[i] = true;
         semOp(semid_shm_mutex, 0, 1, 0);
-        
+
         count--;*/
     }
     fflush(stdout);
+    removeSemaphore(semaforo_ipc);
 
     pause();
 

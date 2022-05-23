@@ -9,6 +9,8 @@
 #define SHMKEY_SUPP_MUTEX 21
 
 #define SEMKEY1 11
+#define SEMIPCKEY 14
+#define SEMKEY2 32
 #define SEMMUTEXKEY1 14
 #define SEMKEY2 12
 #define MSGQKEY 30
