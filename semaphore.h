@@ -22,3 +22,13 @@ int createSemaphore(key_t key, int n_sem,short flag);
 void removeSemaphore(int semid);
 
 void printSemaphoreValue(int semid, int n_sem);
+
+void getSemaphoreId(int semid, char string[]);
+
+void semSetAll(int semid, short unsigned int values[]);
+
+int semOpNoBlocc(int semid, unsigned short sem_num, short sem_op);
+
+int semWaitNoBloc(int semid, int sem_num);
+
+void semSetVal(int semid, int values);
