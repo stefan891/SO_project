@@ -46,6 +46,8 @@ int main(int argc, char *argv[]) {
     for(int i = 0; i<sizeof(shm_support_array); i++)
         shm_support_array[i] = true;
     semOp(semid_shm_mutex, 0, 1, 0);*/
+    //creazione mutex per shared memory
+    int shm_mutex = createSemaphore(SEMMUTEXKEY1, 1, IPC_CREAT);
 
 
     //message queue

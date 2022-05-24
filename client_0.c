@@ -23,7 +23,6 @@ void sigHandler(int signal)
     {
 
         // procedura per salutare l'utente
-        //------------------------------------------------------------------------------------
         char path[100];
 
         printf("\nciao %s ora inizio l'invio dei file contenuti in ", getlogin());
@@ -32,7 +31,7 @@ void sigHandler(int signal)
         strcat(path, "/");
         strcat(path, global_path);
         printf("%s\n", path);
-        //------------------------------------------------------------------------------------
+
 
         // lettura files nella directory
         char *legit_files_path[100] = {};
@@ -52,23 +51,21 @@ void sigHandler(int signal)
         arg.val = (unsigned short)0;
         if (semctl(semaforo_supporto, 0, SETVAL, arg) == -1)
             ErrExit("semctl failed");
-        printf("\nsemaforo_supporto %d",semaforo_supporto);
-        fflush(stdout);
-        //---------------------------------------------------------------------------
+        // printf("\nsemaforo_supporto %d",semaforo_supporto);
+        // fflush(stdout);
+        DEBUG_PRINT("\nSemafori: ottenuto il set di semafori DI SUPPORTO\n");
+
+        
         //creo un set da 4 semafori da 50 per le IPC, da sincronizzare col server
         int semaforo_ipc= createSemaphore(SEMIPCKEY,4,IPC_CREAT);
-                                          //FIFO_1 FIFO_2  MSGQ  SHMEM
+        //FIFO_1 FIFO_2  MSGQ  SHMEM
         unsigned short sem_ipc_initVal[]={2,2,50,50};
         arg.array=sem_ipc_initVal;
         if(semctl(semaforo_ipc,0,SETALL,arg)==-1)
             ErrExit("semctl sem_ipc failed");
         printf("\nsemaforo_ipc %d",semaforo_ipc);
         fflush(stdout);
-
-
         //DEBUG_PRINT("semaforo_supporto %d", semaforo_supporto);
-
-
 
         // mi metto in attesa del server su fifo1 per scrivere il n di file
         int global_fd1 = open_FIFO("fifo1", O_WRONLY);

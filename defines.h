@@ -11,7 +11,7 @@
 #define SEMKEY1 11
 #define SEMIPCKEY 14
 #define SEMKEY2 32
-#define SEMMUTEXKEY1 14
+#define SEMMUTEXKEY1 12     //chiave per mutex shared memory
 #define MSGQKEY 30
 
 #include <stdio.h>
