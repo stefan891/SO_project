@@ -63,6 +63,7 @@ struct Divide{
 
 };
 
+//array di supporto per sapere le locazioni libere e occupate della shmemory
 bool shm_support_array[50];
 
 struct Divide divideByFour(char *path);
