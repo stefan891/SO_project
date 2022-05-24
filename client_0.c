@@ -58,13 +58,8 @@ void sigHandler(int signal)
         
         //creo un set da 4 semafori da 50 per le IPC, da sincronizzare col server
         int semaforo_ipc= createSemaphore(SEMIPCKEY,4,IPC_CREAT);
-<<<<<<< HEAD
-        //FIFO_1 FIFO_2  MSGQ  SHMEM
-        unsigned short sem_ipc_initVal[]={2,2,50,50};
-=======
                                           //FIFO_1 FIFO_2  MSGQ  SHMEM
         unsigned short sem_ipc_initVal[]={4,4,50,8};
->>>>>>> f195cc1f54a05f7bbc53741e449023535c012529
         arg.array=sem_ipc_initVal;
         if(semctl(semaforo_ipc,0,SETALL,arg)==-1)
             ErrExit("semctl sem_ipc failed");
