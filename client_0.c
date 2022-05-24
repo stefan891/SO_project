@@ -45,7 +45,7 @@ void sigHandler(int signal)
             fflush(stdout);
         }
 
-        // creazione e settaggio semaforo di supporto
+        // creazione e settaggio semaforo di supporto da condividere col server
         int semaforo_supporto = createSemaphore(SEMKEY1, 1, IPC_CREAT);
         union semun arg;
         arg.val = (unsigned short)0;
@@ -57,7 +57,7 @@ void sigHandler(int signal)
         //creo un set da 4 semafori da 50 per le IPC, da sincronizzare col server
         int semaforo_ipc= createSemaphore(SEMIPCKEY,4,IPC_CREAT);
                                           //FIFO_1 FIFO_2  MSGQ  SHMEM
-        unsigned short sem_ipc_initVal[]={2,2,50,50};
+        unsigned short sem_ipc_initVal[]={4,4,50,8};
         arg.array=sem_ipc_initVal;
         if(semctl(semaforo_ipc,0,SETALL,arg)==-1)
             ErrExit("semctl sem_ipc failed");
@@ -102,12 +102,12 @@ void sigHandler(int signal)
 
             int global_fd2= open_FIFO("fifo2",O_WRONLY);
 
-            //exit(0);
-            //setto semaforo per shm
+
+            //ri-setto il semaforo di supporto per ls shmemory
             arg.val = 1;
             if (semctl(semaforo_supporto, 0, SETVAL, arg) == -1)
                 ErrExit("semctl failed");
-            // exit(0);
+
 
             // divisione file in 4 e creazione figli
             for (int i = 0; i < legit_files; i++)
@@ -144,8 +144,9 @@ void sigHandler(int signal)
                     fflush(stdout);
 
                     // ciclo while per mandare i messaggi
-                    int count = 2;
+                    int count = 3;
 
+                    static const struct Responce empty_responce;
 
                     while (count > 0)
                     {
@@ -157,25 +158,39 @@ void sigHandler(int signal)
                         write_FIFO(global_fd2,divide.part2,2,getpid(),legit_files_path[i]);
                         count--;
 
-                        //scrittura su shared memory
-                        /*semOp(semid_shm_mutex, 0, -1, 0);
-                        bool fleg = false;
-                        int j = 0;
-                        while (!fleg)
-                        {
-                            if(!shm_support_array[j])
-                                j++;
-                            else
-                                fleg = true;
-                        }
-                        strcpy(ptr[j].content, divide.part3);
-                        strcpy(ptr[j].filepath, legit_files_path[i]);
-                        ptr[j].additional = getpid();
-                        ptr[j].file_number = 3;
-                        shm_support_array[j] = false;
-                        count--;
-                        semOp(semid_shm_mutex, 0, 1, 0);*/
+                        //mutua esclusione scrittura su shared memory
+                        semOp(semaforo_supporto,0,-1,0);
 
+                        //ciclo su array di supporto finchè non trovo la prima partizione libera (true)
+                        bool flag=false;
+                        int j = 0;
+                        while (j<50)
+                        {
+                            if(shm_support_array[j]==true)
+                            {
+                                flag=true;
+                                break;
+                            }
+                            j++;
+                        }
+                        //scrivo i campi della struct sul primo settore libero trovato
+                        if(true)
+                        {
+                            //DEBUG_PRINT("\nscrittura shared memory settore %d",j);
+                            fflush(stdout);
+
+                            semOp(semaforo_ipc,3,-1,IPC_NOWAIT);
+
+                            ptr[i]=empty_responce;
+                            strcpy(ptr[i].content, divide.part3);
+                            strcpy(ptr[i].filepath, legit_files_path[i]);
+                            ptr[i].additional = getpid();
+                            ptr[i].file_number = 3;
+                            shm_support_array[i] = false;
+                            count--;
+                        }
+
+                        semOp(semaforo_supporto, 0, 1, 0);
 
                     }
 
@@ -186,11 +201,9 @@ void sigHandler(int signal)
                 }
             }
             //codice eseguito dal parent---------------------------------
-            //aspetto tutti i figli
+            //aspetto tutti i figli e rimuovo i semafori del client
             while(wait(NULL)!=-1);
-            //removeSemaphore(semaforo_ipc);
             removeSemaphore(semaforo_mutex);
-            removeSemaphore(semaforo_supporto);
             return;
             //-------------------------------------------------------------------------------------
         }
