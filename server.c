@@ -39,13 +39,9 @@ int main(int argc, char *argv[]) {
     struct Responce *shm_ptr = (struct Responce*)get_shared_memory(shm_id, 0);
     DEBUG_PRINT("memoria condivisa allocata e connessa\n");
 
-    //inizializzazione array di supporto protetto da mutex
-    /*int semid_shm_mutex = createSemaphore(SHMKEY_SUPP_MUTEX, 1, IPC_CREAT);
-    semSetVal(semid_shm_mutex, 1);
-    semOp(semid_shm_mutex, (unsigned short)0, -1, 0);
-    for(int i = 0; i<sizeof(shm_support_array); i++)
+
+    for(int i = 0; i<50; i++)
         shm_support_array[i] = true;
-    semOp(semid_shm_mutex, 0, 1, 0);*/
 
 
     //message queue
@@ -53,7 +49,7 @@ int main(int argc, char *argv[]) {
     //..
 
     //comunicazione con il client_0
-    global_fd1 = open_FIFO("fifo1", O_RDONLY);              //mi metto in ascolto del client su fifo1
+    global_fd1 = open_FIFO("fifo1", O_RDONLY);   //mi metto in ascolto del client su fifo1
     struct Responce risposta = read_FIFO(global_fd1);      //risposta del client_0 sul numero di files
     int n_file = risposta.file_number;
     shm_ptr[0].file_number = n_file;
@@ -68,12 +64,16 @@ int main(int argc, char *argv[]) {
     //leggo il semaforo creato dal client e lo sblocco
     int semaforo_supporto = createSemaphore(SEMKEY1, 1,0);
     semOp(semaforo_supporto, 0, 1, 0);
-    printSemaphoreValue(semaforo_supporto,1);
+
 
     int count=n_file;
     DEBUG_PRINT("nfile = %d", n_file);
 
     global_fd2= open_FIFO("fifo2",O_RDONLY);
+
+    //leggo dalle 4 IPC (fifo 1-2,msgq,shmemory)
+
+    int i=0;
 
     while(count>0)
     {
@@ -87,29 +87,47 @@ int main(int argc, char *argv[]) {
         printf("parte %d,del file %s, spedita da processo %d tramite fifo2\n%s",
                risposta.file_number,risposta.filepath,risposta.additional,risposta.content);
         semOp(semaforo_ipc,1,1,0);
-        count--;
-        //risposta = shm_ptr[3];
 
-        /*semOp(semid_shm_mutex, 0, -1, 0);
-        int i = 0;
-        bool flag = false;
-        while (!flag)
+
+        //mutua esclusione lettura su shmem
+        semOp(semaforo_supporto, 0, -1, 0);
+
+        //ciclo su array di supporto finchè non trovo la prima partizione occupata (false)
+        bool flag=false;
+        int j = 0;
+        while (j<50)
         {
-            if(shm_support_array[i])
-                i++;
-            else
-                flag = true;
+            if(shm_support_array[j]==false)
+            {
+                flag=true;
+                break;
+            }
+            j++;
         }
-        printf("parte %d,del file %s, spedita da processo %d tramite shared memory\n%s",
-               shm_ptr[i].file_number,shm_ptr[i].filepath,shm_ptr[i].additional,shm_ptr[i].content);
-        shm_support_array[i] = true;
-        semOp(semid_shm_mutex, 0, 1, 0);
+        if(true)
+        {
+            DEBUG_PRINT("\nlettura shared memory settore %d",j);
+            fflush(stdout);
 
-        */
+            semOp(semaforo_ipc,3,1,0);
+
+            printf("parte %d,del file %s, spedita da processo %d tramite shared memory\n%s",
+                   shm_ptr[i].file_number,shm_ptr[i].filepath,shm_ptr[i].additional,shm_ptr[i].content);
+
+            shm_support_array[i] = true;
+
+            i++;
+            count--;
+        }
+
+        semOp(semaforo_supporto, 0, 1, 0);
+
+
     }
     fflush(stdout);
 
     pause();
+    removeSemaphore(semaforo_supporto);
     removeSemaphore(semaforo_ipc);
     free_shared_memory(shm_ptr);
 
