@@ -7,6 +7,7 @@
 #define MSG_BYTES 1024
 #define SHMKEY1 20
 #define SHMKEY_SUPP_MUTEX 21
+#define SHM_SUPP 40
 
 #define SEMKEY1 11
 #define SEMIPCKEY 14
@@ -63,8 +64,6 @@ struct Divide{
 
 };
 
-//array di supporto per sapere le locazioni libere e occupate della shmemory
-bool shm_support_array[50];
 
 struct Divide divideByFour(char *path);
 

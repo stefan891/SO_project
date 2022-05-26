@@ -8,9 +8,10 @@
 #include "shared_memory.h"
 #include <sys/msg.h>
 
-char *global_path; // variabile globale per passare argv[1] al sigHandler
+// variabile globale per passare argv[1] al sigHandler
+char *global_path;
 
-//funzione per creare subito tutti i semafori
+// funzione per creare subito tutti i semafori
 
 void sigHandler(int signal)
 {
@@ -32,40 +33,27 @@ void sigHandler(int signal)
         strcat(path, global_path);
         printf("%s\n", path);
 
-
         // lettura files nella directory
         char *legit_files_path[100] = {};
         int legit_files = readDir(path, legit_files_path);
 
-        //verifica del vettore di stringhe, ma la puoi cancellare
+        // verifica del vettore di stringhe, ma la puoi cancellare
         printf("\nverifica lettura file legit");
         for (int i = 0; i < legit_files; i++)
-        {
-            printf("\n%s", legit_files_path[i]);
-            fflush(stdout);
-        }
+            DEBUG_PRINT("\n%s", legit_files_path[i]);
 
         // creazione e settaggio semaforo di supporto da condividere col server
         int semaforo_supporto = createSemaphore(SEMKEY1, 1, IPC_CREAT);
-        union semun arg;
-        arg.val = (unsigned short)0;
-        if (semctl(semaforo_supporto, 0, SETVAL, arg) == -1)
-            ErrExit("semctl failed");
-        // printf("\nsemaforo_supporto %d",semaforo_supporto);
-        // fflush(stdout);
-        DEBUG_PRINT("\nSemafori: ottenuto il set di semafori DI SUPPORTO\n");
+        semSetVal(semaforo_supporto, 0, "semaforo_supporto primo");
+        DEBUG_PRINT("Semafori: ottenuto il set di semafori DI SUPPORTO\n");
 
-        
-        //creo un set da 4 semafori da 50 per le IPC, da sincronizzare col server
-        int semaforo_ipc= createSemaphore(SEMIPCKEY,4,IPC_CREAT);
-                                          //FIFO_1 FIFO_2  MSGQ  SHMEM
-        unsigned short sem_ipc_initVal[]={4,4,50,8};
-        arg.array=sem_ipc_initVal;
-        if(semctl(semaforo_ipc,0,SETALL,arg)==-1)
-            ErrExit("semctl sem_ipc failed");
-        printf("\nsemaforo_ipc %d",semaforo_ipc);
-        fflush(stdout);
-        //DEBUG_PRINT("semaforo_supporto %d", semaforo_supporto);
+        // creo un set da 4 semafori da 50 per le IPC, da sincronizzare col server
+        // FIFO_1 FIFO_2  MSGQ  SHMEM
+        int semaforo_ipc = createSemaphore(SEMIPCKEY, 4, IPC_CREAT);
+        unsigned short sem_ipc_initVal[] = {4, 4, 50, 8};
+        semSetAll(semaforo_ipc, sem_ipc_initVal, "sem_ipc");
+
+        DEBUG_PRINT("semaforo_ipc %d", semaforo_ipc);
 
         // mi metto in attesa del server su fifo1 per scrivere il n di file
         int global_fd1 = open_FIFO("fifo1", O_WRONLY);
@@ -74,38 +62,29 @@ void sigHandler(int signal)
         // mi blocco per aspettare che il server crei la shmem per leggerci
         semOp(semaforo_supporto, (unsigned short)0, -1, 0);
 
-        // mi aggancio alla shmem creata dal server
+        // mi aggancio alla shmem creata dal server (SUPPORTO E VERA)
         int id_memoria = alloc_shared_memory(SHMKEY1, 50 * sizeof(struct Responce));
-        struct Responce *ptr = get_shared_memory(id_memoria, 0);
+        struct Responce *ptr = (struct Responce *)get_shared_memory(id_memoria, 0);
 
-        //crezione semaforo mutex shared memory
-        /*int semid_shm_mutex = createSemaphore(SHMKEY_SUPP_MUTEX, 1, IPC_CREAT);*/
+        int shm_data_ready = alloc_shared_memory(SHM_SUPP, 50 * sizeof(bool));
+        bool *data_ready = (bool *)get_shared_memory(shm_data_ready, 0);
 
-
-        //mi assicuro che il file number sia corretto
+        // mi assicuro che il file number sia corretto
         if (ptr[0].file_number > 0)
         {
-
             // creo un semaphore set da 2 mutex per una mutua esclusione sui processi figli
             int semaforo_mutex = createSemaphore(IPC_PRIVATE, 2, IPC_CREAT);
+            unsigned short mutex_semInitVal[] = {1, legit_files};
+            semSetAll(semaforo_mutex, mutex_semInitVal, "sem_mutex");
 
-            unsigned short semInitVal[] = {1, legit_files};
-            arg.array = semInitVal;
+            DEBUG_PRINT("semafor_mutex %d", semaforo_mutex);
 
-            if (semctl(semaforo_mutex, 0 /*ignored*/, SETALL, arg) == -1)
-                ErrExit("semctl sem_mutex SETALL failed");
+            int global_fd2 = open_FIFO("fifo2", O_WRONLY);
 
-            printf("\nsemaforo_mutex %d",semaforo_mutex);
-            fflush(stdout);
+            // ri-setto il semaforo di supporto per ls shared memory
+            semSetVal(semaforo_supporto, 1, "semaforo_supporto");
 
-            int global_fd2= open_FIFO("fifo2",O_WRONLY);
-
-
-            //ri-setto il semaforo di supporto per ls shmemory
-            arg.val = 1;
-            if (semctl(semaforo_supporto, 0, SETVAL, arg) == -1)
-                ErrExit("semctl failed");
-
+            printSemaphoreValue(semaforo_supporto, 0);
 
             // divisione file in 4 e creazione figli
             for (int i = 0; i < legit_files; i++)
@@ -114,13 +93,13 @@ void sigHandler(int signal)
                 if (pid == -1)
                     ErrExit("fork failed");
 
-                // codice eseguito dal child
+                // CHILD
                 else if (pid == 0)
                 {
                     // mutua esclusione sul primo semaforo
                     semOp(semaforo_mutex, 0, -1, 0);
 
-                    printf("\nfiglio %d", i);
+                    printf("\n\nfiglio %d", i);
                     fflush(stdout);
 
                     // divido il file in 4 parti, mi viene ritornata una struttura con 4 stringhe
@@ -128,18 +107,15 @@ void sigHandler(int signal)
                     divide = divideByFour(legit_files_path[i]);
                     printf("\npart1: %s\npart2: %s\npart3: %s\npart4: %s", divide.part1, divide.part2, divide.part3, divide.part4);
                     fflush(stdout);
-
                     // decremento il secondo semaforo(legit)
                     semOp(semaforo_mutex, 1, -1, IPC_NOWAIT);
                     // sblocco figlio successivo (primo semaforo)
                     semOp(semaforo_mutex, 0, 1, 0);
-
                     // aspetto che il secondo semaforo arrivi a 0 per liberare tutti i figli
                     semOp(semaforo_mutex, 1, 0, 0);
 
                     // tutti i figli,una volta letto le 4 parti, vengono liberati insieme
-                    printf("\nfiglio %d finito\n", i);
-                    fflush(stdout);
+                    DEBUG_PRINT("figlio %d finito", i);
 
                     // ciclo while per mandare i messaggi
                     int count = 3;
@@ -148,77 +124,59 @@ void sigHandler(int signal)
 
                     while (count > 0)
                     {
-                        semOp(semaforo_ipc,0,-1,0);
-                        write_FIFO(global_fd1,divide.part1,1,getpid(), legit_files_path[i]);
+                        semOp(semaforo_ipc, 0, -1, 0);
+                        write_FIFO(global_fd1, divide.part1, 1, getpid(), legit_files_path[i]);
                         count--;
 
-                        semOp(semaforo_ipc,1,-1,0);
-                        write_FIFO(global_fd2,divide.part2,2,getpid(),legit_files_path[i]);
+                        semOp(semaforo_ipc, 1, -1, 0);
+                        write_FIFO(global_fd2, divide.part2, 2, getpid(), legit_files_path[i]);
                         count--;
 
-                        //mutua esclusione scrittura su shared memory
-                        semOp(semaforo_supporto,0,-1,0);
+                        // mutua esclusione scrittura su shared memory
+                        semOp(semaforo_supporto, 0, -1, 0);
+                        semOp(semaforo_ipc, 3, -1, IPC_NOWAIT);
 
-                        //ciclo su array di supporto finchè non trovo la prima partizione libera (true)
-                        bool flag=false;
-                        int j = 0;
-                        while (j<50)
+                        // ciclo su array di supporto finchè non trovo la prima partizione libera (true)
+                        for (int j = 0; j < 50; j++)
                         {
-                            if(shm_support_array[j]==true)
+                            if (!data_ready[j])
                             {
-                                flag=true;
+                                ptr[j] = empty_responce;        //pulizia struct su cui scrivere
+                                strcpy(ptr[j].content, divide.part3);
+                                strcpy(ptr[j].filepath, legit_files_path[i]);
+                                ptr[j].additional = getpid();
+                                ptr[j].file_number = 3;
+                                data_ready[j] = true;
+                                count--;
                                 break;
                             }
-                            j++;
                         }
-                        //scrivo i campi della struct sul primo settore libero trovato
-                        if(true)
-                        {
-                            //DEBUG_PRINT("\nscrittura shared memory settore %d",j);
-                            fflush(stdout);
-
-                            semOp(semaforo_ipc,3,-1,IPC_NOWAIT);
-
-                            ptr[i]=empty_responce;
-                            strcpy(ptr[i].content, divide.part3);
-                            strcpy(ptr[i].filepath, legit_files_path[i]);
-                            ptr[i].additional = getpid();
-                            ptr[i].file_number = 3;
-                            shm_support_array[i] = false;
-                            count--;
-                        }
-
                         semOp(semaforo_supporto, 0, 1, 0);
-
                     }
-
-                    printf("\nfiglio %d file inviati\n", i);
-                    fflush(stdout);
+                    DEBUG_PRINT("figlio %d file inviati", i);
 
                     exit(0);
                 }
             }
-            //codice eseguito dal parent---------------------------------
-            //aspetto tutti i figli e rimuovo i semafori del client
-            while(wait(NULL)!=-1);
+
+            /// PARENT
+            // aspetto tutti i figli e rimuovo i semafori del client
+            while (wait(NULL) != -1);
+
             removeSemaphore(semaforo_mutex);
             return;
-            //-------------------------------------------------------------------------------------
         }
         else
             ErrExit("no files to read");
     }
 }
 
-//#########################################################################################################################
-//                                         MAIN
-//#########################################################################################################################
 
+///MAIN
 int main(int argc, char *argv[])
 {
 
-    printf("PROCESS ID %d\n", getpid());
-    fflush(stdout);
+    DEBUG_PRINT("PROCESS ID %d\n", getpid());
 
     if (argc != 2)
     {

@@ -25,10 +25,10 @@ void printSemaphoreValue(int semid, int n_sem);
 
 void getSemaphoreId(int semid, char string[]);
 
-void semSetAll(int semid, short unsigned int values[]);
+void semSetAll(int semid, short unsigned int values[], char *err);
 
 int semOpNoBlocc(int semid, unsigned short sem_num, short sem_op);
 
 int semWaitNoBloc(int semid, int sem_num);
 
-void semSetVal(int semid, int values);
+void semSetVal(int semid, int values, char *err);
