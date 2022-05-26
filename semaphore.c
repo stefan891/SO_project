@@ -6,6 +6,7 @@
 #include "err_exit.h"
 #include "semaphore.h"
 #include <errno.h>
+#include <string.h>
 
 /**
  * "semOp() is a wrapper for the semop() system call that makes it easier to use."
@@ -97,12 +98,21 @@ void getSemaphoreId(int semid, char string[]){
     fflush(stdout);
 }
 
-void semSetAll(int semid, short unsigned int values[]){
+
+/**
+ * This function sets the values of all the semaphores in the set to the values in the array pointed to
+ * by the second argument.
+ * 
+ * @param semid the semaphore set identifier
+ * @param values an array of short unsigned integers, one for each semaphore in the set.
+ * @param err a string to be used in the error message if the semctl call fails.
+ */
+void semSetAll(int semid, short unsigned values[], char *err){
     union semun arg;
     arg.array = values;
 
     if(semctl(semid, 0/*ignored*/, SETALL, arg) == -1)
-        ErrExit("semctl SETALL failed");
+        ErrExit(strcat("semctl SETALL failed: ", err));
 }
 
 /**
@@ -131,14 +141,30 @@ int semOpNoBlocc(int semid, unsigned short sem_num, short sem_op) {
 }
 
 
+/**
+ * It waits for a semaphore to be available, but it doesn't block if it's not
+ *
+ * @param semid the semaphore set identifier
+ * @param sem_num The semaphore number.
+ *
+ * @return The return value is the value of the semaphore.
+ */
 int semWaitNoBloc(int semid, int sem_num){
     return semOpNoBlocc(semid, sem_num, -1);
 }
 
-void semSetVal(int semid, int values){
+
+/**
+ * It sets the value of the semaphore to the value of the second argument
+ * 
+ * @param semid the semaphore set identifier
+ * @param values the value to set the semaphore to
+ * @param err the error message to print if the semaphore fails to be created
+ */
+void semSetVal(int semid, int values, char *err){
     union semun arg;
     arg.val = values;
 
     if(semctl(semid, 0/*ignored*/, SETVAL, arg) == -1)
-        ErrExit("semctl SETALL failed");
+        ErrExit(strcat("semctl SETALL failed: ", err));
 }

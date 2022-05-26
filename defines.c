@@ -9,6 +9,13 @@ char Buffer[PATH_MAX];
 
 static const struct Divide empty_divide;
 
+/**
+ * It opens the file, reads it, and divides it into four parts
+ *
+ * @param dirname the name of the file to be divided
+ *
+ * @return A struct containing 4 strings.
+ */
 struct Divide divideByFour(char *dirname)
 {
     struct Divide divide;
@@ -46,11 +53,7 @@ struct Divide divideByFour(char *dirname)
     return divide;
 }
 
-
-
-
-
-/*
+/**
  *legge tutti i files legittimi in una sottocartella
  * @param *dirname: la stringa del path corrente fino a questa cartella, senza / finale
  * @param legit_files_path: puntatore alla variabile globale nel main
@@ -133,10 +136,12 @@ int readDir(const char *dirname,char **legit_files_path)
 
 }
 
-
-
-
-//funzione da usare in caso per le chiavi con la ftok (non la stiamo usando)
+/**
+ * funzione da usare in caso per le chiavi con la ftok (non la stiamo usando)
+ * It gets the current working directory, appends the string "myDir" to it, and returns the result
+ *
+ * @return The path to the directory.
+ */
 char* getDirectoryPath(){
 
     getcwd(Buffer, PATH_MAX);
