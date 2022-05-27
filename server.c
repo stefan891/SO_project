@@ -45,8 +45,8 @@ int main(int argc, char *argv[])
     //..
 
     // comunicazione con il client_0
-    global_fd1 = open_FIFO("fifo1", O_RDONLY);      // mi metto in ascolto del client su fifo1
-    struct Responce risposta = read_FIFO(global_fd1);        // risposta del client_0 sul numero di files
+    global_fd1 = open_FIFO("fifo1", O_RDONLY);        // mi metto in ascolto del client su fifo1
+    struct Responce risposta = read_FIFO(global_fd1); // risposta del client_0 sul numero di files
     int n_file = risposta.file_number;
     shm_ptr[0].file_number = n_file;
 
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     // leggo il semaforo creato dal client e lo sblocco
     int semaforo_supporto = createSemaphore(SEMKEY1, 1, 0);
     semOp(semaforo_supporto, 0, 1, 0);
-    
+
     int count = n_file;
     DEBUG_PRINT("nfile = %d", n_file);
 
@@ -71,19 +71,19 @@ int main(int argc, char *argv[])
     {
         sleep(1);
 
-        ///FIFO 1
+        /// FIFO 1
         risposta = read_FIFO(global_fd1);
         printf("\n[parte %d,del file %s, spedita da processo %d tramite fifo1]\n%s",
                risposta.file_number, risposta.filepath, risposta.additional, risposta.content);
         semOp(semaforo_ipc, 0, 1, 0);
 
-        ///FIFO 2
+        /// FIFO 2
         risposta = read_FIFO(global_fd2);
         printf("\n[parte %d,del file %s, spedita da processo %d tramite fifo2]\n%s",
                risposta.file_number, risposta.filepath, risposta.additional, risposta.content);
         semOp(semaforo_ipc, 1, 1, 0);
 
-        ///SHARED MEMORY
+        /// SHARED MEMORY
         // mutua esclusione lettura su shmem
         semOp(semaforo_supporto, 0, -1, 0);
 
@@ -95,6 +95,7 @@ int main(int argc, char *argv[])
             {
                 printf("\n[parte %d,del file %s, spedita da processo %d tramite shared memory]\n%s",
                        shm_ptr[j].file_number, shm_ptr[j].filepath, shm_ptr[j].additional, shm_ptr[j].content);
+                fflush(stdout);
                 data_ready[j] = false;
                 break;
             }
