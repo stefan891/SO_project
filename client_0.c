@@ -50,7 +50,7 @@ void sigHandler(int signal)
         // creo un set da 4 semafori da 50 per le IPC, da sincronizzare col server
         // FIFO_1 FIFO_2  MSGQ  SHMEM
         int semaforo_ipc = createSemaphore(SEMIPCKEY, 4, IPC_CREAT);
-        unsigned short sem_ipc_initVal[] = {4, 4, 50, 8};
+        unsigned short sem_ipc_initVal[] = {4, 4, 50, 4};
         semSetAll(semaforo_ipc, sem_ipc_initVal, "sem_ipc");
 
         DEBUG_PRINT("semaforo_ipc %d", semaforo_ipc);

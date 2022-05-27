@@ -69,4 +69,22 @@ struct Divide divideByFour(char *path);
 
 int readDir(const char *dirname,char **legit_files_path);
 
+struct Responce **FileReconstruct(struct Responce*,int *count);
+
 char* getDirectoryPath();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

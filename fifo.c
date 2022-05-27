@@ -121,7 +121,7 @@ struct Responce read_FIFO(int FIFO_fd)
     if(read(FIFO_fd,&filepath_size,sizeof (ssize_t))==-1)
         ErrExit("FIFO read failed");
 
-    printf("\n<read> content size: %ld filepath size: %ld\n", content_size,filepath_size);//debug
+    //printf("\n<read> content size: %ld filepath size: %ld\n", content_size,filepath_size);//debug
 
     //leggo il numero di file
     read(FIFO_fd,&responce.file_number,sizeof (int ));
