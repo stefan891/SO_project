@@ -17,7 +17,6 @@ void sigHandler(int signal)
     close_FIFO(global_fd1, "fifo1");
     close_FIFO(global_fd2, "fifo2");
 
-    kill(getpid(), SIGTERM);
 }
 
 int main(int argc, char *argv[])
@@ -69,10 +68,12 @@ int main(int argc, char *argv[])
     global_fd2 = open_FIFO("fifo2", O_RDONLY);
 
     //struttura per ricostruire i file, n_file righe, 4 colonne
-    struct Responce ricostruzione_file[n_file][3];
-    const struct Responce empty_file;
-    int file_count=0;
+    struct Responce **ricostruzione_file=(struct Responce**)malloc(n_file*sizeof (struct Responce*));
+    for(int i=0;i<n_file+1;i++)
+        ricostruzione_file[i]=(struct Responce*) malloc(4*sizeof (struct Responce));
 
+
+    int file_count=0;
 
     // leggo dalle 4 IPC (fifo 1-2,msgq,shmemory)
     while (count > 0)
@@ -81,46 +82,21 @@ int main(int argc, char *argv[])
 
         ///FIFO 1
         risposta = read_FIFO(global_fd1);
-        printf("\n[parte %d,del file %s, spedita da processo %d tramite fifo1]\n%s",
-               risposta.file_number, risposta.filepath, risposta.additional, risposta.content);
+        //printf("\n[parte %d,del file %s, spedita da processo %d tramite fifo1]\n%s",
+          //     risposta.file_number, risposta.filepath, risposta.additional, risposta.content);
 
-        //per sapere la riga(ovvero il file) su cui scrivere, compare il campo path con quelli presenti nella matrice
-        //per sapere la colonna(ovvero il pezzo del file della riga trovata) lo leggo dal campo file_number
-        for(int a=0;a<=n_file;a++)
-        {
-            //se trovo una corrispondenza di un file già scritto, aggiungo il pezzo nuovo
-            if(risposta.file_number<=4 && a<n_file) {
-                if (strcmp(risposta.filepath, ricostruzione_file[a][0].filepath) == 0) {
-                    printf("\ntrovata corrisp: %s",risposta.filepath);
-                    strcpy(ricostruzione_file[a][risposta.file_number - 1].filepath, risposta.filepath);
-                    strcpy(ricostruzione_file[a][risposta.file_number - 1].content, risposta.content);
+        FileReconstruct(&risposta, ricostruzione_file, &file_count, n_file);
 
-                    ricostruzione_file[a][risposta.file_number - 1].file_number = risposta.file_number;
-                    ricostruzione_file[a][risposta.file_number - 1].additional = risposta.additional;
-                    break;
-                }
-            }
-            //se non trovo corrispondenza, allora è un file nuovo e lo aggiungo alla prima locazione libera
-                if(a==n_file)
-                {
-                    printf("\nFILE NUOVO %d: %s",file_count,risposta.filepath);
-                    fflush(stdout);
-                    strcpy(ricostruzione_file[file_count][risposta.file_number-1].filepath,risposta.filepath);
-                    strcpy(ricostruzione_file[file_count][risposta.file_number-1].content,risposta.content);
-
-                    ricostruzione_file[file_count][risposta.file_number-1].file_number=risposta.file_number;
-                    ricostruzione_file[file_count][risposta.file_number-1].additional=risposta.additional;
-                    file_count++;
-                }
-
-        }
         count--;
         semOp(semaforo_ipc, 0, 1, 0);
 
         ///FIFO 2
         risposta = read_FIFO(global_fd2);
-        printf("\n[parte %d,del file %s, spedita da processo %d tramite fifo2]\n%s",
-               risposta.file_number, risposta.filepath, risposta.additional, risposta.content);
+       // printf("\n[parte %d,del file %s, spedita da processo %d tramite fifo2]\n%s",
+         //      risposta.file_number, risposta.filepath, risposta.additional, risposta.content);
+
+        FileReconstruct(&risposta, ricostruzione_file, &file_count, n_file);
+
         count--;
         semOp(semaforo_ipc, 1, 1, 0);
 
@@ -134,9 +110,17 @@ int main(int argc, char *argv[])
             if (data_ready[j])
             {
                 semOp(semaforo_ipc, 3, 1, 0);
-                printf("\n[parte %d,del file %s, spedita da processo %d tramite shared memory]\n%s",
-                       shm_ptr[j].file_number, shm_ptr[j].filepath, shm_ptr[j].additional, shm_ptr[j].content);
+            //    printf("\n[parte %d,del file %s, spedita da processo %d tramite shared memory]\n%s",
+              //         shm_ptr[j].file_number, shm_ptr[j].filepath, shm_ptr[j].additional, shm_ptr[j].content);
+
+                //copio i dati nella struttura responce
+                risposta.file_number=shm_ptr[j].file_number;
+                strcpy(risposta.filepath,shm_ptr[j].filepath);
+                risposta.additional=shm_ptr[j].additional;
+                strcpy(risposta.content,shm_ptr[j].content);
                 data_ready[j] = false;
+
+                FileReconstruct(&risposta, ricostruzione_file, &file_count, n_file);
                 break;
             }
         }
@@ -145,22 +129,75 @@ int main(int argc, char *argv[])
         semOp(semaforo_supporto, 0, 1, 0);
 
     }
+    DEBUG_PRINT("\nSTAMPA FINITA\nverifica sturttura\n\n");
+    fflush(stdout);
 
-    int fd= open(strcat(ricostruzione_file[0][0].filepath,"_out"),O_CREAT|O_RDWR);
-    char riga[MSG_BYTES+150];
-    strcpy(riga,"parte ");
-    strcat(riga,ricostruzione_file[0][0].filepath);
-    for(int i=0;i<4;i++)
-        strcat(riga,ricostruzione_file[0][i].content);
+    char numero[8];
 
-    write(fd,riga, strlen(riga));
-    close(fd);
+
+    for(int i=0;i<n_file;i++)
+    {
+        int fd= open(strcat(ricostruzione_file[i][0].filepath,"_out"),O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+        //int fd= open(strcat(ricostruzione_file[i][0].filepath,"_out"),O_CREAT|O_RDWR|S_IWUSR|S_IRUSR);
+        if(fd==-1)
+            ErrExit("open failed");
+
+        char riga[MSG_BYTES+150];
+        strcpy(riga,"");
+
+        for(int a=0;a<3;a++)
+        {
+            printf("\n[parte %d file %s pid %d]\n%s",ricostruzione_file[i][a].file_number,ricostruzione_file[i][a].filepath,
+                   ricostruzione_file[i][a].additional,ricostruzione_file[i][a].content);
+            fflush(stdout);
+
+            strcpy(riga,"\n[parte ");
+            sprintf(numero,"%d",ricostruzione_file[i][a].file_number);
+            strcat(riga,numero);
+            strcat(riga,",del file ");
+            strcat(riga,ricostruzione_file[i][0].filepath);
+            strcat(riga,", spedita dal processo ");
+            sprintf(numero,"%d",ricostruzione_file[i][0].additional);
+            strcat(riga,numero);
+            strcat(riga," tramite ");
+            switch(ricostruzione_file[i][a].file_number)
+            {
+                case 1:
+                    strcat(riga,"FIFO1]\n");
+                    break;
+                case 2:
+                    strcat(riga,"FIFO2]\n");
+                    break;
+                case 3:
+                    strcat(riga,"MsgQueue]\n");
+                    break;
+                case 4:
+                    strcat(riga,"ShdMem]\n");
+                    break;
+                default:
+                    strcat(riga,"NULL]\n");
+
+            }
+            strcat(riga,ricostruzione_file[i][a].content);
+
+            write(fd,riga, strlen(riga));
+        }
+        close(fd);
+
+    }
+
 
     pause();
+
+    free(ricostruzione_file);
     removeSemaphore(semaforo_supporto);
     removeSemaphore(semaforo_ipc);
+    remove_shared_memory(shm_id);
+    remove_shared_memory(shm_data_ready);
     free_shared_memory(shm_ptr);
     free_shared_memory(data_ready);
+
+    kill(getpid(), SIGTERM);
 
     return 0;
 }

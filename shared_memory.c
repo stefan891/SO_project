@@ -43,7 +43,7 @@ void *get_shared_memory(int shmid, int shmflg) {
 }
 
 /**
- * It creates a shared memory segment of size `size` and returns a pointer to it
+ * It frees a shmemory pointer
  *
  * @param ptr_sh pointer to the shared memory
  */

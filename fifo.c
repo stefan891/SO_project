@@ -65,9 +65,9 @@ int open_FIFO(char *name, int read_or_write)
 
 
 /**
- * close the fifo with the file descriptor
+ * close the fifo with the file descriptor.
  * if name!=NULL, also
- * deletes the file of the fifo with the name
+ * deletes the file of the fifo with specified name
  *
  * @param fd the file descriptor of the FIFO
  * @param name the name of the FIFO (not the entire path)
