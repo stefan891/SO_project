@@ -5,6 +5,7 @@
 #pragma once
 
 #define MSG_BYTES 1024
+#define PATH_SIZE 150
 #define SHMKEY1 20
 #define SHMKEY_SUPP_MUTEX 21
 #define SHM_SUPP 40
@@ -25,7 +26,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
-#include <limits.h>
+//#include <limits.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <errno.h>
@@ -41,7 +42,7 @@ struct File_piece{
     ssize_t filepath_size;
     int piece;
     int additional;
-    char content[MSG_BYTES+100];
+    char content[MSG_BYTES+PATH_SIZE];
 
 };
 
@@ -49,7 +50,7 @@ struct File_piece{
 struct Responce{
 
     char content[MSG_BYTES];    //contenuto del messaggio
-    char filepath[100];         //path del mittente
+    char filepath[PATH_SIZE];         //path del mittente
     int file_number;            //segment of the file delivered
     int additional;             //pid of the trocess
 
@@ -64,9 +65,69 @@ struct Divide{
 
 };
 
+struct MsgQue{
+  long mtype;               //messaggi della message queue
+  char content[50];
+  char filepath[50];
+  int file_number;         //pezzo di file
+  int additional;          //pid
 
+};
+
+/**
+ * It opens the file, reads it, and divides it into four parts
+ *
+ * @param dirname the name of the file to be divided
+ *
+ * @return A struct containing 4 strings.
+ */
 struct Divide divideByFour(char *path);
 
+/**
+ * It recursively reads a directory and its subdirectories, and returns the number of files that are
+ * smaller than 4kb and that start with "sendme_".
+ * The problem is that the function returns the correct number of files, but the array of strings that
+ * I pass to it is not filled correctly.
+ * essendo la funzione ricorsiva, legit files va fuori per non essere re inizializzato ad ogni chiamata
+ * Here's the code that calls the function:
+ * 
+ * @param dirname the path to the directory to be read
+ * @param legit_files_path an array of strings, each string is a path to a file
+ * 
+ * @return The number of files found.
+ */
 int readDir(const char *dirname,char **legit_files_path);
 
+/**
+ * funzione da usare in caso per le chiavi con la ftok (non la stiamo usando)
+ * It gets the current working directory, appends the string "myDir" to it, and returns the result
+ *
+ * @return The path to the directory.
+ */
 char* getDirectoryPath();
+
+/**
+ * The function `print_msg` writes the string `msg` to the standard output
+ * 
+ * @param msg The message to be printed.
+ */
+void print_msg(char * msg);
+int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,int n_file);
+
+char* getDirectoryPath();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
