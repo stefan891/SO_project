@@ -29,26 +29,38 @@ struct Divide divideByFour(char *dirname)
     long br=0;
 
     if(fd==-1)
-        ErrExit("\n<divide by 4>open failed");
+        printf("\nWARNING <divide by 4>open failed, revert file to 0 byte");
 
     //conto il numero caratteri nel file
     resto=dimensione%4;
 
     //calcolo la dimensione ed eventuale resto da aggiungere all'ultima parte
     //inserisco le 4 parti nella struttura
-    br+=read(fd,divide.part1,dimensione/4);
-    divide.part1[br]='\0';
-    br+=read(fd,divide.part2,dimensione/4);
-    divide.part2[br]='\0';
-    br+=read(fd,divide.part3,dimensione/4);
-    divide.part3[br]='\0';
-    br+=read(fd,divide.part4,(dimensione/4)+resto);
-    divide.part4[br]='\0';
+    if(fd!=-1)
+    {
+        br+=read(fd,divide.part1,dimensione/4);
+        divide.part1[br]='\0';
+        br+=read(fd,divide.part2,dimensione/4);
+        divide.part2[br]='\0';
+        br+=read(fd,divide.part3,dimensione/4);
+        divide.part3[br]='\0';
+        br+=read(fd,divide.part4,(dimensione/4)+resto);
+        divide.part4[br]='\0';
 
-    if(br!=dimensione)
-        ErrExit("\n<divide by 4>byte read not equal to file size");
+        close(fd);
 
-    close(fd);
+        if(br!=dimensione)
+            ErrExit("\n<divide by 4>byte read not equal to file size");
+
+    }
+    else
+    {
+        divide.part1[0]='\0';
+        divide.part2[0]='\0';
+        divide.part3[0]='\0';
+        divide.part4[0]='\0';
+    }
+
 
     return divide;
 }
@@ -87,7 +99,7 @@ int readDir(const char *dirname,char **legit_files_path)
         if(dentry->d_type==DT_DIR && strcmp(".",dentry->d_name)!=0 && strcmp("..",dentry->d_name)!=0)
         {
             //costruisco il path per entrare nella sottocartella
-            char temp_path[100]={0};
+            char temp_path[PATH_SIZE]={0};
             strcat(temp_path,dirname);
             strcat(temp_path,"/");
             strcat(temp_path,dentry->d_name);
@@ -102,7 +114,7 @@ int readDir(const char *dirname,char **legit_files_path)
            // printf("\n%hhd %s/%s", dentry->d_type, dirname, dentry->d_name);
 
             //leggo le statistiche del file tramite il temp_path= path(corrente)+/+nome file letto da readdir
-            char temp_path1[100]={};
+            char temp_path1[PATH_SIZE]={};
             strcat(temp_path1,dirname);
             strcat(temp_path1,"/");
             strcat(temp_path1,dentry->d_name);
@@ -134,6 +146,48 @@ int readDir(const char *dirname,char **legit_files_path)
     closedir(dirp);
     return legit_files;
 
+}
+
+
+
+//ricostruisce i pezzi da scrivere sui file, richiede la struttura risposta, e caga fuori la matrice completa
+int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,int n_file)
+{
+    for(int a=0;a<=n_file;a++)
+    {
+        //se trovo una corrispondenza di un file già scritto, aggiungo il pezzo nuovo
+        if(source->file_number<=4 && a<n_file) {
+
+            if (strcmp(source->filepath, dest[a][0].filepath) == 0 || strcmp(source->filepath, dest[a][1].filepath) == 0 ||
+                    strcmp(source->filepath, dest[a][2].filepath) == 0 || strcmp(source->filepath, dest[a][3].filepath) == 0) {
+                printf("\ntrovata corrisp: %s/\nnumber %d",source->filepath,source->file_number);
+                fflush(stdout);
+                strcpy(dest[a][source->file_number - 1].filepath, source->filepath);
+                strcpy(dest[a][source->file_number - 1].content, source->content);
+
+                dest[a][source->file_number - 1].file_number = source->file_number;
+                dest[a][source->file_number - 1].additional = source->additional;
+                break;
+            }
+        }
+        //se non trovo corrispondenza, allora è un file nuovo e lo aggiungo alla prima locazione libera
+        if(a==n_file)
+        {
+            printf("\nFILE NUOVO %d: %s/\nnumber %d",*count,source->filepath,source->file_number);
+
+            fflush(stdout);
+            strcpy(dest[*count][source->file_number-1].filepath,source->filepath);
+            strcpy(dest[*count][source->file_number-1].content,source->content);
+
+            dest[*count][source->file_number-1].file_number=source->file_number;
+            dest[*count][source->file_number-1].additional=source->additional;
+            *count=*count+1;
+        }
+
+    }
+
+
+    return 1;
 }
 
 /**

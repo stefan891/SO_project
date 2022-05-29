@@ -5,6 +5,7 @@
 #pragma once
 
 #define MSG_BYTES 1024
+#define PATH_SIZE 150
 #define SHMKEY1 20
 #define SHMKEY_SUPP_MUTEX 21
 #define SHM_SUPP 40
@@ -25,7 +26,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
-#include <limits.h>
+//#include <limits.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <errno.h>
@@ -41,7 +42,7 @@ struct File_piece{
     ssize_t filepath_size;
     int piece;
     int additional;
-    char content[MSG_BYTES+100];
+    char content[MSG_BYTES+PATH_SIZE];
 
 };
 
@@ -49,7 +50,7 @@ struct File_piece{
 struct Responce{
 
     char content[MSG_BYTES];    //contenuto del messaggio
-    char filepath[100];         //path del mittente
+    char filepath[PATH_SIZE];         //path del mittente
     int file_number;            //segment of the file delivered
     int additional;             //pid of the trocess
 
@@ -69,4 +70,22 @@ struct Divide divideByFour(char *path);
 
 int readDir(const char *dirname,char **legit_files_path);
 
+int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,int n_file);
+
 char* getDirectoryPath();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

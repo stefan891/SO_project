@@ -24,7 +24,7 @@ void sigHandler(int signal)
     {
 
         // procedura per salutare l'utente
-        char path[100];
+        char path[PATH_SIZE];
 
         printf("\nciao %s ora inizio l'invio dei file contenuti in ", getlogin());
 
@@ -34,13 +34,9 @@ void sigHandler(int signal)
         printf("%s\n", path);
 
         // lettura files nella directory
-        char *legit_files_path[100] = {};
+        char *legit_files_path[PATH_SIZE] = {};
         int legit_files = readDir(path, legit_files_path);
 
-        // verifica del vettore di stringhe, ma la puoi cancellare
-        printf("\nverifica lettura file legit");
-        for (int i = 0; i < legit_files; i++)
-            DEBUG_PRINT("\n%s", legit_files_path[i]);
 
         // creazione e settaggio semaforo di supporto da condividere col server
         int semaforo_supporto = createSemaphore(SEMKEY1, 1, IPC_CREAT);
@@ -50,7 +46,7 @@ void sigHandler(int signal)
         // creo un set da 4 semafori da 50 per le IPC, da sincronizzare col server
         // FIFO_1 FIFO_2  MSGQ  SHMEM
         int semaforo_ipc = createSemaphore(SEMIPCKEY, 4, IPC_CREAT);
-        unsigned short sem_ipc_initVal[] = {4, 4, 50, 8};
+        unsigned short sem_ipc_initVal[] = {3, 3, 3, 3};
         semSetAll(semaforo_ipc, sem_ipc_initVal, "sem_ipc");
 
         DEBUG_PRINT("semaforo_ipc %d", semaforo_ipc);
@@ -84,7 +80,6 @@ void sigHandler(int signal)
             // ri-setto il semaforo di supporto per ls shared memory
             semSetVal(semaforo_supporto, 1, "semaforo_supporto");
 
-            printSemaphoreValue(semaforo_supporto, 0);
 
             // divisione file in 4 e creazione figli
             for (int i = 0; i < legit_files; i++)
@@ -163,6 +158,10 @@ void sigHandler(int signal)
             // aspetto tutti i figli e rimuovo i semafori del client
             while (wait(NULL) != -1);
 
+            remove_shared_memory(id_memoria);
+            remove_shared_memory(shm_data_ready);
+            free_shared_memory(ptr);
+            free_shared_memory(data_ready);
             removeSemaphore(semaforo_mutex);
             return;
         }
@@ -199,6 +198,7 @@ int main(int argc, char *argv[])
 
     // attendo ricezione di segnale SIGINT o SIGUSR1
     pause();
+
 
     printf("\n<parent>end\n");
 
