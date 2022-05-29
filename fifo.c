@@ -52,7 +52,7 @@ int open_FIFO(char *name, int read_or_write)
     int fd = open(FIFO_path, read_or_write);
     if (fd == -1)
     {
-        ErrExit("\nfifo open failed");
+        perror("\nWARNING <fifo> open failed");
         return fd;
     }
     else

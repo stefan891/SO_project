@@ -51,8 +51,14 @@ void sigHandler(int signal)
 
         DEBUG_PRINT("semaforo_ipc %d", semaforo_ipc);
 
-        // mi metto in attesa del server su fifo1 per scrivere il n di file
+        // mi metto in attesa del server su fifo1 per scrivere il n di file, in caso di errore, esco e rimuovo i semafori
         int global_fd1 = open_FIFO("fifo1", O_WRONLY);
+        if(global_fd1==-1)
+        {
+            removeSemaphore(semaforo_supporto);
+            removeSemaphore(semaforo_ipc);
+            exit(1);
+        }
         write_FIFO(global_fd1, NULL, legit_files, 0, NULL);
 
         // mi blocco per aspettare che il server crei la shmem per leggerci

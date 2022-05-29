@@ -147,11 +147,11 @@ int main(int argc, char *argv[])
 
         for(int a=0;a<3;a++)
         {
-            printf("\n[parte %d file %s pid %d]\n%s",ricostruzione_file[i][a].file_number,ricostruzione_file[i][a].filepath,
+            printf("\n\n[parte %d file %s pid %d]\n%s",ricostruzione_file[i][a].file_number,ricostruzione_file[i][a].filepath,
                    ricostruzione_file[i][a].additional,ricostruzione_file[i][a].content);
             fflush(stdout);
 
-            strcpy(riga,"\n[parte ");
+            strcpy(riga,"\n\n[parte ");
             sprintf(numero,"%d",ricostruzione_file[i][a].file_number);
             strcat(riga,numero);
             strcat(riga,",del file ");
