@@ -6,12 +6,16 @@
 #include "fifo.h"
 #include "semaphore.h"
 #include "shared_memory.h"
+#include "message_queue.h"
 #include <sys/msg.h>
 
 // variabile globale per passare argv[1] al sigHandler
 char *global_path;
 
+int id_msgqueue;
 // funzione per creare subito tutti i semafori
+
+ssize_t mSize;
 
 void sigHandler(int signal)
 {
@@ -65,6 +69,10 @@ void sigHandler(int signal)
         int shm_data_ready = alloc_shared_memory(SHM_SUPP, 50 * sizeof(bool));
         bool *data_ready = (bool *)get_shared_memory(shm_data_ready, 0);
 
+        // mi aggancio alla message queue
+        id_msgqueue = createMessageQueue(MSGQKEY);
+        DEBUG_PRINT("MESSAGE QUEUE ID: %d", id_msgqueue);
+
         // mi assicuro che il file number sia corretto
         if (ptr[0].file_number > 0)
         {
@@ -117,14 +125,34 @@ void sigHandler(int signal)
 
                     static const struct Responce empty_responce;
 
+                    struct MsgQue msg_queue;
+                    //struct MsgQue test;
+
+
                     while (count > 0)
                     {
+                        // scrittura su fifo 1
                         semOp(semaforo_ipc, 0, -1, 0);
                         write_FIFO(global_fd1, divide.part1, 1, getpid(), legit_files_path[i]);
                         count--;
 
+                        // scrittura su fifo 2
                         semOp(semaforo_ipc, 1, -1, 0);
                         write_FIFO(global_fd2, divide.part2, 2, getpid(), legit_files_path[i]);
+                        count--;
+
+                        // scrittura su message queue
+                        // memset(&msg_queue, 0, sizeof(msg_queue));
+                        semOp(semaforo_ipc, 2, -1, 0);
+                        strcpy(msg_queue.content, divide.part3);
+                        strcpy(msg_queue.filepath, legit_files_path[i]);
+                        msg_queue.additional = getpid();
+                        msg_queue.file_number = 3;
+                        msg_queue.mtype = 1;
+                        DEBUG_PRINT("Tenta invio messaggio [%d, %s, %s] su message queue", msg_queue.additional, msg_queue.filepath, msg_queue.content);
+                        mSize = sizeof(struct MsgQue) - sizeof(long);
+                        if (msgsnd(id_msgqueue, &msg_queue, mSize, 0) == -1)
+                            ErrExit("msgsnd failed");
                         count--;
 
                         // mutua esclusione scrittura su shared memory
@@ -136,11 +164,11 @@ void sigHandler(int signal)
                         {
                             if (!data_ready[j])
                             {
-                                ptr[j] = empty_responce;        //pulizia struct su cui scrivere
-                                strcpy(ptr[j].content, divide.part3);
+                                ptr[j] = empty_responce; // pulizia struct su cui scrivere
+                                strcpy(ptr[j].content, divide.part4);
                                 strcpy(ptr[j].filepath, legit_files_path[i]);
                                 ptr[j].additional = getpid();
-                                ptr[j].file_number = 3;
+                                ptr[j].file_number = 4;
                                 data_ready[j] = true;
                                 count--;
                                 break;
@@ -156,7 +184,8 @@ void sigHandler(int signal)
 
             /// PARENT
             // aspetto tutti i figli e rimuovo i semafori del client
-            while (wait(NULL) != -1);
+            while (wait(NULL) != -1)
+                ;
 
             remove_shared_memory(id_memoria);
             remove_shared_memory(shm_data_ready);
@@ -170,8 +199,7 @@ void sigHandler(int signal)
     }
 }
 
-
-///MAIN
+/// MAIN
 int main(int argc, char *argv[])
 {
 

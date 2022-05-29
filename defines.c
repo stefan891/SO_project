@@ -6,16 +6,11 @@
 #include "err_exit.h"
 char Buffer[PATH_MAX];
 
+int legit_files=0;
 
 static const struct Divide empty_divide;
 
-/**
- * It opens the file, reads it, and divides it into four parts
- *
- * @param dirname the name of the file to be divided
- *
- * @return A struct containing 4 strings.
- */
+
 struct Divide divideByFour(char *dirname)
 {
     struct Divide divide;
@@ -65,13 +60,7 @@ struct Divide divideByFour(char *dirname)
     return divide;
 }
 
-/**
- *legge tutti i files legittimi in una sottocartella
- * @param *dirname: la stringa del path corrente fino a questa cartella, senza / finale
- * @param legit_files_path: puntatore alla variabile globale nel main
- */
-//essendo la funzione ricorsiva, legit files va fuori per non essere re inizializzato ad ogni chiamata
-int legit_files=0;
+
 
 int readDir(const char *dirname,char **legit_files_path)
 {
@@ -150,7 +139,7 @@ int readDir(const char *dirname,char **legit_files_path)
 
 
 
-//ricostruisce i pezzi da scrivere sui file, richiede la struttura risposta, e caga fuori la matrice completa
+
 int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,int n_file)
 {
     for(int a=0;a<=n_file;a++)
@@ -190,12 +179,6 @@ int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,in
     return 1;
 }
 
-/**
- * funzione da usare in caso per le chiavi con la ftok (non la stiamo usando)
- * It gets the current working directory, appends the string "myDir" to it, and returns the result
- *
- * @return The path to the directory.
- */
 char* getDirectoryPath(){
 
     getcwd(Buffer, PATH_MAX);
@@ -206,4 +189,10 @@ char* getDirectoryPath(){
 
     return Buffer;
 
+}
+
+void print_msg(char * msg){
+    if (write(STDOUT_FILENO, msg, strlen(msg)) == -1){
+        ErrExit("write stdout failed");
+    }
 }

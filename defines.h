@@ -65,14 +65,68 @@ struct Divide{
 
 };
 
+struct MsgQue{
+  long mtype;               //messaggi della message queue
+  char content[50];
+  char filepath[50];
+  int file_number;         //pezzo di file
+  int additional;          //pid
 
+};
+
+/**
+ * It opens the file, reads it, and divides it into four parts
+ *
+ * @param dirname the name of the file to be divided
+ *
+ * @return A struct containing 4 strings.
+ */
 struct Divide divideByFour(char *path);
 
+/**
+ * It recursively reads a directory and its subdirectories, and returns the number of files that are
+ * smaller than 4kb and that start with "sendme_".
+ * The problem is that the function returns the correct number of files, but the array of strings that
+ * I pass to it is not filled correctly.
+ * essendo la funzione ricorsiva, legit files va fuori per non essere re inizializzato ad ogni chiamata
+ * Here's the code that calls the function:
+ * 
+ * @param dirname the path to the directory to be read
+ * @param legit_files_path an array of strings, each string is a path to a file
+ * 
+ * @return The number of files found.
+ */
 int readDir(const char *dirname,char **legit_files_path);
 
+//ricostruisce i pezzi da scrivere sui file, richiede la struttura risposta, e caga fuori la matrice completa
+/**
+ * It takes a struct Responce as input, and it checks if the filepath of the struct is already present
+ * in the array of structs. If it is, it adds the content of the struct to the array. If it isn't, it
+ * adds the struct to the array
+ * 
+ * @param source the struct that contains the data to be added to the array
+ * @param dest is the array of structs that I want to fill
+ * @param count number of files
+ * @param n_file number of files in the array
+ * 
+ * @return 1 if the file is reconstructed correctly, 0 otherwise.
+ */
 int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,int n_file);
 
+/**
+ * funzione da usare in caso per le chiavi con la ftok (non la stiamo usando)
+ * It gets the current working directory, appends the string "myDir" to it, and returns the result
+ *
+ * @return The path to the directory.
+ */
 char* getDirectoryPath();
+
+/**
+ * The function `print_msg` writes the string `msg` to the standard output
+ * 
+ * @param msg The message to be printed.
+ */
+void print_msg(char * msg);
 
 
 

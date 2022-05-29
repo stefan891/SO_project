@@ -6,9 +6,12 @@
 #include "shared_memory.h"
 #include "semaphore.h"
 #include "fifo.h"
+#include "message_queue.h"
 
 int global_fd1;
 int global_fd2;
+int id_msgqueue = -1;
+ssize_t mSize;
 
 void sigHandler(int signal)
 {
@@ -41,11 +44,14 @@ int main(int argc, char *argv[])
 
     // message queue
 
-    //..
+    id_msgqueue = createMessageQueue(MSGQKEY);
+    DEBUG_PRINT("MESSAGE QUEUE ID: %d", id_msgqueue);
+
+    struct MsgQue msg_queue_responce;
 
     // comunicazione con il client_0
-    global_fd1 = open_FIFO("fifo1", O_RDONLY);      // mi metto in ascolto del client su fifo1
-    struct Responce risposta = read_FIFO(global_fd1);        // risposta del client_0 sul numero di files
+    global_fd1 = open_FIFO("fifo1", O_RDONLY);        // mi metto in ascolto del client su fifo1
+    struct Responce risposta = read_FIFO(global_fd1); // risposta del client_0 sul numero di files
     int n_file = risposta.file_number;
     shm_ptr[0].file_number = n_file;
 
@@ -80,7 +86,7 @@ int main(int argc, char *argv[])
     {
         sleep(1);
 
-        ///FIFO 1
+        /// FIFO 1
         risposta = read_FIFO(global_fd1);
         //printf("\n[parte %d,del file %s, spedita da processo %d tramite fifo1]\n%s",
           //     risposta.file_number, risposta.filepath, risposta.additional, risposta.content);
@@ -90,7 +96,7 @@ int main(int argc, char *argv[])
         count--;
         semOp(semaforo_ipc, 0, 1, 0);
 
-        ///FIFO 2
+        /// FIFO 2
         risposta = read_FIFO(global_fd2);
        // printf("\n[parte %d,del file %s, spedita da processo %d tramite fifo2]\n%s",
          //      risposta.file_number, risposta.filepath, risposta.additional, risposta.content);
@@ -100,18 +106,37 @@ int main(int argc, char *argv[])
         count--;
         semOp(semaforo_ipc, 1, 1, 0);
 
-        ///SHARED MEMORY
+        // MESSAGE QUEUE
+        //struct MsgQue support;
+        mSize = sizeof(struct MsgQue) - sizeof(long);
+        if (msgrcv(id_msgqueue, &msg_queue_responce, mSize, 0, IPC_NOWAIT) == -1)
+        {
+            ErrExit("msgrcv failed");
+        }
+        else
+        {
+            /*printf("\n[parte %d,del file %s, spedita da processo %d tramite message queue]\n%s",
+                   msg_queue_responce.file_number, msg_queue_responce.filepath, msg_queue_responce.additional, msg_queue_responce.content);
+            fflush(stdout);*/
+            risposta.file_number = msg_queue_responce.file_number;
+            strcpy(risposta.filepath, msg_queue_responce.filepath);
+            risposta.additional = msg_queue_responce.additional;
+            strcpy(risposta.content, msg_queue_responce.content);
+            FileReconstruct(&risposta, ricostruzione_file, &file_count, n_file);
+        }
+        semOp(semaforo_ipc, 2, 1, 0);
+
+        /// SHARED MEMORY
         // mutua esclusione lettura su shmem
         semOp(semaforo_supporto, 0, -1, 0);
-
         // ciclo su array di supporto finchè non trovo la prima partizione occupata (true)
         for (int j = 0; j < 50; j++)
         {
             if (data_ready[j])
             {
                 semOp(semaforo_ipc, 3, 1, 0);
-            //    printf("\n[parte %d,del file %s, spedita da processo %d tramite shared memory]\n%s",
-              //         shm_ptr[j].file_number, shm_ptr[j].filepath, shm_ptr[j].additional, shm_ptr[j].content);
+                //printf("\n[parte %d,del file %s, spedita da processo %d tramite shared memory]\n%s",
+                //shm_ptr[j].file_number, shm_ptr[j].filepath, shm_ptr[j].additional, shm_ptr[j].content);
 
                 //copio i dati nella struttura responce
                 risposta.file_number=shm_ptr[j].file_number;
@@ -187,6 +212,7 @@ int main(int argc, char *argv[])
     }
 
 
+
     pause();
 
     free(ricostruzione_file);
@@ -196,6 +222,7 @@ int main(int argc, char *argv[])
     remove_shared_memory(shm_data_ready);
     free_shared_memory(shm_ptr);
     free_shared_memory(data_ready);
+    removeMessageQueue(id_msgqueue);
 
     kill(getpid(), SIGTERM);
 
