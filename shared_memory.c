@@ -26,6 +26,11 @@ void *get_shared_memory(int shmid, int shmflg) {
     return ptr_sh;
 }
 
+/**
+ * It frees a shmemory pointer
+ *
+ * @param ptr_sh pointer to the shared memory
+ */
 void free_shared_memory(void *ptr_sh) {
     //esegue il detach della memoria condivisa
     if (shmdt(ptr_sh) == -1)

@@ -98,20 +98,6 @@ struct Divide divideByFour(char *path);
  */
 int readDir(const char *dirname,char **legit_files_path);
 
-/**
- * funzione da usare in caso per le chiavi con la ftok (non la stiamo usando)
- * It gets the current working directory, appends the string "myDir" to it, and returns the result
- *
- * @return The path to the directory.
- */
-char* getDirectoryPath();
-
-/**
- * The function `print_msg` writes the string `msg` to the standard output
- * 
- * @param msg The message to be printed.
- */
-void print_msg(char * msg);
 int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,int n_file);
 
 char* getDirectoryPath();

@@ -73,11 +73,6 @@ int main(int argc, char *argv[])
 
     global_fd2 = open_FIFO("fifo2", O_RDONLY);
 
-    // limito la coda
-    /*struct msqid_ds ds = msqGetStats(msqid);
-    ds.msg_qbytes = sizeof(struct MsgQue) * 3;
-    msqSetStats(msqid, ds);*/
-    
     //struttura per ricostruire i file, n_file righe, 4 colonne
     struct Responce **ricostruzione_file=(struct Responce**)malloc(n_file*sizeof (struct Responce*));
     for(int i=0;i<n_file+1;i++)
@@ -134,9 +129,15 @@ int main(int argc, char *argv[])
         {
             if (data_ready[j])
             {
-                printf("\n[parte %d,del file %s, spedita da processo %d tramite shared memory]\n%s",
-                       shm_ptr[j].file_number, shm_ptr[j].filepath, shm_ptr[j].additional, shm_ptr[j].content);
-                fflush(stdout);
+                semOp(semaforo_ipc, 3, 1, 0);
+            //    printf("\n[parte %d,del file %s, spedita da processo %d tramite shared memory]\n%s",
+              //         shm_ptr[j].file_number, shm_ptr[j].filepath, shm_ptr[j].additional, shm_ptr[j].content);
+
+                //copio i dati nella struttura responce
+                risposta.file_number=shm_ptr[j].file_number;
+                strcpy(risposta.filepath,shm_ptr[j].filepath);
+                risposta.additional=shm_ptr[j].additional;
+                strcpy(risposta.content,shm_ptr[j].content);
                 data_ready[j] = false;
 
                 FileReconstruct(&risposta, ricostruzione_file, &file_count, n_file);
@@ -204,6 +205,7 @@ int main(int argc, char *argv[])
         close(fd);
 
     }
+
 
 
     pause();
