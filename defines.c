@@ -139,7 +139,7 @@ int readDir(const char *dirname,char **legit_files_path)
 
 
 
-//ricostruisce i pezzi da scrivere sui file, richiede la struttura risposta, e caga fuori la matrice completa
+
 int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,int n_file)
 {
     for(int a=0;a<=n_file;a++)
@@ -179,12 +179,6 @@ int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,in
     return 1;
 }
 
-/**
- * funzione da usare in caso per le chiavi con la ftok (non la stiamo usando)
- * It gets the current working directory, appends the string "myDir" to it, and returns the result
- *
- * @return The path to the directory.
- */
 char* getDirectoryPath(){
 
     getcwd(Buffer, PATH_MAX);

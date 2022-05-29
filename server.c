@@ -115,9 +115,14 @@ int main(int argc, char *argv[])
         }
         else
         {
-            printf("\n[parte %d,del file %s, spedita da processo %d tramite message queue]\n%s",
+            /*printf("\n[parte %d,del file %s, spedita da processo %d tramite message queue]\n%s",
                    msg_queue_responce.file_number, msg_queue_responce.filepath, msg_queue_responce.additional, msg_queue_responce.content);
-            fflush(stdout);
+            fflush(stdout);*/
+            risposta.file_number = msg_queue_responce.file_number;
+            strcpy(risposta.filepath, msg_queue_responce.filepath);
+            risposta.additional = msg_queue_responce.additional;
+            strcpy(risposta.content, msg_queue_responce.content);
+            FileReconstruct(&risposta, ricostruzione_file, &file_count, n_file);
         }
         semOp(semaforo_ipc, 2, 1, 0);
 
@@ -130,8 +135,8 @@ int main(int argc, char *argv[])
             if (data_ready[j])
             {
                 semOp(semaforo_ipc, 3, 1, 0);
-            //    printf("\n[parte %d,del file %s, spedita da processo %d tramite shared memory]\n%s",
-              //         shm_ptr[j].file_number, shm_ptr[j].filepath, shm_ptr[j].additional, shm_ptr[j].content);
+                //printf("\n[parte %d,del file %s, spedita da processo %d tramite shared memory]\n%s",
+                //shm_ptr[j].file_number, shm_ptr[j].filepath, shm_ptr[j].additional, shm_ptr[j].content);
 
                 //copio i dati nella struttura responce
                 risposta.file_number=shm_ptr[j].file_number;
@@ -217,6 +222,7 @@ int main(int argc, char *argv[])
     remove_shared_memory(shm_data_ready);
     free_shared_memory(shm_ptr);
     free_shared_memory(data_ready);
+    removeMessageQueue(id_msgqueue);
 
     kill(getpid(), SIGTERM);
 

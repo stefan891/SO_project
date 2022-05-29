@@ -98,9 +98,35 @@ struct Divide divideByFour(char *path);
  */
 int readDir(const char *dirname,char **legit_files_path);
 
+//ricostruisce i pezzi da scrivere sui file, richiede la struttura risposta, e caga fuori la matrice completa
+/**
+ * It takes a struct Responce as input, and it checks if the filepath of the struct is already present
+ * in the array of structs. If it is, it adds the content of the struct to the array. If it isn't, it
+ * adds the struct to the array
+ * 
+ * @param source the struct that contains the data to be added to the array
+ * @param dest is the array of structs that I want to fill
+ * @param count number of files
+ * @param n_file number of files in the array
+ * 
+ * @return 1 if the file is reconstructed correctly, 0 otherwise.
+ */
 int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,int n_file);
 
+/**
+ * funzione da usare in caso per le chiavi con la ftok (non la stiamo usando)
+ * It gets the current working directory, appends the string "myDir" to it, and returns the result
+ *
+ * @return The path to the directory.
+ */
 char* getDirectoryPath();
+
+/**
+ * The function `print_msg` writes the string `msg` to the standard output
+ * 
+ * @param msg The message to be printed.
+ */
+void print_msg(char * msg);
 
 
 

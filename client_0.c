@@ -154,16 +154,6 @@ void sigHandler(int signal)
                         if (msgsnd(id_msgqueue, &msg_queue, mSize, 0) == -1)
                             ErrExit("msgsnd failed");
                         count--;
-                        /*if (msgrcv(id_msgqueue, &test, mSize, -1, 0) == -1)
-                        {
-                            ErrExit("msgrcv failed");
-                        }
-                        else
-                        {
-                            printf("\n[parte %d,del file %s, spedita da processo %d tramite message queue]\n%s",
-                                   test.file_number, test.filepath, test.additional, test.content);
-                            fflush(stdout);
-                        }*/
 
                         // mutua esclusione scrittura su shared memory
                         semOp(semaforo_supporto, 0, -1, 0);
