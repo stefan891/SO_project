@@ -3,3 +3,5 @@
 /obj/
 .idea
 .vscode
+CMakeLists.txt
+client_1
