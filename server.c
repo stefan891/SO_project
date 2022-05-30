@@ -91,9 +91,6 @@ int main(int argc, char *argv[])
 
         /// FIFO 1
         risposta = read_FIFO(global_fd1);
-        //printf("\n[parte %d,del file %s, spedita da processo %d tramite fifo1]\n%s",
-          //     risposta.file_number, risposta.filepath, risposta.additional, risposta.content);
-
         FileReconstruct(&risposta, ricostruzione_file, &file_count, n_file);
 
         count--;
@@ -101,9 +98,6 @@ int main(int argc, char *argv[])
 
         /// FIFO 2
         risposta = read_FIFO(global_fd2);
-       // printf("\n[parte %d,del file %s, spedita da processo %d tramite fifo2]\n%s",
-         //      risposta.file_number, risposta.filepath, risposta.additional, risposta.content);
-
         FileReconstruct(&risposta, ricostruzione_file, &file_count, n_file);
 
         count--;
@@ -118,9 +112,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            /*printf("\n[parte %d,del file %s, spedita da processo %d tramite message queue]\n%s",
-                   msg_queue_responce.file_number, msg_queue_responce.filepath, msg_queue_responce.additional, msg_queue_responce.content);
-            fflush(stdout);*/
+            
             risposta.file_number = msg_queue_responce.file_number;
             strcpy(risposta.filepath, msg_queue_responce.filepath);
             risposta.additional = msg_queue_responce.additional;

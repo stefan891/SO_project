@@ -197,3 +197,21 @@ void print_msg(char * msg){
         ErrExit("write stdout failed");
     }
 }
+
+
+void blockFD(int fd, bool blocking){
+
+    int flags = fcntl(fd, F_GETFL, 0);
+    if(flags == -1)
+        ErrExit("error blokFD");
+        
+    
+    if(blocking)
+        flags &= ~O_NONBLOCK;
+    else
+        flags |= O_NONBLOCK;
+    
+    if (fcntl(fd, F_SETFL, flags) == -1)
+       ErrExit("fifo non resa bloccante");
+    
+}
