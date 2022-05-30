@@ -1,0 +1,129 @@
+\hypertarget{defines_8c}{}\doxysection{defines.\+c File Reference}
+\label{defines_8c}\index{defines.c@{defines.c}}
+
+
+Contiene l\textquotesingle{}implementazione delle funzioni specifiche del progetto.  
+
+
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}err\+\_\+exit.\+h\char`\"{}}\newline
+Include dependency graph for defines.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{defines_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structDivide}{Divide}} \mbox{\hyperlink{defines_8c_ad6eb3d7fbfeda4ca9e43110c816110e0}{divide\+By\+Four}} (char $\ast$dirname)
+\begin{DoxyCompactList}\small\item\em It opens the file, reads it, and divides it into four parts. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{defines_8c_abef901756983399c0aa2b8b7f08c9adc}{read\+Dir}} (const char $\ast$dirname, char $\ast$$\ast$legit\+\_\+files\+\_\+path)
+\item 
+int \mbox{\hyperlink{defines_8c_aac1c6661b935c9856940e8bfdb3d8384}{File\+Reconstruct}} (struct \mbox{\hyperlink{structResponce}{Responce}} $\ast$source, struct \mbox{\hyperlink{structResponce}{Responce}} $\ast$$\ast$dest, int $\ast$count, int n\+\_\+file)
+\item 
+char $\ast$ \mbox{\hyperlink{defines_8c_a8f23546ccf6ae726cbe47319648c073a}{get\+Directory\+Path}} ()
+\item 
+void \mbox{\hyperlink{defines_8c_a2ce7c4d064c3b1a3f182c3e830a4c31d}{print\+\_\+msg}} (char $\ast$msg)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{defines_8c_aaed1d36702509157280467e6fb5386bc}\label{defines_8c_aaed1d36702509157280467e6fb5386bc}} 
+char {\bfseries Buffer} \mbox{[}P\+A\+T\+H\+\_\+\+M\+AX\mbox{]}
+\item 
+\mbox{\Hypertarget{defines_8c_a8ba7fe0fe3b348cd06a20b9b03d027aa}\label{defines_8c_a8ba7fe0fe3b348cd06a20b9b03d027aa}} 
+int {\bfseries legit\+\_\+files} =0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Contiene l\textquotesingle{}implementazione delle funzioni specifiche del progetto. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{defines_8c_ad6eb3d7fbfeda4ca9e43110c816110e0}\label{defines_8c_ad6eb3d7fbfeda4ca9e43110c816110e0}} 
+\index{defines.c@{defines.c}!divideByFour@{divideByFour}}
+\index{divideByFour@{divideByFour}!defines.c@{defines.c}}
+\doxysubsubsection{\texorpdfstring{divideByFour()}{divideByFour()}}
+{\footnotesize\ttfamily struct \mbox{\hyperlink{structDivide}{Divide}} divide\+By\+Four (\begin{DoxyParamCaption}\item[{char $\ast$}]{path }\end{DoxyParamCaption})}
+
+
+
+It opens the file, reads it, and divides it into four parts. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em dirname} & the name of the file to be divided\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A struct containing 4 strings. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{defines_8c_aac1c6661b935c9856940e8bfdb3d8384}\label{defines_8c_aac1c6661b935c9856940e8bfdb3d8384}} 
+\index{defines.c@{defines.c}!FileReconstruct@{FileReconstruct}}
+\index{FileReconstruct@{FileReconstruct}!defines.c@{defines.c}}
+\doxysubsubsection{\texorpdfstring{FileReconstruct()}{FileReconstruct()}}
+{\footnotesize\ttfamily int File\+Reconstruct (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structResponce}{Responce}} $\ast$}]{source,  }\item[{struct \mbox{\hyperlink{structResponce}{Responce}} $\ast$$\ast$}]{dest,  }\item[{int $\ast$}]{count,  }\item[{int}]{n\+\_\+file }\end{DoxyParamCaption})}
+
+It takes a struct \mbox{\hyperlink{structResponce}{Responce}} as input, and it checks if the filepath of the struct is already present in the array of structs. If it is, it adds the content of the struct to the array. If it isn\textquotesingle{}t, it adds the struct to the array
+
+
+\begin{DoxyParams}{Parameters}
+{\em source} & the struct that contains the data to be added to the array \\
+\hline
+{\em dest} & is the array of structs that I want to fill \\
+\hline
+{\em count} & number of files \\
+\hline
+{\em n\+\_\+file} & number of files in the array\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 if the file is reconstructed correctly, 0 otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{defines_8c_a8f23546ccf6ae726cbe47319648c073a}\label{defines_8c_a8f23546ccf6ae726cbe47319648c073a}} 
+\index{defines.c@{defines.c}!getDirectoryPath@{getDirectoryPath}}
+\index{getDirectoryPath@{getDirectoryPath}!defines.c@{defines.c}}
+\doxysubsubsection{\texorpdfstring{getDirectoryPath()}{getDirectoryPath()}}
+{\footnotesize\ttfamily char$\ast$ get\+Directory\+Path (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+funzione da usare in caso per le chiavi con la ftok (non la stiamo usando) It gets the current working directory, appends the string \char`\"{}my\+Dir\char`\"{} to it, and returns the result
+
+\begin{DoxyReturn}{Returns}
+The path to the directory. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{defines_8c_a2ce7c4d064c3b1a3f182c3e830a4c31d}\label{defines_8c_a2ce7c4d064c3b1a3f182c3e830a4c31d}} 
+\index{defines.c@{defines.c}!print\_msg@{print\_msg}}
+\index{print\_msg@{print\_msg}!defines.c@{defines.c}}
+\doxysubsubsection{\texorpdfstring{print\_msg()}{print\_msg()}}
+{\footnotesize\ttfamily void print\+\_\+msg (\begin{DoxyParamCaption}\item[{char $\ast$}]{msg }\end{DoxyParamCaption})}
+
+The function {\ttfamily print\+\_\+msg} writes the string {\ttfamily msg} to the standard output
+
+
+\begin{DoxyParams}{Parameters}
+{\em msg} & The message to be printed. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{defines_8c_abef901756983399c0aa2b8b7f08c9adc}\label{defines_8c_abef901756983399c0aa2b8b7f08c9adc}} 
+\index{defines.c@{defines.c}!readDir@{readDir}}
+\index{readDir@{readDir}!defines.c@{defines.c}}
+\doxysubsubsection{\texorpdfstring{readDir()}{readDir()}}
+{\footnotesize\ttfamily int read\+Dir (\begin{DoxyParamCaption}\item[{const char $\ast$}]{dirname,  }\item[{char $\ast$$\ast$}]{legit\+\_\+files\+\_\+path }\end{DoxyParamCaption})}
+
+It recursively reads a directory and its subdirectories, and returns the number of files that are smaller than 4kb and that start with \char`\"{}sendme\+\_\+\char`\"{}. The problem is that the function returns the correct number of files, but the array of strings that I pass to it is not filled correctly. essendo la funzione ricorsiva, legit files va fuori per non essere re inizializzato ad ogni chiamata Here\textquotesingle{}s the code that calls the function\+:
+
+
+\begin{DoxyParams}{Parameters}
+{\em dirname} & the path to the directory to be read \\
+\hline
+{\em legit\+\_\+files\+\_\+path} & an array of strings, each string is a path to a file\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The number of files found. 
+\end{DoxyReturn}

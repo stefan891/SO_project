@@ -36,20 +36,20 @@ int main(int argc, char *argv[])
     // alloco la schared memory per rispondere al client, poi lo sblocco
     int shm_id = alloc_shared_memory(SHMKEY1, 50 * sizeof(struct Responce));
     struct Responce *shm_ptr = (struct Responce *)get_shared_memory(shm_id, 0);
-    DEBUG_PRINT("memoria condivisa allocata e connessa\n");
+    DEBUG_PRINT("memoria condivisa allocata e connessa");
 
     // inizializzazione shared memory di supporto
     int shm_data_ready = alloc_shared_memory(SHM_SUPP, 50 * sizeof(bool));
     bool *data_ready = (bool *)get_shared_memory(shm_data_ready, 0);
 
-    // message queue
-
+    /// message queue
     id_msgqueue = createMessageQueue(MSGQKEY);
     DEBUG_PRINT("MESSAGE QUEUE ID: %d", id_msgqueue);
 
     struct MsgQue msg_queue_responce;
 
     // comunicazione con il client_0
+    /* Opening the fifo1 and reading the number of files from the client. */
     global_fd1 = open_FIFO("fifo1", O_RDONLY);        // mi metto in ascolto del client su fifo1
     struct Responce risposta = read_FIFO(global_fd1); // risposta del client_0 sul numero di files
     int n_file = risposta.file_number;

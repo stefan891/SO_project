@@ -75,7 +75,7 @@ struct MsgQue{
 };
 
 /**
- * It opens the file, reads it, and divides it into four parts
+ * @brief It opens the file, reads it, and divides it into four parts
  *
  * @param dirname the name of the file to be divided
  *
