@@ -12,6 +12,9 @@ int global_fd1;
 int global_fd2;
 int id_msgqueue = -1;
 ssize_t mSize;
+//conteggio numero di file per la funzione di ricostruzione
+int file_count=0;
+
 
 void sigHandler(int signal)
 {
@@ -68,7 +71,7 @@ int main(int argc, char *argv[])
 
 
     //rappresenta il numero totale di parti di file da ricevere
-    int count = n_file*3;
+    int count = n_file*4;
     DEBUG_PRINT("nfile = %d", n_file);
 
     global_fd2 = open_FIFO("fifo2", O_RDONLY);
@@ -79,7 +82,7 @@ int main(int argc, char *argv[])
         ricostruzione_file[i]=(struct Responce*) malloc(4*sizeof (struct Responce));
 
 
-    int file_count=0;
+    file_count=0;
 
     // leggo dalle 4 IPC (fifo 1-2,msgq,shmemory)
     while (count > 0)
@@ -123,8 +126,10 @@ int main(int argc, char *argv[])
             risposta.additional = msg_queue_responce.additional;
             strcpy(risposta.content, msg_queue_responce.content);
             FileReconstruct(&risposta, ricostruzione_file, &file_count, n_file);
+            count--;
+            semOp(semaforo_ipc, 2, 1, 0);
         }
-        semOp(semaforo_ipc, 2, 1, 0);
+
 
         /// SHARED MEMORY
         // mutua esclusione lettura su shmem
@@ -146,15 +151,15 @@ int main(int argc, char *argv[])
                 data_ready[j] = false;
 
                 FileReconstruct(&risposta, ricostruzione_file, &file_count, n_file);
+                count--;
                 break;
             }
         }
 
-        count--;
         semOp(semaforo_supporto, 0, 1, 0);
 
     }
-    DEBUG_PRINT("\nSTAMPA FINITA\nverifica sturttura\n\n");
+    DEBUG_PRINT("\n\nRICOSTRUZIONE FINITA\nverifica sturttura e creazione files\n");
     fflush(stdout);
 
     char numero[8];
@@ -170,13 +175,13 @@ int main(int argc, char *argv[])
         char riga[MSG_BYTES+150];
         strcpy(riga,"");
 
-        for(int a=0;a<3;a++)
+        for(int a=0;a<4;a++)
         {
-            printf("\n[parte %d file %s pid %d]\n%s",ricostruzione_file[i][a].file_number,ricostruzione_file[i][a].filepath,
+            printf("\n\n[parte %d file %s pid %d]\n%s",ricostruzione_file[i][a].file_number,ricostruzione_file[i][a].filepath,
                    ricostruzione_file[i][a].additional,ricostruzione_file[i][a].content);
             fflush(stdout);
 
-            strcpy(riga,"\n[parte ");
+            strcpy(riga,"\n\n[parte ");
             sprintf(numero,"%d",ricostruzione_file[i][a].file_number);
             strcat(riga,numero);
             strcat(riga,",del file ");

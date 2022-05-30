@@ -139,7 +139,6 @@ int readDir(const char *dirname,char **legit_files_path)
 
 
 
-
 int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,int n_file)
 {
     for(int a=0;a<=n_file;a++)
@@ -147,10 +146,13 @@ int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,in
         //se trovo una corrispondenza di un file già scritto, aggiungo il pezzo nuovo
         if(source->file_number<=4 && a<n_file) {
 
+            //controllo tutte le righe e colonne per vedere se il pezzo di file è completamente nuovo oppure
+            //se ne stavo già scrivendo un pezzo
             if (strcmp(source->filepath, dest[a][0].filepath) == 0 || strcmp(source->filepath, dest[a][1].filepath) == 0 ||
                     strcmp(source->filepath, dest[a][2].filepath) == 0 || strcmp(source->filepath, dest[a][3].filepath) == 0) {
-                printf("\ntrovata corrisp: %s/\nnumber %d",source->filepath,source->file_number);
+                printf("\ntrovata corrisp: %s#\nnumber %d",source->filepath,source->file_number);
                 fflush(stdout);
+                //parto da file_number-1 perchè si inizia da 0
                 strcpy(dest[a][source->file_number - 1].filepath, source->filepath);
                 strcpy(dest[a][source->file_number - 1].content, source->content);
 
@@ -160,9 +162,9 @@ int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,in
             }
         }
         //se non trovo corrispondenza, allora è un file nuovo e lo aggiungo alla prima locazione libera
-        if(a==n_file)
+        if(a==n_file && *count<n_file)
         {
-            printf("\nFILE NUOVO %d: %s/\nnumber %d",*count,source->filepath,source->file_number);
+            printf("\nFILE NUOVO %d: %s#\nnumber %d",*count,source->filepath,source->file_number);
 
             fflush(stdout);
             strcpy(dest[*count][source->file_number-1].filepath,source->filepath);
@@ -174,7 +176,6 @@ int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,in
         }
 
     }
-
 
     return 1;
 }
