@@ -67,8 +67,8 @@ struct Divide{
 
 struct MsgQue{
   long mtype;               //messaggi della message queue
-  char content[50];
-  char filepath[50];
+  char content[MSG_BYTES];
+  char filepath[PATH_SIZE];
   int file_number;         //pezzo di file
   int additional;          //pid
 

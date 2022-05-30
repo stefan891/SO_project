@@ -38,7 +38,7 @@ void sigHandler(int signal)
         printf("%s\n", path);
 
         // lettura files nella directory
-        char *legit_files_path[PATH_SIZE] = {};
+        char *legit_files_path[100] = {};
         int legit_files = readDir(path, legit_files_path);
 
 
@@ -48,15 +48,21 @@ void sigHandler(int signal)
         DEBUG_PRINT("Semafori: ottenuto il set di semafori DI SUPPORTO\n");
 
         // creo un set da 4 semafori da 50 per le IPC, da sincronizzare col server
-        // FIFO_1 FIFO_2  MSGQ  SHMEM
+        /// FIFO_1 FIFO_2  MSGQ  SHMEM
         int semaforo_ipc = createSemaphore(SEMIPCKEY, 4, IPC_CREAT);
         unsigned short sem_ipc_initVal[] = {3, 3, 3, 3};
         semSetAll(semaforo_ipc, sem_ipc_initVal, "sem_ipc");
 
         DEBUG_PRINT("semaforo_ipc %d", semaforo_ipc);
 
-        // mi metto in attesa del server su fifo1 per scrivere il n di file
+        // mi metto in attesa del server su fifo1 per scrivere il n di file, in caso di errore, esco e rimuovo i semafori
         int global_fd1 = open_FIFO("fifo1", O_WRONLY);
+        if(global_fd1==-1)
+        {
+            removeSemaphore(semaforo_supporto);
+            removeSemaphore(semaforo_ipc);
+            exit(1);
+        }
         write_FIFO(global_fd1, NULL, legit_files, 0, NULL);
 
         // mi blocco per aspettare che il server crei la shmem per leggerci
@@ -121,9 +127,10 @@ void sigHandler(int signal)
                     DEBUG_PRINT("figlio %d finito", i);
 
                     // ciclo while per mandare i messaggi
-                    int count = 3;
+                    int count = 4;
 
                     static const struct Responce empty_responce;
+                    static const struct MsgQue empty_msg_queue;
 
                     struct MsgQue msg_queue;
                     //struct MsgQue test;
@@ -131,31 +138,32 @@ void sigHandler(int signal)
 
                     while (count > 0)
                     {
-                        // scrittura su fifo 1
+                        /// scrittura su fifo 1
                         semOp(semaforo_ipc, 0, -1, 0);
                         write_FIFO(global_fd1, divide.part1, 1, getpid(), legit_files_path[i]);
                         count--;
 
-                        // scrittura su fifo 2
+                        /// scrittura su fifo 2
                         semOp(semaforo_ipc, 1, -1, 0);
                         write_FIFO(global_fd2, divide.part2, 2, getpid(), legit_files_path[i]);
                         count--;
 
-                        // scrittura su message queue
+                        /// scrittura su message queue
                         // memset(&msg_queue, 0, sizeof(msg_queue));
-                        semOp(semaforo_ipc, 2, -1, 0);
+                        msg_queue=empty_msg_queue;
                         strcpy(msg_queue.content, divide.part3);
                         strcpy(msg_queue.filepath, legit_files_path[i]);
                         msg_queue.additional = getpid();
                         msg_queue.file_number = 3;
                         msg_queue.mtype = 1;
-                        DEBUG_PRINT("Tenta invio messaggio [%d, %s, %s] su message queue", msg_queue.additional, msg_queue.filepath, msg_queue.content);
+                       // DEBUG_PRINT("Tenta invio messaggio [%d, %s, %s] su message queue", msg_queue.additional, msg_queue.filepath, msg_queue.content);
                         mSize = sizeof(struct MsgQue) - sizeof(long);
+                        semOp(semaforo_ipc, 2, -1, 0);
                         if (msgsnd(id_msgqueue, &msg_queue, mSize, 0) == -1)
                             ErrExit("msgsnd failed");
                         count--;
 
-                        // mutua esclusione scrittura su shared memory
+                        /// mutua esclusione scrittura su shared memory
                         semOp(semaforo_supporto, 0, -1, 0);
                         semOp(semaforo_ipc, 3, -1, IPC_NOWAIT);
 
@@ -184,8 +192,7 @@ void sigHandler(int signal)
 
             /// PARENT
             // aspetto tutti i figli e rimuovo i semafori del client
-            while (wait(NULL) != -1)
-                ;
+            while (wait(NULL) != -1);
 
             remove_shared_memory(id_memoria);
             remove_shared_memory(shm_data_ready);
