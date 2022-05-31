@@ -16,6 +16,7 @@
 #define SEMMUTEXKEY1 12     //chiave per mutex shared memory
 #define MSGQKEY 30
 
+#define MAX_MESS_CHANNEL 50
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -75,7 +76,7 @@ struct MsgQue{
 };
 
 /**
- * It opens the file, reads it, and divides it into four parts
+ * @brief It opens the file, reads it, and divides it into four parts
  *
  * @param dirname the name of the file to be divided
  *
@@ -129,7 +130,17 @@ char* getDirectoryPath();
 void print_msg(char * msg);
 
 
-
+//https://www.linuxtoday.com/blog/blocking-and-non-blocking-i-0/#:~:text=You%20can%20open%20a%20file,via%20the%20fcntl()%20call.
+/**
+ * It sets the file descriptor fd to be blocking or non-blocking, depending on the value of the boolean
+ * variable blocking
+ * 
+ * @param fd the file descriptor of the file to change
+ * @param blocking true if you want the file descriptor to be blocking, false otherwise.
+ * 
+ * @return The file descriptor of the opened file.
+ */
+void blockFD(int fd, bool blocking);
 
 
 

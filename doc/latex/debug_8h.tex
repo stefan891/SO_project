@@ -1,0 +1,57 @@
+\hypertarget{debug_8h}{}\doxysection{debug.\+h File Reference}
+\label{debug_8h}\index{debug.h@{debug.h}}
+
+
+Contiene la definizioni di variabili e funzioni per il debugging.  
+
+
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+Include dependency graph for debug.\+h\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=202pt]{debug_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=323pt]{debug_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{debug_8h_ad72dbcf6d0153db1b8d8a58001feed83}\label{debug_8h_ad72dbcf6d0153db1b8d8a58001feed83}} 
+\#define \mbox{\hyperlink{debug_8h_ad72dbcf6d0153db1b8d8a58001feed83}{D\+E\+B\+UG}}~3
+\begin{DoxyCompactList}\small\item\em Flag per abilitare/disabilitare la funzionalita\textquotesingle{} di \mbox{\hyperlink{debug_8h_a5f50bfe761aec48e94d11aa3a64e58a4}{D\+E\+B\+U\+G\+\_\+\+P\+R\+I\+N\+T()}} \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{debug_8h_a5f50bfe761aec48e94d11aa3a64e58a4}{D\+E\+B\+U\+G\+\_\+\+P\+R\+I\+NT}}(fmt,  args...)
+\begin{DoxyCompactList}\small\item\em Visualizza messaggio stile printf ma con ulteriori informazioni per il debugging. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Contiene la definizioni di variabili e funzioni per il debugging. 
+
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{debug_8h_a5f50bfe761aec48e94d11aa3a64e58a4}\label{debug_8h_a5f50bfe761aec48e94d11aa3a64e58a4}} 
+\index{debug.h@{debug.h}!DEBUG\_PRINT@{DEBUG\_PRINT}}
+\index{DEBUG\_PRINT@{DEBUG\_PRINT}!debug.h@{debug.h}}
+\doxysubsubsection{\texorpdfstring{DEBUG\_PRINT}{DEBUG\_PRINT}}
+{\footnotesize\ttfamily \#define D\+E\+B\+U\+G\+\_\+\+P\+R\+I\+NT(\begin{DoxyParamCaption}\item[{}]{fmt,  }\item[{}]{args... }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{        fprintf( stderr, \textcolor{stringliteral}{"\(\backslash\)nDEBUG: \%s:\%d:\%s(): "}fmt, \(\backslash\)}
+\DoxyCodeLine{        \_\_FILE\_\_, \_\_LINE\_\_, \_\_func\_\_, \#\#args)}
+
+\end{DoxyCode}
+
+
+Visualizza messaggio stile printf ma con ulteriori informazioni per il debugging. 
+

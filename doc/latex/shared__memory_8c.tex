@@ -1,0 +1,100 @@
+\hypertarget{shared__memory_8c}{}\doxysection{shared\+\_\+memory.\+c File Reference}
+\label{shared__memory_8c}\index{shared\_memory.c@{shared\_memory.c}}
+
+
+Contiene l\textquotesingle{}implementazione delle funzioni specifiche per la gestione della M\+E\+M\+O\+R\+IA C\+O\+N\+D\+I\+V\+I\+SA.  
+
+
+{\ttfamily \#include $<$sys/shm.\+h$>$}\newline
+{\ttfamily \#include $<$sys/stat.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}err\+\_\+exit.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}shared\+\_\+memory.\+h\char`\"{}}\newline
+Include dependency graph for shared\+\_\+memory.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{shared__memory_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{shared__memory_8c_a660a60242a5174977ab2debcdbd0e587}{alloc\+\_\+shared\+\_\+memory}} (key\+\_\+t shm\+Key, size\+\_\+t size)
+\item 
+void $\ast$ \mbox{\hyperlink{shared__memory_8c_ab2ffe00ec7425a3a4229cd0d53ed901c}{get\+\_\+shared\+\_\+memory}} (int shmid, int shmflg)
+\item 
+void \mbox{\hyperlink{shared__memory_8c_a6530d61365abd3e580722ed907ea5f5b}{free\+\_\+shared\+\_\+memory}} (void $\ast$ptr\+\_\+sh)
+\item 
+void \mbox{\hyperlink{shared__memory_8c_a8fd9943e1b39a1f286977096e0a50d7b}{remove\+\_\+shared\+\_\+memory}} (int shmid)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Contiene l\textquotesingle{}implementazione delle funzioni specifiche per la gestione della M\+E\+M\+O\+R\+IA C\+O\+N\+D\+I\+V\+I\+SA. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{shared__memory_8c_a660a60242a5174977ab2debcdbd0e587}\label{shared__memory_8c_a660a60242a5174977ab2debcdbd0e587}} 
+\index{shared\_memory.c@{shared\_memory.c}!alloc\_shared\_memory@{alloc\_shared\_memory}}
+\index{alloc\_shared\_memory@{alloc\_shared\_memory}!shared\_memory.c@{shared\_memory.c}}
+\doxysubsubsection{\texorpdfstring{alloc\_shared\_memory()}{alloc\_shared\_memory()}}
+{\footnotesize\ttfamily int alloc\+\_\+shared\+\_\+memory (\begin{DoxyParamCaption}\item[{key\+\_\+t}]{shm\+Key,  }\item[{size\+\_\+t}]{size }\end{DoxyParamCaption})}
+
+It creates a shared memory segment of the specified size, and returns the shared memory ID
+
+
+\begin{DoxyParams}{Parameters}
+{\em shm\+Key} & The key to be used to identify the shared memory segment. \\
+\hline
+{\em size} & The size of the shared memory segment in bytes.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The shared memory ID. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{shared__memory_8c_a6530d61365abd3e580722ed907ea5f5b}\label{shared__memory_8c_a6530d61365abd3e580722ed907ea5f5b}} 
+\index{shared\_memory.c@{shared\_memory.c}!free\_shared\_memory@{free\_shared\_memory}}
+\index{free\_shared\_memory@{free\_shared\_memory}!shared\_memory.c@{shared\_memory.c}}
+\doxysubsubsection{\texorpdfstring{free\_shared\_memory()}{free\_shared\_memory()}}
+{\footnotesize\ttfamily void free\+\_\+shared\+\_\+memory (\begin{DoxyParamCaption}\item[{void $\ast$}]{ptr\+\_\+sh }\end{DoxyParamCaption})}
+
+It frees a shmemory pointer
+
+
+\begin{DoxyParams}{Parameters}
+{\em ptr\+\_\+sh} & pointer to the shared memory \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{shared__memory_8c_ab2ffe00ec7425a3a4229cd0d53ed901c}\label{shared__memory_8c_ab2ffe00ec7425a3a4229cd0d53ed901c}} 
+\index{shared\_memory.c@{shared\_memory.c}!get\_shared\_memory@{get\_shared\_memory}}
+\index{get\_shared\_memory@{get\_shared\_memory}!shared\_memory.c@{shared\_memory.c}}
+\doxysubsubsection{\texorpdfstring{get\_shared\_memory()}{get\_shared\_memory()}}
+{\footnotesize\ttfamily void$\ast$ get\+\_\+shared\+\_\+memory (\begin{DoxyParamCaption}\item[{int}]{shmid,  }\item[{int}]{shmflg }\end{DoxyParamCaption})}
+
+It attaches the shared memory segment identified by the shmid parameter to the address space of the calling process
+
+
+\begin{DoxyParams}{Parameters}
+{\em shmid} & the shared memory identifier \\
+\hline
+{\em shmflg} & This is a bit mask that specifies the permissions for the shared memory segment. The following are the possible values\+:\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A pointer to the shared memory. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{shared__memory_8c_a8fd9943e1b39a1f286977096e0a50d7b}\label{shared__memory_8c_a8fd9943e1b39a1f286977096e0a50d7b}} 
+\index{shared\_memory.c@{shared\_memory.c}!remove\_shared\_memory@{remove\_shared\_memory}}
+\index{remove\_shared\_memory@{remove\_shared\_memory}!shared\_memory.c@{shared\_memory.c}}
+\doxysubsubsection{\texorpdfstring{remove\_shared\_memory()}{remove\_shared\_memory()}}
+{\footnotesize\ttfamily void remove\+\_\+shared\+\_\+memory (\begin{DoxyParamCaption}\item[{int}]{shmid }\end{DoxyParamCaption})}
+
+It creates a shared memory segment of size {\ttfamily size} and returns the shared memory identifier
+
+
+\begin{DoxyParams}{Parameters}
+{\em shmid} & the shared memory segment ID \\
+\hline
+\end{DoxyParams}

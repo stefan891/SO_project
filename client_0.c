@@ -41,7 +41,6 @@ void sigHandler(int signal)
         char *legit_files_path[100] = {};
         int legit_files = readDir(path, legit_files_path);
 
-
         // creazione e settaggio semaforo di supporto da condividere col server
         int semaforo_supporto = createSemaphore(SEMKEY1, 1, IPC_CREAT);
         semSetVal(semaforo_supporto, 0, "semaforo_supporto primo");
@@ -57,7 +56,7 @@ void sigHandler(int signal)
 
         // mi metto in attesa del server su fifo1 per scrivere il n di file, in caso di errore, esco e rimuovo i semafori
         int global_fd1 = open_FIFO("fifo1", O_WRONLY);
-        if(global_fd1==-1)
+        if (global_fd1 == -1)
         {
             removeSemaphore(semaforo_supporto);
             removeSemaphore(semaforo_ipc);
@@ -93,7 +92,6 @@ void sigHandler(int signal)
 
             // ri-setto il semaforo di supporto per ls shared memory
             semSetVal(semaforo_supporto, 1, "semaforo_supporto");
-
 
             // divisione file in 4 e creazione figli
             for (int i = 0; i < legit_files; i++)
@@ -133,57 +131,70 @@ void sigHandler(int signal)
                     static const struct MsgQue empty_msg_queue;
 
                     struct MsgQue msg_queue;
-                    //struct MsgQue test;
-
+                    // struct MsgQue test;
 
                     while (count > 0)
                     {
                         /// scrittura su fifo 1
-                        semOp(semaforo_ipc, 0, -1, 0);
-                        write_FIFO(global_fd1, divide.part1, 1, getpid(), legit_files_path[i]);
-                        count--;
+                        // semOp(semaforo_ipc, 0, -1, 0);
+                        if (semWaitNoBloc(semaforo_ipc, 0) == 0)
+                        {
+                            write_FIFO(global_fd1, divide.part1, 1, getpid(), legit_files_path[i]);
+                            count--;
+                        }
 
                         /// scrittura su fifo 2
-                        semOp(semaforo_ipc, 1, -1, 0);
-                        write_FIFO(global_fd2, divide.part2, 2, getpid(), legit_files_path[i]);
-                        count--;
+                        // semOp(semaforo_ipc, 1, -1, 0);
+                        if (semWaitNoBloc(semaforo_ipc, 1) == 0)
+                        {
+                            write_FIFO(global_fd2, divide.part2, 2, getpid(), legit_files_path[i]);
+                            count--;
+                        }
 
                         /// scrittura su message queue
                         // memset(&msg_queue, 0, sizeof(msg_queue));
-                        msg_queue=empty_msg_queue;
+                        msg_queue = empty_msg_queue;
                         strcpy(msg_queue.content, divide.part3);
                         strcpy(msg_queue.filepath, legit_files_path[i]);
                         msg_queue.additional = getpid();
                         msg_queue.file_number = 3;
                         msg_queue.mtype = 1;
-                       // DEBUG_PRINT("Tenta invio messaggio [%d, %s, %s] su message queue", msg_queue.additional, msg_queue.filepath, msg_queue.content);
+                        // DEBUG_PRINT("Tenta invio messaggio [%d, %s, %s] su message queue", msg_queue.additional, msg_queue.filepath, msg_queue.content);
                         mSize = sizeof(struct MsgQue) - sizeof(long);
-                        semOp(semaforo_ipc, 2, -1, 0);
-                        if (msgsnd(id_msgqueue, &msg_queue, mSize, 0) == -1)
-                            ErrExit("msgsnd failed");
-                        count--;
-
-                        /// mutua esclusione scrittura su shared memory
-                        semOp(semaforo_supporto, 0, -1, 0);
-                        semOp(semaforo_ipc, 3, -1, IPC_NOWAIT);
-
-                        // ciclo su array di supporto finchè non trovo la prima partizione libera (true)
-                        for (int j = 0; j < 50; j++)
+                        // semOp(semaforo_ipc, 2, -1, 0);
+                        if (semWaitNoBloc(semaforo_ipc, 2) == 0)
                         {
-                            if (!data_ready[j])
-                            {
-                                ptr[j] = empty_responce; // pulizia struct su cui scrivere
-                                strcpy(ptr[j].content, divide.part4);
-                                strcpy(ptr[j].filepath, legit_files_path[i]);
-                                ptr[j].additional = getpid();
-                                ptr[j].file_number = 4;
-                                data_ready[j] = true;
-                                count--;
-                                break;
-                            }
+                            if (msgsnd(id_msgqueue, &msg_queue, mSize, 0) == -1)
+                                ErrExit("msgsnd failed");
+                            count--;
                         }
-                        semOp(semaforo_supporto, 0, 1, 0);
+
+                        /// scrittura shared memory
+                        // mutua esclusione scrittura su shared memory
+                        //semOp(semaforo_ipc, 3, -1, IPC_NOWAIT);
+                        if (semWaitNoBloc(semaforo_ipc, 3) == 0)
+                        {
+                            semOp(semaforo_supporto, 0, -1, 0);
+
+                            // ciclo su array di supporto finchè non trovo la prima partizione libera (true)
+                            for (int j = 0; j < MAX_MESS_CHANNEL; j++)
+                            {
+                                if (!data_ready[j])
+                                {
+                                    ptr[j] = empty_responce; // pulizia struct su cui scrivere
+                                    strcpy(ptr[j].content, divide.part4);
+                                    strcpy(ptr[j].filepath, legit_files_path[i]);
+                                    ptr[j].additional = getpid();
+                                    ptr[j].file_number = 4;
+                                    data_ready[j] = true;
+                                    count--;
+                                    break;
+                                }
+                            }
+                            semOp(semaforo_supporto, 0, 1, 0);
+                        }
                     }
+
                     DEBUG_PRINT("figlio %d file inviati", i);
 
                     exit(0);
@@ -192,7 +203,8 @@ void sigHandler(int signal)
 
             /// PARENT
             // aspetto tutti i figli e rimuovo i semafori del client
-            while (wait(NULL) != -1);
+            while (wait(NULL) != -1)
+                ;
 
             remove_shared_memory(id_memoria);
             remove_shared_memory(shm_data_ready);
@@ -233,7 +245,6 @@ int main(int argc, char *argv[])
 
     // attendo ricezione di segnale SIGINT o SIGUSR1
     pause();
-
 
     printf("\n<parent>end\n");
 

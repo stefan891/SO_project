@@ -1,0 +1,217 @@
+\hypertarget{semaphore_8h}{}\doxysection{semaphore.\+h File Reference}
+\label{semaphore_8h}\index{semaphore.h@{semaphore.h}}
+
+
+Contiene la definizioni di variabili e funzioni specifiche per la gestione dei S\+E\+M\+A\+F\+O\+RI.  
+
+
+{\ttfamily \#include $<$sys/sem.\+h$>$}\newline
+{\ttfamily \#include $<$sys/stat.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+Include dependency graph for semaphore.\+h\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{semaphore_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=160pt]{semaphore_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+union \mbox{\hyperlink{unionsemun}{semun}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{semaphore_8h_a38c1656c8919ae19d735b9bafbb60ea1}{sem\+Op}} (int semid, unsigned short sem\+\_\+num, short sem\+\_\+op, short flg)
+\item 
+int \mbox{\hyperlink{semaphore_8h_a445984bd34baeeb21960ec18701869e0}{create\+Semaphore}} (key\+\_\+t key, int n\+\_\+sem, short flag)
+\item 
+void \mbox{\hyperlink{semaphore_8h_a8bf98790f491bcd46c4bd6ced74079fa}{remove\+Semaphore}} (int semid)
+\item 
+void \mbox{\hyperlink{semaphore_8h_a56eecc96a6416e94bb68f954caf06919}{print\+Semaphore\+Value}} (int semid, int n\+\_\+sem)
+\item 
+void \mbox{\hyperlink{semaphore_8h_a76c5719ef0a1331cc25b1c2e534e96b2}{get\+Semaphore\+Id}} (int semid, char string\mbox{[}$\,$\mbox{]})
+\item 
+void \mbox{\hyperlink{semaphore_8h_a4f2fa2d8125fc58092cdf2f07bdcaa79}{sem\+Set\+All}} (int semid, short unsigned int values\mbox{[}$\,$\mbox{]}, char $\ast$err)
+\item 
+int \mbox{\hyperlink{semaphore_8h_a78e24598fb0a5416db19120d6748627e}{sem\+Op\+No\+Blocc}} (int semid, unsigned short sem\+\_\+num, short sem\+\_\+op)
+\item 
+int \mbox{\hyperlink{semaphore_8h_a020b41ed5d4a5705e18dc682ecb1b3b5}{sem\+Wait\+No\+Bloc}} (int semid, int sem\+\_\+num)
+\item 
+void \mbox{\hyperlink{semaphore_8h_af14adca3193c7b90ab8ec704fbe73f8d}{sem\+Set\+Val}} (int semid, int values, char $\ast$err)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Contiene la definizioni di variabili e funzioni specifiche per la gestione dei S\+E\+M\+A\+F\+O\+RI. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{semaphore_8h_a445984bd34baeeb21960ec18701869e0}\label{semaphore_8h_a445984bd34baeeb21960ec18701869e0}} 
+\index{semaphore.h@{semaphore.h}!createSemaphore@{createSemaphore}}
+\index{createSemaphore@{createSemaphore}!semaphore.h@{semaphore.h}}
+\doxysubsubsection{\texorpdfstring{createSemaphore()}{createSemaphore()}}
+{\footnotesize\ttfamily int create\+Semaphore (\begin{DoxyParamCaption}\item[{key\+\_\+t}]{key,  }\item[{int}]{n\+\_\+sem,  }\item[{short}]{flag }\end{DoxyParamCaption})}
+
+It creates a semaphore set with the given key and number of semaphores
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & the key to be used to identify the semaphore set. \\
+\hline
+{\em n\+\_\+sem} & number of semaphores in the set\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The semaphore ID 
+\end{DoxyReturn}
+\mbox{\Hypertarget{semaphore_8h_a76c5719ef0a1331cc25b1c2e534e96b2}\label{semaphore_8h_a76c5719ef0a1331cc25b1c2e534e96b2}} 
+\index{semaphore.h@{semaphore.h}!getSemaphoreId@{getSemaphoreId}}
+\index{getSemaphoreId@{getSemaphoreId}!semaphore.h@{semaphore.h}}
+\doxysubsubsection{\texorpdfstring{getSemaphoreId()}{getSemaphoreId()}}
+{\footnotesize\ttfamily void get\+Semaphore\+Id (\begin{DoxyParamCaption}\item[{int}]{semid,  }\item[{char}]{string\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})}
+
+It prints the semaphore id to the screen
+
+
+\begin{DoxyParams}{Parameters}
+{\em semid} & The semaphore ID. \\
+\hline
+{\em string} & The string to print out before the semaphore ID. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{semaphore_8h_a56eecc96a6416e94bb68f954caf06919}\label{semaphore_8h_a56eecc96a6416e94bb68f954caf06919}} 
+\index{semaphore.h@{semaphore.h}!printSemaphoreValue@{printSemaphoreValue}}
+\index{printSemaphoreValue@{printSemaphoreValue}!semaphore.h@{semaphore.h}}
+\doxysubsubsection{\texorpdfstring{printSemaphoreValue()}{printSemaphoreValue()}}
+{\footnotesize\ttfamily void print\+Semaphore\+Value (\begin{DoxyParamCaption}\item[{int}]{semid,  }\item[{int}]{n\+\_\+sem }\end{DoxyParamCaption})}
+
+It prints the value of each semaphore in the semaphore set it have sense if you use it when everything is blocked, otherwise will be printed old values
+
+
+\begin{DoxyParams}{Parameters}
+{\em semid} & the semaphore set identifier \\
+\hline
+{\em sem\+Val} & the array of semaphore values \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{semaphore_8h_a8bf98790f491bcd46c4bd6ced74079fa}\label{semaphore_8h_a8bf98790f491bcd46c4bd6ced74079fa}} 
+\index{semaphore.h@{semaphore.h}!removeSemaphore@{removeSemaphore}}
+\index{removeSemaphore@{removeSemaphore}!semaphore.h@{semaphore.h}}
+\doxysubsubsection{\texorpdfstring{removeSemaphore()}{removeSemaphore()}}
+{\footnotesize\ttfamily void remove\+Semaphore (\begin{DoxyParamCaption}\item[{int}]{semid }\end{DoxyParamCaption})}
+
+It removes the semaphore with the given semid
+
+
+\begin{DoxyParams}{Parameters}
+{\em semid} & the semaphore ID \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{semaphore_8h_a38c1656c8919ae19d735b9bafbb60ea1}\label{semaphore_8h_a38c1656c8919ae19d735b9bafbb60ea1}} 
+\index{semaphore.h@{semaphore.h}!semOp@{semOp}}
+\index{semOp@{semOp}!semaphore.h@{semaphore.h}}
+\doxysubsubsection{\texorpdfstring{semOp()}{semOp()}}
+{\footnotesize\ttfamily void sem\+Op (\begin{DoxyParamCaption}\item[{int}]{semid,  }\item[{unsigned short}]{sem\+\_\+num,  }\item[{short}]{sem\+\_\+op,  }\item[{short}]{flg }\end{DoxyParamCaption})}
+
+\char`\"{}sem\+Op() is a wrapper for the semop() system call that makes it easier to use.\char`\"{}
+
+The semop() system call is used to perform operations on semaphores.
+
+struct sembuf \{ unsigned short sem\+\_\+num; short sem\+\_\+op; short sem\+\_\+flg; \}; The sem\+\_\+num field specifies the semaphore number within the semaphore set. The sem\+\_\+op field specifies the operation to be performed on the semaphore. The sem\+\_\+flg field specifies flags that modify the operation
+
+
+\begin{DoxyParams}{Parameters}
+{\em semid} & The semaphore set identifier returned by semget(). \\
+\hline
+{\em sem\+\_\+num} & The index of the semaphore in the semaphore set. \\
+\hline
+{\em sem\+\_\+op} & The operation to perform on the semaphore. A positive value increments the semaphore, a negative value decrements it, and 0 is a special value that causes the calling process to block until the semaphore\textquotesingle{}s value is 0. \\
+\hline
+{\em flg} & example I\+P\+C\+\_\+\+N\+O\+W\+A\+IT to perform operation without blocking (put 0 otherwise) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{semaphore_8h_a78e24598fb0a5416db19120d6748627e}\label{semaphore_8h_a78e24598fb0a5416db19120d6748627e}} 
+\index{semaphore.h@{semaphore.h}!semOpNoBlocc@{semOpNoBlocc}}
+\index{semOpNoBlocc@{semOpNoBlocc}!semaphore.h@{semaphore.h}}
+\doxysubsubsection{\texorpdfstring{semOpNoBlocc()}{semOpNoBlocc()}}
+{\footnotesize\ttfamily int sem\+Op\+No\+Blocc (\begin{DoxyParamCaption}\item[{int}]{semid,  }\item[{unsigned short}]{sem\+\_\+num,  }\item[{short}]{sem\+\_\+op }\end{DoxyParamCaption})}
+
+It performs a semaphore operation on the semaphore with the given identifier, sem\+\_\+num, and sem\+\_\+op, but it doesn\textquotesingle{}t block if the operation would block
+
+
+\begin{DoxyParams}{Parameters}
+{\em semid} & the semaphore set identifier \\
+\hline
+{\em sem\+\_\+num} & the index of the semaphore in the semaphore set \\
+\hline
+{\em sem\+\_\+op} & the value to add to the semaphore. If negative, the semaphore is decremented. If positive, the semaphore is incremented.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The return value is the value of the semaphore after the operation. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{semaphore_8h_a4f2fa2d8125fc58092cdf2f07bdcaa79}\label{semaphore_8h_a4f2fa2d8125fc58092cdf2f07bdcaa79}} 
+\index{semaphore.h@{semaphore.h}!semSetAll@{semSetAll}}
+\index{semSetAll@{semSetAll}!semaphore.h@{semaphore.h}}
+\doxysubsubsection{\texorpdfstring{semSetAll()}{semSetAll()}}
+{\footnotesize\ttfamily void sem\+Set\+All (\begin{DoxyParamCaption}\item[{int}]{semid,  }\item[{short unsigned int}]{values\mbox{[}$\,$\mbox{]},  }\item[{char $\ast$}]{err }\end{DoxyParamCaption})}
+
+This function sets the values of all the semaphores in the set to the values in the array pointed to by the second argument.
+
+
+\begin{DoxyParams}{Parameters}
+{\em semid} & the semaphore set identifier \\
+\hline
+{\em values} & an array of short unsigned integers, one for each semaphore in the set. \\
+\hline
+{\em err} & a string to be used in the error message if the semctl call fails. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{semaphore_8h_af14adca3193c7b90ab8ec704fbe73f8d}\label{semaphore_8h_af14adca3193c7b90ab8ec704fbe73f8d}} 
+\index{semaphore.h@{semaphore.h}!semSetVal@{semSetVal}}
+\index{semSetVal@{semSetVal}!semaphore.h@{semaphore.h}}
+\doxysubsubsection{\texorpdfstring{semSetVal()}{semSetVal()}}
+{\footnotesize\ttfamily void sem\+Set\+Val (\begin{DoxyParamCaption}\item[{int}]{semid,  }\item[{int}]{values,  }\item[{char $\ast$}]{err }\end{DoxyParamCaption})}
+
+It sets the value of the semaphore to the value of the second argument
+
+
+\begin{DoxyParams}{Parameters}
+{\em semid} & the semaphore set identifier \\
+\hline
+{\em values} & the value to set the semaphore to \\
+\hline
+{\em err} & the error message to print if the semaphore fails to be created \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{semaphore_8h_a020b41ed5d4a5705e18dc682ecb1b3b5}\label{semaphore_8h_a020b41ed5d4a5705e18dc682ecb1b3b5}} 
+\index{semaphore.h@{semaphore.h}!semWaitNoBloc@{semWaitNoBloc}}
+\index{semWaitNoBloc@{semWaitNoBloc}!semaphore.h@{semaphore.h}}
+\doxysubsubsection{\texorpdfstring{semWaitNoBloc()}{semWaitNoBloc()}}
+{\footnotesize\ttfamily int sem\+Wait\+No\+Bloc (\begin{DoxyParamCaption}\item[{int}]{semid,  }\item[{int}]{sem\+\_\+num }\end{DoxyParamCaption})}
+
+It waits for a semaphore to be available, but it doesn\textquotesingle{}t block if it\textquotesingle{}s not
+
+
+\begin{DoxyParams}{Parameters}
+{\em semid} & the semaphore set identifier \\
+\hline
+{\em sem\+\_\+num} & The semaphore number.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The return value is the value of the semaphore. 
+\end{DoxyReturn}

@@ -3,5 +3,6 @@
 /obj/
 .idea
 .vscode
+.gitmodules
 CMakeLists.txt
 client_1

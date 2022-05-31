@@ -1,0 +1,131 @@
+\hypertarget{fifo_8c}{}\doxysection{fifo.\+c File Reference}
+\label{fifo_8c}\index{fifo.c@{fifo.c}}
+
+
+Contiene l\textquotesingle{}implementazione delle funzioni specifiche per la gestione delle F\+I\+FO.  
+
+
+{\ttfamily \#include \char`\"{}err\+\_\+exit.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}fifo.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\newline
+Include dependency graph for fifo.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{fifo_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{fifo_8c_a274b17fc81d8ad81846702a19f32f76e}{make\+\_\+\+F\+I\+FO}} (char $\ast$name)
+\item 
+int \mbox{\hyperlink{fifo_8c_aaafefa90b2f0999a2117067dcc02c282}{open\+\_\+\+F\+I\+FO}} (char $\ast$name, int read\+\_\+or\+\_\+write)
+\item 
+void \mbox{\hyperlink{fifo_8c_aaeeb7a66df819e6a436f65364c67a446}{close\+\_\+\+F\+I\+FO}} (int fd, char $\ast$name)
+\item 
+struct \mbox{\hyperlink{structResponce}{Responce}} \mbox{\hyperlink{fifo_8c_a5063bff62279383bf8a5c4a45e8322f6}{read\+\_\+\+F\+I\+FO}} (int F\+I\+F\+O\+\_\+fd)
+\item 
+void \mbox{\hyperlink{fifo_8c_a2c1e9906f554f9753ec2e74fd23f5fc5}{write\+\_\+\+F\+I\+FO}} (int F\+I\+F\+O\+\_\+fd, char $\ast$source\+\_\+string, int file\+\_\+number, int additional, char $\ast$path)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{fifo_8c_ae73c0fb2c1437504798dd8232e0a75d3}\label{fifo_8c_ae73c0fb2c1437504798dd8232e0a75d3}} 
+char {\bfseries F\+I\+F\+O\+\_\+path} \mbox{[}P\+A\+T\+H\+\_\+\+M\+AX\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Contiene l\textquotesingle{}implementazione delle funzioni specifiche per la gestione delle F\+I\+FO. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{fifo_8c_aaeeb7a66df819e6a436f65364c67a446}\label{fifo_8c_aaeeb7a66df819e6a436f65364c67a446}} 
+\index{fifo.c@{fifo.c}!close\_FIFO@{close\_FIFO}}
+\index{close\_FIFO@{close\_FIFO}!fifo.c@{fifo.c}}
+\doxysubsubsection{\texorpdfstring{close\_FIFO()}{close\_FIFO()}}
+{\footnotesize\ttfamily void close\+\_\+\+F\+I\+FO (\begin{DoxyParamCaption}\item[{int}]{fd,  }\item[{char $\ast$}]{name }\end{DoxyParamCaption})}
+
+close the fifo with the file descriptor if name!=N\+U\+LL, also deletes the file of the fifo with the name
+
+
+\begin{DoxyParams}{Parameters}
+{\em fd} & the file descriptor of the F\+I\+FO \\
+\hline
+{\em name} & the name of the F\+I\+FO (not the entire path) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{fifo_8c_a274b17fc81d8ad81846702a19f32f76e}\label{fifo_8c_a274b17fc81d8ad81846702a19f32f76e}} 
+\index{fifo.c@{fifo.c}!make\_FIFO@{make\_FIFO}}
+\index{make\_FIFO@{make\_FIFO}!fifo.c@{fifo.c}}
+\doxysubsubsection{\texorpdfstring{make\_FIFO()}{make\_FIFO()}}
+{\footnotesize\ttfamily void make\+\_\+\+F\+I\+FO (\begin{DoxyParamCaption}\item[{char $\ast$}]{name }\end{DoxyParamCaption})}
+
+It creates a F\+I\+FO file in the I\+P\+CS directory
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & the name of the F\+I\+FO \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{fifo_8c_aaafefa90b2f0999a2117067dcc02c282}\label{fifo_8c_aaafefa90b2f0999a2117067dcc02c282}} 
+\index{fifo.c@{fifo.c}!open\_FIFO@{open\_FIFO}}
+\index{open\_FIFO@{open\_FIFO}!fifo.c@{fifo.c}}
+\doxysubsubsection{\texorpdfstring{open\_FIFO()}{open\_FIFO()}}
+{\footnotesize\ttfamily int open\+\_\+\+F\+I\+FO (\begin{DoxyParamCaption}\item[{char $\ast$}]{name,  }\item[{int}]{read\+\_\+or\+\_\+write }\end{DoxyParamCaption})}
+
+It opens a F\+I\+FO with the given name (directory/\+I\+P\+CS), in the given mode (read\+\_\+or\+\_\+write)
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & the name of the F\+I\+FO \\
+\hline
+{\em read\+\_\+or\+\_\+write} & 0 for read, 1 for write (O\+\_\+\+R\+D\+O\+N\+L\+Y/\+O\+\_\+\+W\+R\+O\+N\+LY)\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The file descriptor of the opened F\+I\+FO. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{fifo_8c_a5063bff62279383bf8a5c4a45e8322f6}\label{fifo_8c_a5063bff62279383bf8a5c4a45e8322f6}} 
+\index{fifo.c@{fifo.c}!read\_FIFO@{read\_FIFO}}
+\index{read\_FIFO@{read\_FIFO}!fifo.c@{fifo.c}}
+\doxysubsubsection{\texorpdfstring{read\_FIFO()}{read\_FIFO()}}
+{\footnotesize\ttfamily struct \mbox{\hyperlink{structResponce}{Responce}} read\+\_\+\+F\+I\+FO (\begin{DoxyParamCaption}\item[{int}]{F\+I\+F\+O\+\_\+fd }\end{DoxyParamCaption})}
+
+It reads from the F\+I\+FO file descriptor and reconstructs the \mbox{\hyperlink{structResponce}{Responce}} structure struct responce content\+: responce.\+content\+: the content of the message read responce.\+filepath\+: the content of the filepath of the message read responce.\+file\+\_\+number\+: the content of the file\+\_\+number of the message read responce.\+additional\+: the content of number additional of the message read
+
+
+\begin{DoxyParams}{Parameters}
+{\em F\+I\+F\+O\+\_\+fd} & the file descriptor of the F\+I\+FO\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a struct \mbox{\hyperlink{structResponce}{Responce}}. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{fifo_8c_a2c1e9906f554f9753ec2e74fd23f5fc5}\label{fifo_8c_a2c1e9906f554f9753ec2e74fd23f5fc5}} 
+\index{fifo.c@{fifo.c}!write\_FIFO@{write\_FIFO}}
+\index{write\_FIFO@{write\_FIFO}!fifo.c@{fifo.c}}
+\doxysubsubsection{\texorpdfstring{write\_FIFO()}{write\_FIFO()}}
+{\footnotesize\ttfamily void write\+\_\+\+F\+I\+FO (\begin{DoxyParamCaption}\item[{int}]{F\+I\+F\+O\+\_\+fd,  }\item[{char $\ast$}]{source\+\_\+string,  }\item[{int}]{file\+\_\+number,  }\item[{int}]{additional,  }\item[{char $\ast$}]{path }\end{DoxyParamCaption})}
+
+It reads a piece of file from source\+\_\+fd, a filepath from $\ast$path, and additional information. puts all in a struct and send it on the F\+I\+F\+O\+\_\+fd
+
+
+\begin{DoxyParams}{Parameters}
+{\em F\+I\+F\+O\+\_\+fd} & the file descriptor of the F\+I\+FO \\
+\hline
+{\em source\+\_\+fd} & file descriptor of the file to be read (if no ned to read file, put 0) \\
+\hline
+{\em file\+\_\+number} & the number of the file being sent \\
+\hline
+{\em additional} & number for any additional information \\
+\hline
+{\em path} & the path of where the file belongs (if no need to write any path, put N\+U\+LL) \\
+\hline
+\end{DoxyParams}
+leggo il messaggio (lungo massimo 1024) lo metto in file\+\_\+piece.\+content e salvo la dimensione effettiva letta in file\+\_\+piece.\+size
+
+copio la stinga del path passata, in file\+\_\+piece.\+content, subito dopo il messaggio e la dimensione in .filepath\+\_\+size

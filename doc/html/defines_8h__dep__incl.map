@@ -1,0 +1,6 @@
+<map id="defines.h" name="defines.h">
+<area shape="rect" id="node1" title="Contiene la definizioni di variabili e funzioni specifiche del progetto." alt="" coords="169,5,251,32"/>
+<area shape="rect" id="node2" href="$message__queue_8h_source.html" title=" " alt="" coords="5,80,145,107"/>
+<area shape="rect" id="node3" href="$defines_8c.html" title="Contiene l&#39;implementazione delle funzioni specifiche del progetto." alt="" coords="170,80,250,107"/>
+<area shape="rect" id="node4" href="$fifo_8c.html" title="Contiene l&#39;implementazione delle funzioni specifiche per la gestione delle FIFO." alt="" coords="275,80,329,107"/>
+</map>
