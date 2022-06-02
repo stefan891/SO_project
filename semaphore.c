@@ -72,7 +72,7 @@ int semOpNoBlocc(int semid, unsigned short sem_num, short sem_op) {
     struct sembuf sop = {.sem_num = sem_num, .sem_op = sem_op, .sem_flg = IPC_NOWAIT};
     if (semop(semid, &sop, 1) == -1){
         if (errno == EAGAIN){
-            return -1;
+            return errno;
         }
         else{
             ErrExit("semop failed");

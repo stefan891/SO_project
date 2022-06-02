@@ -6,7 +6,9 @@
 #include "err_exit.h"
 char Buffer[PATH_MAX];
 
+//variabile globale per readdir, con reset di supporto
 int legit_files=0;
+int reset=0;
 
 static const struct Divide empty_divide;
 
@@ -131,9 +133,11 @@ int readDir(const char *dirname,char **legit_files_path)
         dentry= readdir(dirp);
 
     }
-    //chiudo il file e ritoprno il numero di files letti
+    //chiudo il file e ritoprno il numero di files letti, resettando prima la variabile legit_files
     closedir(dirp);
-    return legit_files;
+    reset=legit_files;
+    legit_files=0;
+    return reset;
 
 }
 
@@ -196,4 +200,23 @@ void print_msg(char * msg){
     if (write(STDOUT_FILENO, msg, strlen(msg)) == -1){
         ErrExit("write stdout failed");
     }
+}
+
+
+
+void blockFD(int fd, bool blocking){
+
+    int flags = fcntl(fd, F_GETFL, 0);
+    if(flags == -1)
+        ErrExit("error blokFD");
+
+
+    if(blocking)
+        flags &= ~O_NONBLOCK;
+    else
+        flags |= O_NONBLOCK;
+
+    if (fcntl(fd, F_SETFL, flags) == -1)
+        ErrExit("fifo non resa bloccante");
+
 }

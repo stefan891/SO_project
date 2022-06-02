@@ -34,7 +34,7 @@ void *get_shared_memory(int shmid, int shmflg);
  *
  * @param ptr_sh pointer to the shared memory
  */
-void free_shared_memory(void *ptr_sh);
+void detach_shared_memory(void *ptr_sh);
 
 /**
  * It creates a shared memory segment of size `size` and returns the shared memory identifier

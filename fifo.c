@@ -8,6 +8,7 @@
 
 char FIFO_path[PATH_MAX]; // path assoluto file FIFO
 
+static const struct Responce empty_responce;
 
 void make_FIFO(char *name)
 {
@@ -75,21 +76,35 @@ void close_FIFO(int fd, char *name)
 
 
 
-struct Responce read_FIFO(int FIFO_fd)
+struct Responce read_FIFO(int FIFO_fd,long *error)
 {
     struct Responce responce;
+    responce=empty_responce;
     //dicharo tutte le variabili per ricostruire la struttura come era
     //stata mandata
     ssize_t content_size=-1;
     ssize_t filepath_size=-1;
-
+    errno=0;
 
     // leggo la dimensione del messaggio (.content_size struttura)
-    if(read(FIFO_fd, &content_size, sizeof(ssize_t))==-1)
-        ErrExit("FIFO read failed");
+    ssize_t result=read(FIFO_fd, &content_size, sizeof(ssize_t));
+
+    if(result==-1)
+    {
+        if(errno==EAGAIN || errno==EINTR)
+        {
+            *error=errno;
+            return responce;
+        }
+        else
+            ErrExit("FIFO read failed");
+        fflush(stdout);
+    }
+
+
+
     //leggo la dimensione del filepath (.filepath_size struttura)
-    if(read(FIFO_fd,&filepath_size,sizeof (ssize_t))==-1)
-        ErrExit("FIFO read failed");
+    read(FIFO_fd,&filepath_size,sizeof (ssize_t));
 
     //printf("\n<read> content size: %ld filepath size: %ld\n", content_size,filepath_size);//debug
 
@@ -150,13 +165,13 @@ void write_FIFO(int FIFO_fd,char *source_string,int file_number,int additional,c
     //se non ci sono stati errori (file vuoto, oppure con dei caratteri letti)
     if(file_piece.content_size>=0)
     {
+        errno=0;
         //calcolo dimensione totale byte struttura da mandare
         ssize_t byte_to_send= sizeof(file_piece.content_size)+sizeof (file_piece.filepath_size)+sizeof (file_piece.piece)+
                               sizeof(file_piece.additional)+file_piece.content_size+file_piece.filepath_size;
 
         //invio struttura tramite fifo
         ssize_t  byte_write=write(FIFO_fd,&file_piece,byte_to_send);
-        fflush(stdout);
 
         if(byte_write!=byte_to_send)
             ErrExit("FIFO write failed");
