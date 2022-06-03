@@ -23,6 +23,7 @@ void sigHandler(int signal)
     {
         kill(getpid(), SIGTERM);
         printf("ricevuto segnale sigusr1\n");
+        exit(0);
     }
     else if (signal == SIGINT)
     {
@@ -39,7 +40,7 @@ void sigHandler(int signal)
 
         // lettura files nella directory
         char *legit_files_path[100] = {};
-        int legit_files = readDir(path, legit_files_path);
+        int legit_files = readDir(path, legit_files_path,0);
 
 
         // creazione e settaggio semaforo di supporto da condividere col server
@@ -138,7 +139,7 @@ void sigHandler(int signal)
 
                     while (count > 0)
                     {
-                        sleep(1);
+                        //sleep(1);
                         /// scrittura su fifo 1
                         semOp(semaforo_ipc, 0, -1, 0);
                         write_FIFO(global_fd1, divide.part1, 1, getpid(), legit_files_path[i]);
@@ -149,7 +150,7 @@ void sigHandler(int signal)
                         write_FIFO(global_fd2, divide.part2, 2, getpid(), legit_files_path[i]);
                         count--;
 
-                        sleep(1);
+                        //sleep(1);
                         /// scrittura su message queue
                         // memset(&msg_queue, 0, sizeof(msg_queue));
                         msg_queue=empty_msg_queue;
@@ -223,6 +224,15 @@ int main(int argc, char *argv[])
 {
 
     DEBUG_PRINT("PROCESS ID %d\n", getpid());
+    // setting maschera segnali per SIGINT e SIGUSR1
+    sigset_t set_segnali;
+    sigfillset(&set_segnali);
+    sigdelset(&set_segnali, SIGUSR1);
+    sigdelset(&set_segnali, SIGINT);
+    sigprocmask(SIG_SETMASK, &set_segnali, NULL);
+
+    if (signal(SIGINT, sigHandler) == SIG_ERR || signal(SIGUSR1, sigHandler) == SIG_ERR)
+        ErrExit("signal handler failed");
 
     if (argc != 2)
     {
@@ -232,22 +242,13 @@ int main(int argc, char *argv[])
     else
         global_path = argv[1];
 
-    sigset_t set_segnali;
 
-    // setting maschera segnali per SIGINT e SIGUSR1
-    sigfillset(&set_segnali);
-    sigdelset(&set_segnali, SIGUSR1);
-    sigdelset(&set_segnali, SIGINT);
-    sigprocmask(SIG_SETMASK, &set_segnali, NULL);
+    while(1)
+    {
+        // attendo ricezione di segnale SIGINT o SIGUSR1
+        pause();
+        printf("\n<parent>end\n");
+    }
 
-    if (signal(SIGINT, sigHandler) == SIG_ERR || signal(SIGUSR1, sigHandler) == SIG_ERR)
-        ErrExit("signal handler failed");
-
-    // attendo ricezione di segnale SIGINT o SIGUSR1
-    pause();
-
-
-    printf("\n<parent>end\n");
-
-    return 0;
+    //return 0;
 }

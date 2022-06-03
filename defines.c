@@ -7,7 +7,6 @@
 char Buffer[PATH_MAX];
 
 //variabile globale per readdir, con reset di supporto
-int legit_files=0;
 int reset=0;
 
 static const struct Divide empty_divide;
@@ -64,7 +63,7 @@ struct Divide divideByFour(char *dirname)
 
 
 
-int readDir(const char *dirname,char **legit_files_path)
+int readDir(const char *dirname,char **legit_files_path, int legit)
 {
     struct dirent *dentry;
     struct stat statbuf;
@@ -96,7 +95,7 @@ int readDir(const char *dirname,char **legit_files_path)
             strcat(temp_path,dentry->d_name);
 
             //chiamata ricorsiva a readDir
-            readDir(temp_path,legit_files_path);
+            readDir(temp_path,legit_files_path,legit);
         }
         //se è un file normale
         else if(dentry->d_type==DT_REG)
@@ -114,14 +113,14 @@ int readDir(const char *dirname,char **legit_files_path)
             // aggiungo solo files minori di 4kb e che iniziano per "sendme_" e il cui path è <100 caratteri
             if (statbuf.st_size < 4096 && strncmp("sendme_",dentry->d_name,7)==0 && strlen(temp_path1)<100)
             {
-                legit_files++;
-                printf("\n %s LEGIT %d",dentry->d_name,legit_files);
+                legit++;
+                printf("\n %s LEGIT %d",dentry->d_name,legit);
                 fflush(stdout);
 
                 //mi è stato passato un array di puntatori a stringhe, ne inizializzo 1 per volta
                 unsigned long len=strlen(temp_path1);
-                legit_files_path[legit_files-1]= malloc(len*sizeof (char ));
-                strcpy(legit_files_path[legit_files-1],temp_path1);
+                legit_files_path[legit-1]= malloc(len*sizeof (char ));
+                strcpy(legit_files_path[legit-1],temp_path1);
 
 
                 // resetto il contenuto di filepath a /path, se no mi aggiunge dietro tutti i nomi dei file attaccati
@@ -133,12 +132,10 @@ int readDir(const char *dirname,char **legit_files_path)
         dentry= readdir(dirp);
 
     }
-    //chiudo il file e ritorno il numero di files letti, resettando prima la variabile legit_files
+    //chiudo il file e ritorno il numero di files letti, resettando prima la variabile legit
     closedir(dirp);
-   // reset=legit_files;
-   // legit_files=0;
-    return legit_files;
 
+    return legit;
 }
 
 

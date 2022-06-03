@@ -22,6 +22,7 @@ void sigHandler(int signal)
 
     close_FIFO(global_fd1, "fifo1");
     close_FIFO(global_fd2, "fifo2");
+    removeMessageQueue(id_msgqueue);
     exit(0);
 
 }
@@ -98,7 +99,8 @@ int main(int argc, char *argv[])
 
         /// leggo dalle 4 IPC (fifo 1-2,msgq,shmemory)
         while (count > 0) {
-            usleep(300000);
+
+            //usleep(300000);
 
             /// FIFO 1
             error = 0;
