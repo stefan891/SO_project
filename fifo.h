@@ -3,6 +3,8 @@
 ///         funzioni specifiche per la gestione delle FIFO.
 #pragma once
 
+#include "defines.h"
+
 struct File_piece file_piece;   //struttura per scrivere la struct da inviare
 static const struct File_piece empty_file_piece;
 
@@ -45,7 +47,7 @@ void close_FIFO(int fd, char *name);
  *
  * @return a struct Responce.
  */
-struct Responce read_FIFO(int FIFO_fd);
+struct Responce read_FIFO(int FIFO_fd,long *error);
 
 /**
  * It reads a piece of file from source_fd, a filepath from *path, and additional information.

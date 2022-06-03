@@ -31,14 +31,18 @@ void *get_shared_memory(int shmid, int shmflg) {
  *
  * @param ptr_sh pointer to the shared memory
  */
-void free_shared_memory(void *ptr_sh) {
+void detach_shared_memory(void *ptr_sh) {
     //esegue il detach della memoria condivisa
     if (shmdt(ptr_sh) == -1)
         ErrExit("shmdt failed");
 }
 
+/**
+ *  //cancella il segmento di memoria condivisa
+ * @param shmid id memoria
+ */
 void remove_shared_memory(int shmid) {
-    //cancella il segmento di memoria condivisa
+
     if (shmctl(shmid, IPC_RMID, NULL) == -1)
-        ErrExit("remove failed");
+        ErrExit("<shmem> remove failed");
 }

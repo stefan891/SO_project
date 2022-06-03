@@ -97,7 +97,7 @@ struct Divide divideByFour(char *path);
  * 
  * @return The number of files found.
  */
-int readDir(const char *dirname,char **legit_files_path);
+int readDir(const char *dirname,char **legit_files_path,int legit);
 
 //ricostruisce i pezzi da scrivere sui file, richiede la struttura risposta, e caga fuori la matrice completa
 /**
@@ -141,6 +141,7 @@ void print_msg(char * msg);
  * @return The file descriptor of the opened file.
  */
 void blockFD(int fd, bool blocking);
+
 
 
 

@@ -15,7 +15,7 @@ char *global_path;
 int id_msgqueue;
 // funzione per creare subito tutti i semafori
 
-ssize_t mSize;
+ssize_t mSize=sizeof(struct MsgQue) - sizeof(long);
 
 void sigHandler(int signal)
 {
@@ -23,6 +23,7 @@ void sigHandler(int signal)
     {
         kill(getpid(), SIGTERM);
         printf("ricevuto segnale sigusr1\n");
+        exit(0);
     }
     else if (signal == SIGINT)
     {
@@ -39,7 +40,7 @@ void sigHandler(int signal)
 
         // lettura files nella directory
         char *legit_files_path[100] = {};
-        int legit_files = readDir(path, legit_files_path);
+        int legit_files = readDir(path, legit_files_path,0);
 
         // creazione e settaggio semaforo di supporto da condividere col server
         int semaforo_supporto = createSemaphore(SEMKEY1, 1, IPC_CREAT);
@@ -90,10 +91,13 @@ void sigHandler(int signal)
 
             int global_fd2 = open_FIFO("fifo2", O_WRONLY);
 
-            // ri-setto il semaforo di supporto per ls shared memory
+            // ri-setto il semaforo di supporto per la shared memory
             semSetVal(semaforo_supporto, 1, "semaforo_supporto");
 
-            // divisione file in 4 e creazione figli
+            //sleep(1);
+
+            /// divisione file in 4 e creazione figli
+
             for (int i = 0; i < legit_files; i++)
             {
                 pid_t pid = fork();
@@ -122,7 +126,7 @@ void sigHandler(int signal)
                     semOp(semaforo_mutex, 1, 0, 0);
 
                     // tutti i figli,una volta letto le 4 parti, vengono liberati insieme
-                    DEBUG_PRINT("figlio %d finito", i);
+                    DEBUG_PRINT("figlio %d file letti", i);
 
                     // ciclo while per mandare i messaggi
                     int count = 4;
@@ -131,10 +135,12 @@ void sigHandler(int signal)
                     static const struct MsgQue empty_msg_queue;
 
                     struct MsgQue msg_queue;
+
                     // struct MsgQue test;
 
                     while (count > 0)
                     {
+                        //sleep(1);
                         /// scrittura su fifo 1
                         // semOp(semaforo_ipc, 0, -1, 0);
                         if (semWaitNoBloc(semaforo_ipc, 0) == 0)
@@ -151,6 +157,7 @@ void sigHandler(int signal)
                             count--;
                         }
 
+                        //sleep(1);
                         /// scrittura su message queue
                         // memset(&msg_queue, 0, sizeof(msg_queue));
                         msg_queue = empty_msg_queue;
@@ -159,6 +166,7 @@ void sigHandler(int signal)
                         msg_queue.additional = getpid();
                         msg_queue.file_number = 3;
                         msg_queue.mtype = 1;
+
                         // DEBUG_PRINT("Tenta invio messaggio [%d, %s, %s] su message queue", msg_queue.additional, msg_queue.filepath, msg_queue.content);
                         mSize = sizeof(struct MsgQue) - sizeof(long);
                         // semOp(semaforo_ipc, 2, -1, 0);
@@ -206,10 +214,20 @@ void sigHandler(int signal)
             while (wait(NULL) != -1)
                 ;
 
-            remove_shared_memory(id_memoria);
-            remove_shared_memory(shm_data_ready);
-            free_shared_memory(ptr);
-            free_shared_memory(data_ready);
+
+            struct MsgQue msg_queue_responce;
+            if (msgrcv(id_msgqueue, &msg_queue_responce, mSize, 2,0) == -1)
+            {
+                ErrExit("msgrcv failed");
+            }
+            else
+                DEBUG_PRINT("<client>ricevuto messaggio fine lavori da server");
+
+            //libero tutte le zone heap allocate, shared memory e semafori
+            for(int i=0;i<legit_files;i++)
+                free(legit_files_path[i]);
+            detach_shared_memory(ptr);
+            detach_shared_memory(data_ready);
             removeSemaphore(semaforo_mutex);
             return;
         }
@@ -223,6 +241,15 @@ int main(int argc, char *argv[])
 {
 
     DEBUG_PRINT("PROCESS ID %d\n", getpid());
+    // setting maschera segnali per SIGINT e SIGUSR1
+    sigset_t set_segnali;
+    sigfillset(&set_segnali);
+    sigdelset(&set_segnali, SIGUSR1);
+    sigdelset(&set_segnali, SIGINT);
+    sigprocmask(SIG_SETMASK, &set_segnali, NULL);
+
+    if (signal(SIGINT, sigHandler) == SIG_ERR || signal(SIGUSR1, sigHandler) == SIG_ERR)
+        ErrExit("signal handler failed");
 
     if (argc != 2)
     {
@@ -232,21 +259,14 @@ int main(int argc, char *argv[])
     else
         global_path = argv[1];
 
-    sigset_t set_segnali;
 
-    // setting maschera segnali per SIGINT e SIGUSR1
-    sigfillset(&set_segnali);
-    sigdelset(&set_segnali, SIGUSR1);
-    sigdelset(&set_segnali, SIGINT);
-    sigprocmask(SIG_SETMASK, &set_segnali, NULL);
+    while(1)
+    {
+        // attendo ricezione di segnale SIGINT o SIGUSR1
+        pause();
+        printf("\n<parent>end\n");
+    }
 
-    if (signal(SIGINT, sigHandler) == SIG_ERR || signal(SIGUSR1, sigHandler) == SIG_ERR)
-        ErrExit("signal handler failed");
 
-    // attendo ricezione di segnale SIGINT o SIGUSR1
-    pause();
-
-    printf("\n<parent>end\n");
-
-    return 0;
+    //return 0;
 }
