@@ -99,7 +99,6 @@ int main(int argc, char *argv[])
         /// leggo dalle 4 IPC (fifo 1-2,msgq,shmemory)
         while (count > 0) {
             usleep(300000);
-            DEBUG_PRINT("count= %d", count);
 
             /// FIFO 1
             error = 0;
@@ -110,8 +109,7 @@ int main(int argc, char *argv[])
                 FileReconstruct(&risposta, ricostruzione_file, &file_count, n_file);
                 count--;
                 semOp(semaforo_ipc, 0, 1, 0);
-            } else
-                DEBUG_PRINT("<fifo1>would have blocked");
+            }
 
 
             /// FIFO 2
@@ -123,16 +121,15 @@ int main(int argc, char *argv[])
                 FileReconstruct(&risposta, ricostruzione_file, &file_count, n_file);
                 count--;
                 semOp(semaforo_ipc, 1, 1, 0);
-            } else
-                DEBUG_PRINT("<fifo2>would have blocked");
+            }
 
 
             /// MESSAGE QUEUE
             //struct MsgQue support;
             mSize = sizeof(struct MsgQue) - sizeof(long);
             if (msgrcv(id_msgqueue, &msg_queue_responce, mSize, 0, IPC_NOWAIT) == -1) {
-                if (errno == ENOMSG)
-                    DEBUG_PRINT("<message queue>would have blocked");
+                if (errno == ENOMSG);
+                    //DEBUG_PRINT("<message queue>would have blocked");
                 else
                     ErrExit("msgrcv failed");
             } else {
@@ -189,8 +186,17 @@ int main(int argc, char *argv[])
         //vettore supporto per trasformare le parti int in char (con sprintf)
         char numero[8];
 
+        for(int i=0;i<4;i++)
+        {
+            printf("\n\nposizione %d",i);
+            for(int a=0;a<n_file;a++)
+            printf("\nfilepath aperto:  %s",ricostruzione_file[a][i].filepath);
+        }
+
 
         for (int i = 0; i < n_file; i++) {
+           // printf("\nfilepath aperto:  %s",ricostruzione_file[i][1].filepath);
+            fflush(stdout);
             int fd = open(strcat(ricostruzione_file[i][0].filepath, "_out"), O_RDWR | O_CREAT | O_TRUNC,
                           S_IRUSR | S_IWUSR);
             if (fd == -1)
@@ -200,9 +206,9 @@ int main(int argc, char *argv[])
             strcpy(riga, "");
 
             for (int a = 0; a < 4; a++) {
-                printf("\n\n[parte %d file %s pid %d]\n%s", ricostruzione_file[i][a].file_number,
+              /*  printf("\n\n[parte %d file %s pid %d]\n%s", ricostruzione_file[i][a].file_number,
                        ricostruzione_file[i][a].filepath,
-                       ricostruzione_file[i][a].additional, ricostruzione_file[i][a].content);
+                       ricostruzione_file[i][a].additional, ricostruzione_file[i][a].content);*/
                 fflush(stdout);
 
                 strcpy(riga, "\n\n[parte ");

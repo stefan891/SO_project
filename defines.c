@@ -133,11 +133,11 @@ int readDir(const char *dirname,char **legit_files_path)
         dentry= readdir(dirp);
 
     }
-    //chiudo il file e ritoprno il numero di files letti, resettando prima la variabile legit_files
+    //chiudo il file e ritorno il numero di files letti, resettando prima la variabile legit_files
     closedir(dirp);
-    reset=legit_files;
-    legit_files=0;
-    return reset;
+   // reset=legit_files;
+   // legit_files=0;
+    return legit_files;
 
 }
 
