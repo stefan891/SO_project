@@ -1,0 +1,7 @@
+<map id="debug.h" name="debug.h">
+<area shape="rect" id="node1" title="Contiene la definizioni di variabili e funzioni per il debugging." alt="" coords="173,5,247,32"/>
+<area shape="rect" id="node2" href="$defines_8h.html" title="Contiene la definizioni di variabili e funzioni specifiche del progetto." alt="" coords="169,80,251,107"/>
+<area shape="rect" id="node3" href="$message__queue_8h_source.html" title=" " alt="" coords="5,155,145,181"/>
+<area shape="rect" id="node4" href="$defines_8c.html" title="Contiene l&#39;implementazione delle funzioni specifiche del progetto." alt="" coords="170,155,250,181"/>
+<area shape="rect" id="node5" href="$fifo_8c.html" title="Contiene l&#39;implementazione delle funzioni specifiche per la gestione delle FIFO." alt="" coords="275,155,329,181"/>
+</map>

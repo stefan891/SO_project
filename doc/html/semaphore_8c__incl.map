@@ -1,0 +1,11 @@
+<map id="semaphore.c" name="semaphore.c">
+<area shape="rect" id="node1" title="Contiene l&#39;implementazione delle funzioni specifiche per la gestione dei SEMAFORI." alt="" coords="213,5,320,32"/>
+<area shape="rect" id="node2" href="$err__exit_8h.html" title="Contiene la definizione della funzione di stampa degli errori." alt="" coords="49,80,133,107"/>
+<area shape="rect" id="node3" href="$semaphore_8h.html" title="Contiene la definizioni di variabili e funzioni specifiche per la gestione dei SEMAFORI." alt="" coords="157,80,264,107"/>
+<area shape="rect" id="node8" title=" " alt="" coords="289,80,357,107"/>
+<area shape="rect" id="node9" title=" " alt="" coords="381,80,451,107"/>
+<area shape="rect" id="node4" title=" " alt="" coords="5,155,93,181"/>
+<area shape="rect" id="node5" title=" " alt="" coords="117,155,203,181"/>
+<area shape="rect" id="node6" title=" " alt="" coords="227,155,298,181"/>
+<area shape="rect" id="node7" title=" " alt="" coords="323,155,389,181"/>
+</map>

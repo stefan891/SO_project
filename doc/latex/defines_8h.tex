@@ -1,0 +1,184 @@
+\hypertarget{defines_8h}{}\doxysection{defines.\+h File Reference}
+\label{defines_8h}\index{defines.h@{defines.h}}
+
+
+Contiene la definizioni di variabili e funzioni specifiche del progetto.  
+
+
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$signal.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$syscall.\+h$>$}\newline
+{\ttfamily \#include $<$sys/types.\+h$>$}\newline
+{\ttfamily \#include $<$sys/wait.\+h$>$}\newline
+{\ttfamily \#include $<$sys/stat.\+h$>$}\newline
+{\ttfamily \#include $<$fcntl.\+h$>$}\newline
+{\ttfamily \#include $<$dirent.\+h$>$}\newline
+{\ttfamily \#include $<$errno.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}debug.\+h\char`\"{}}\newline
+Include dependency graph for defines.\+h\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{defines_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=323pt]{defines_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structFile__piece}{File\+\_\+piece}}
+\item 
+struct \mbox{\hyperlink{structResponce}{Responce}}
+\item 
+struct \mbox{\hyperlink{structDivide}{Divide}}
+\item 
+struct \mbox{\hyperlink{structMsgQue}{Msg\+Que}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{defines_8h_a2114414f4315c5408565e9aff3598927}\label{defines_8h_a2114414f4315c5408565e9aff3598927}} 
+\#define {\bfseries M\+S\+G\+\_\+\+B\+Y\+T\+ES}~1024
+\item 
+\mbox{\Hypertarget{defines_8h_ae78bf7e06bbba1c42b740fef55cf20f8}\label{defines_8h_ae78bf7e06bbba1c42b740fef55cf20f8}} 
+\#define {\bfseries P\+A\+T\+H\+\_\+\+S\+I\+ZE}~150
+\item 
+\mbox{\Hypertarget{defines_8h_a092da15ea28a6ba5670aea87cfa30490}\label{defines_8h_a092da15ea28a6ba5670aea87cfa30490}} 
+\#define {\bfseries S\+H\+M\+K\+E\+Y1}~20
+\item 
+\mbox{\Hypertarget{defines_8h_aa286cf8f5ca4dc66be6442a1f93e0374}\label{defines_8h_aa286cf8f5ca4dc66be6442a1f93e0374}} 
+\#define {\bfseries S\+H\+M\+K\+E\+Y\+\_\+\+S\+U\+P\+P\+\_\+\+M\+U\+T\+EX}~21
+\item 
+\mbox{\Hypertarget{defines_8h_a8591e8be90ebf144412f89f7bc1433b8}\label{defines_8h_a8591e8be90ebf144412f89f7bc1433b8}} 
+\#define {\bfseries S\+H\+M\+\_\+\+S\+U\+PP}~40
+\item 
+\mbox{\Hypertarget{defines_8h_a4828a6c9d75577356073715a743256bf}\label{defines_8h_a4828a6c9d75577356073715a743256bf}} 
+\#define {\bfseries S\+E\+M\+K\+E\+Y1}~11
+\item 
+\mbox{\Hypertarget{defines_8h_ad01ee6a45cd5001f3a38692359ee7635}\label{defines_8h_ad01ee6a45cd5001f3a38692359ee7635}} 
+\#define {\bfseries S\+E\+M\+I\+P\+C\+K\+EY}~14
+\item 
+\mbox{\Hypertarget{defines_8h_a378acba81c42b343bea233c9c3cf0157}\label{defines_8h_a378acba81c42b343bea233c9c3cf0157}} 
+\#define {\bfseries S\+E\+M\+K\+E\+Y2}~32
+\item 
+\mbox{\Hypertarget{defines_8h_af2512be334e0aa846c1670cfed07dda8}\label{defines_8h_af2512be334e0aa846c1670cfed07dda8}} 
+\#define {\bfseries S\+E\+M\+M\+U\+T\+E\+X\+K\+E\+Y1}~12
+\item 
+\mbox{\Hypertarget{defines_8h_a3a5a1fa3d5abfc0cdc93714b4f8bac18}\label{defines_8h_a3a5a1fa3d5abfc0cdc93714b4f8bac18}} 
+\#define {\bfseries M\+S\+G\+Q\+K\+EY}~30
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structDivide}{Divide}} \mbox{\hyperlink{defines_8h_af09e6a06bc25d1bda57fba8af4e839dc}{divide\+By\+Four}} (char $\ast$path)
+\begin{DoxyCompactList}\small\item\em It opens the file, reads it, and divides it into four parts. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{defines_8h_abef901756983399c0aa2b8b7f08c9adc}{read\+Dir}} (const char $\ast$dirname, char $\ast$$\ast$legit\+\_\+files\+\_\+path)
+\item 
+int \mbox{\hyperlink{defines_8h_aac1c6661b935c9856940e8bfdb3d8384}{File\+Reconstruct}} (struct \mbox{\hyperlink{structResponce}{Responce}} $\ast$source, struct \mbox{\hyperlink{structResponce}{Responce}} $\ast$$\ast$dest, int $\ast$count, int n\+\_\+file)
+\item 
+char $\ast$ \mbox{\hyperlink{defines_8h_a8f23546ccf6ae726cbe47319648c073a}{get\+Directory\+Path}} ()
+\item 
+void \mbox{\hyperlink{defines_8h_a2ce7c4d064c3b1a3f182c3e830a4c31d}{print\+\_\+msg}} (char $\ast$msg)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Contiene la definizioni di variabili e funzioni specifiche del progetto. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{defines_8h_af09e6a06bc25d1bda57fba8af4e839dc}\label{defines_8h_af09e6a06bc25d1bda57fba8af4e839dc}} 
+\index{defines.h@{defines.h}!divideByFour@{divideByFour}}
+\index{divideByFour@{divideByFour}!defines.h@{defines.h}}
+\doxysubsubsection{\texorpdfstring{divideByFour()}{divideByFour()}}
+{\footnotesize\ttfamily struct \mbox{\hyperlink{structDivide}{Divide}} divide\+By\+Four (\begin{DoxyParamCaption}\item[{char $\ast$}]{path }\end{DoxyParamCaption})}
+
+
+
+It opens the file, reads it, and divides it into four parts. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em dirname} & the name of the file to be divided\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A struct containing 4 strings. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{defines_8h_aac1c6661b935c9856940e8bfdb3d8384}\label{defines_8h_aac1c6661b935c9856940e8bfdb3d8384}} 
+\index{defines.h@{defines.h}!FileReconstruct@{FileReconstruct}}
+\index{FileReconstruct@{FileReconstruct}!defines.h@{defines.h}}
+\doxysubsubsection{\texorpdfstring{FileReconstruct()}{FileReconstruct()}}
+{\footnotesize\ttfamily int File\+Reconstruct (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structResponce}{Responce}} $\ast$}]{source,  }\item[{struct \mbox{\hyperlink{structResponce}{Responce}} $\ast$$\ast$}]{dest,  }\item[{int $\ast$}]{count,  }\item[{int}]{n\+\_\+file }\end{DoxyParamCaption})}
+
+It takes a struct \mbox{\hyperlink{structResponce}{Responce}} as input, and it checks if the filepath of the struct is already present in the array of structs. If it is, it adds the content of the struct to the array. If it isn\textquotesingle{}t, it adds the struct to the array
+
+
+\begin{DoxyParams}{Parameters}
+{\em source} & the struct that contains the data to be added to the array \\
+\hline
+{\em dest} & is the array of structs that I want to fill \\
+\hline
+{\em count} & number of files \\
+\hline
+{\em n\+\_\+file} & number of files in the array\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 if the file is reconstructed correctly, 0 otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{defines_8h_a8f23546ccf6ae726cbe47319648c073a}\label{defines_8h_a8f23546ccf6ae726cbe47319648c073a}} 
+\index{defines.h@{defines.h}!getDirectoryPath@{getDirectoryPath}}
+\index{getDirectoryPath@{getDirectoryPath}!defines.h@{defines.h}}
+\doxysubsubsection{\texorpdfstring{getDirectoryPath()}{getDirectoryPath()}}
+{\footnotesize\ttfamily char$\ast$ get\+Directory\+Path (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+funzione da usare in caso per le chiavi con la ftok (non la stiamo usando) It gets the current working directory, appends the string \char`\"{}my\+Dir\char`\"{} to it, and returns the result
+
+\begin{DoxyReturn}{Returns}
+The path to the directory. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{defines_8h_a2ce7c4d064c3b1a3f182c3e830a4c31d}\label{defines_8h_a2ce7c4d064c3b1a3f182c3e830a4c31d}} 
+\index{defines.h@{defines.h}!print\_msg@{print\_msg}}
+\index{print\_msg@{print\_msg}!defines.h@{defines.h}}
+\doxysubsubsection{\texorpdfstring{print\_msg()}{print\_msg()}}
+{\footnotesize\ttfamily void print\+\_\+msg (\begin{DoxyParamCaption}\item[{char $\ast$}]{msg }\end{DoxyParamCaption})}
+
+The function {\ttfamily print\+\_\+msg} writes the string {\ttfamily msg} to the standard output
+
+
+\begin{DoxyParams}{Parameters}
+{\em msg} & The message to be printed. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{defines_8h_abef901756983399c0aa2b8b7f08c9adc}\label{defines_8h_abef901756983399c0aa2b8b7f08c9adc}} 
+\index{defines.h@{defines.h}!readDir@{readDir}}
+\index{readDir@{readDir}!defines.h@{defines.h}}
+\doxysubsubsection{\texorpdfstring{readDir()}{readDir()}}
+{\footnotesize\ttfamily int read\+Dir (\begin{DoxyParamCaption}\item[{const char $\ast$}]{dirname,  }\item[{char $\ast$$\ast$}]{legit\+\_\+files\+\_\+path }\end{DoxyParamCaption})}
+
+It recursively reads a directory and its subdirectories, and returns the number of files that are smaller than 4kb and that start with \char`\"{}sendme\+\_\+\char`\"{}. The problem is that the function returns the correct number of files, but the array of strings that I pass to it is not filled correctly. essendo la funzione ricorsiva, legit files va fuori per non essere re inizializzato ad ogni chiamata Here\textquotesingle{}s the code that calls the function\+:
+
+
+\begin{DoxyParams}{Parameters}
+{\em dirname} & the path to the directory to be read \\
+\hline
+{\em legit\+\_\+files\+\_\+path} & an array of strings, each string is a path to a file\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The number of files found. 
+\end{DoxyReturn}

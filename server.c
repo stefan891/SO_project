@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
         ErrExit("signal handler failed");
 
 
+
     while(1) {
         make_FIFO("fifo1");
         make_FIFO("fifo2");
@@ -48,16 +49,18 @@ int main(int argc, char *argv[])
         int shm_data_ready = alloc_shared_memory(SHM_SUPP, 50 * sizeof(bool));
         bool *data_ready = (bool *) get_shared_memory(shm_data_ready, 0);
 
-        // message queue
-
+        /// message queue
         id_msgqueue = createMessageQueue(MSGQKEY);
         DEBUG_PRINT("MESSAGE QUEUE ID: %d", id_msgqueue);
 
+
         struct MsgQue msg_queue_responce;
+
 
         /// comunicazione con il client_0
         // mi metto in ascolto del client su fifo1
         global_fd1 = open_FIFO("fifo1", O_RDONLY);
+
 
         // risposta del client_0 sul numero di files
         struct Responce risposta = read_FIFO(global_fd1, NULL);
@@ -92,8 +95,6 @@ int main(int argc, char *argv[])
         for (int i = 0; i < n_file; i++)
            ricostruzione_file[i] = (struct Responce *) malloc(4 * sizeof(struct Responce));
 
-
-
         file_count = 0;
         long error = 0;
 
@@ -101,6 +102,7 @@ int main(int argc, char *argv[])
         while (count > 0) {
 
             //usleep(300000);
+
 
             /// FIFO 1
             error = 0;
@@ -112,6 +114,7 @@ int main(int argc, char *argv[])
                 count--;
                 semOp(semaforo_ipc, 0, 1, 0);
             }
+
 
 
             /// FIFO 2
