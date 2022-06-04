@@ -53,7 +53,7 @@ void sigHandler(int signal)
         unsigned short sem_ipc_initVal[] = {3, 3, 3, 3};
         semSetAll(semaforo_ipc, sem_ipc_initVal, "sem_ipc");
 
-        DEBUG_PRINT("semaforo_ipc %d", semaforo_ipc);
+       // DEBUG_PRINT("semaforo_ipc %d", semaforo_ipc);
 
         // mi metto in attesa del server su fifo1 per scrivere il n di file, in caso di errore, esco e rimuovo i semafori
         int global_fd1 = open_FIFO("fifo1", O_WRONLY);
@@ -77,7 +77,7 @@ void sigHandler(int signal)
 
         // mi aggancio alla message queue
         id_msgqueue = createMessageQueue(MSGQKEY);
-        DEBUG_PRINT("MESSAGE QUEUE ID: %d", id_msgqueue);
+       // DEBUG_PRINT("MESSAGE QUEUE ID: %d", id_msgqueue);
 
         // mi assicuro che il file number sia corretto
         if (ptr[0].file_number > 0)
@@ -87,20 +87,20 @@ void sigHandler(int signal)
             unsigned short mutex_semInitVal[] = {1, legit_files};
             semSetAll(semaforo_mutex, mutex_semInitVal, "sem_mutex");
 
-            DEBUG_PRINT("semafor_mutex %d", semaforo_mutex);
+           // DEBUG_PRINT("semafor_mutex %d", semaforo_mutex);
 
             int global_fd2 = open_FIFO("fifo2", O_WRONLY);
 
             // ri-setto il semaforo di supporto per la shared memory
             semSetVal(semaforo_supporto, 1, "semaforo_supporto");
 
-            //sleep(1);
 
             /// divisione file in 4 e creazione figli
 
             for (int i = 0; i < legit_files; i++)
             {
                 pid_t pid = fork();
+
                 if (pid == -1)
                     ErrExit("fork failed");
 
@@ -145,43 +145,46 @@ void sigHandler(int signal)
                         // semOp(semaforo_ipc, 0, -1, 0);
                         if (semWaitNoBloc(semaforo_ipc, 0) == 0)
                         {
+                            DEBUG_PRINT("invio messaggio [%d, %s] su fifo1\n%s", 1, legit_files_path[i], divide.part1);
                             write_FIFO(global_fd1, divide.part1, 1, getpid(), legit_files_path[i]);
                             count--;
                         }
+
 
                         /// scrittura su fifo 2
                         // semOp(semaforo_ipc, 1, -1, 0);
                         if (semWaitNoBloc(semaforo_ipc, 1) == 0)
                         {
+                            DEBUG_PRINT("invio messaggio [%d, %s] su fifo2\n%s", 2, legit_files_path[i], divide.part2);
                             write_FIFO(global_fd2, divide.part2, 2, getpid(), legit_files_path[i]);
                             count--;
                         }
 
-                        //sleep(1);
+
                         /// scrittura su message queue
                         // memset(&msg_queue, 0, sizeof(msg_queue));
-                        msg_queue = empty_msg_queue;
-                        strcpy(msg_queue.content, divide.part3);
-                        strcpy(msg_queue.filepath, legit_files_path[i]);
-                        msg_queue.additional = getpid();
-                        msg_queue.file_number = 3;
-                        msg_queue.mtype = 1;
-
-                        // DEBUG_PRINT("Tenta invio messaggio [%d, %s, %s] su message queue", msg_queue.additional, msg_queue.filepath, msg_queue.content);
                         mSize = sizeof(struct MsgQue) - sizeof(long);
                         // semOp(semaforo_ipc, 2, -1, 0);
                         if (semWaitNoBloc(semaforo_ipc, 2) == 0)
                         {
+                            msg_queue = empty_msg_queue;
+                            strcpy(msg_queue.content, divide.part3);
+                            strcpy(msg_queue.filepath, legit_files_path[i]);
+                            msg_queue.additional = getpid();
+                            msg_queue.file_number = 3;
+                            msg_queue.mtype = 1;
+                            DEBUG_PRINT("invio messaggio [%d, %s] su message queue\n%s", msg_queue.file_number, msg_queue.filepath, msg_queue.content);
                             if (msgsnd(id_msgqueue, &msg_queue, mSize, 0) == -1)
                                 ErrExit("msgsnd failed");
                             count--;
                         }
 
+
                         /// scrittura shared memory
-                        // mutua esclusione scrittura su shared memory
                         //semOp(semaforo_ipc, 3, -1, IPC_NOWAIT);
                         if (semWaitNoBloc(semaforo_ipc, 3) == 0)
                         {
+                            // mutua esclusione scrittura su shared memory
                             semOp(semaforo_supporto, 0, -1, 0);
 
                             // ciclo su array di supporto finchè non trovo la prima partizione libera (true)
@@ -189,6 +192,7 @@ void sigHandler(int signal)
                             {
                                 if (!data_ready[j])
                                 {
+                                    DEBUG_PRINT("invio messaggio [%d, %s] su shmem\n%s", 4, legit_files_path[i], divide.part4);
                                     ptr[j] = empty_responce; // pulizia struct su cui scrivere
                                     strcpy(ptr[j].content, divide.part4);
                                     strcpy(ptr[j].filepath, legit_files_path[i]);
@@ -201,6 +205,7 @@ void sigHandler(int signal)
                             }
                             semOp(semaforo_supporto, 0, 1, 0);
                         }
+
                     }
 
                     DEBUG_PRINT("figlio %d file inviati", i);
@@ -211,9 +216,8 @@ void sigHandler(int signal)
 
             /// PARENT
             // aspetto tutti i figli e rimuovo i semafori del client
-            while (wait(NULL) != -1)
-                ;
-
+            while (wait(NULL) != -1);
+            sleep(1);
 
             struct MsgQue msg_queue_responce;
             if (msgrcv(id_msgqueue, &msg_queue_responce, mSize, 2,0) == -1)
@@ -260,12 +264,12 @@ int main(int argc, char *argv[])
         global_path = argv[1];
 
 
-    while(1)
-    {
+   // while(1)
+    //{
         // attendo ricezione di segnale SIGINT o SIGUSR1
         pause();
         printf("\n<parent>end\n");
-    }
+    //}
 
 
     //return 0;

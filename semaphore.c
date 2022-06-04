@@ -70,6 +70,7 @@ void semSetAll(int semid, short unsigned values[], char *err){
 
 int semOpNoBlocc(int semid, unsigned short sem_num, short sem_op) {
     struct sembuf sop = {.sem_num = sem_num, .sem_op = sem_op, .sem_flg = IPC_NOWAIT};
+    errno=0;
     if (semop(semid, &sop, 1) == -1){
         if (errno == EAGAIN){
             return errno;

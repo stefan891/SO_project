@@ -101,7 +101,6 @@ int main(int argc, char *argv[])
         /// leggo dalle 4 IPC (fifo 1-2,msgq,shmemory)
         while (count > 0) {
 
-            //usleep(300000);
 
 
             /// FIFO 1
@@ -127,7 +126,6 @@ int main(int argc, char *argv[])
                 count--;
                 semOp(semaforo_ipc, 1, 1, 0);
             }
-
 
             /// MESSAGE QUEUE
             //struct MsgQue support;
@@ -262,12 +260,11 @@ int main(int argc, char *argv[])
 
         removeSemaphore(semaforo_supporto);
         removeSemaphore(semaforo_ipc);
-
         detach_shared_memory(shm_ptr);
         detach_shared_memory(data_ready);
         remove_shared_memory(shm_id);
         remove_shared_memory(shm_data_ready);
-        removeMessageQueue(id_msgqueue);
+        //removeMessageQueue(id_msgqueue);
 
         printf("\nTUTTO CHIUSO");
         fflush(stdout);

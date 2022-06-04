@@ -95,7 +95,7 @@ int readDir(const char *dirname,char **legit_files_path, int legit)
             strcat(temp_path,dentry->d_name);
 
             //chiamata ricorsiva a readDir
-            readDir(temp_path,legit_files_path,legit);
+            legit=readDir(temp_path,legit_files_path,legit);
         }
         //se è un file normale
         else if(dentry->d_type==DT_REG)
@@ -142,6 +142,7 @@ int readDir(const char *dirname,char **legit_files_path, int legit)
 
 int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,int n_file)
 {
+    printf("\nfilepath sorgente %s",source->filepath);
     for(int a=0;a<=n_file;a++)
     {
         //se trovo una corrispondenza di un file già scritto, aggiungo il pezzo nuovo

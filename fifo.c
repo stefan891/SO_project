@@ -94,6 +94,7 @@ struct Responce read_FIFO(int FIFO_fd,long *error)
         if(errno==EAGAIN || errno==EINTR)
         {
             *error=errno;
+            strcpy(responce.filepath,"cacca");
             return responce;
         }
         else
