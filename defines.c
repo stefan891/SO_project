@@ -75,8 +75,10 @@ int readDir(const char *dirname,char **legit_files_path, int legit)
     DIR *dirp= opendir(dirname);
 
     //caso base
-    if(dirp==NULL)
+    if(dirp==NULL){
+        ErrExit("path inesistente");
         return 0;
+    }
 
     //leggo il contenuto della cartella passata da opendir
     dentry= readdir(dirp);

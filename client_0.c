@@ -11,11 +11,15 @@
 
 // variabile globale per passare argv[1] al sigHandler
 char *global_path;
+// variabile per la maschera dei segnali
+sigset_t set_segnali;
 
 int id_msgqueue;
 // funzione per creare subito tutti i semafori
 
 ssize_t mSize = sizeof(struct MsgQue) - sizeof(long);
+
+void catch_stop();
 
 void sigHandler(int signal)
 {
@@ -29,6 +33,7 @@ void sigHandler(int signal)
     {
 
         // procedura per salutare l'utente
+
         char path[PATH_SIZE];
 
         printf("\nciao %s ora inizio l'invio dei file contenuti in ", getlogin());
@@ -137,12 +142,14 @@ void sigHandler(int signal)
 
                     // struct MsgQue test;
                     bool sent[4] = {false};
+                    DEBUG_PRINT("adesso aspetto");
+                    sleep(7);
 
                     while (count > 0)
                     {
                         // sleep(1);
                         /// scrittura su fifo 1
-                        // semOp(semaforo_ipc, 0, -1, 0);
+                        // semOp(semaforo_ipc, 0, -1, 0)
                         if (sent[0] == false)
                         {
                             if (semWaitNoBloc(semaforo_ipc, 0) == 0)
@@ -217,7 +224,6 @@ void sigHandler(int signal)
                                     }
                                 }
                                 semOp(semaforo_supporto, 0, 1, 0);
-                                
                             }
                         }
                     }
@@ -266,7 +272,6 @@ int main(int argc, char *argv[])
 
     DEBUG_PRINT("PROCESS ID %d\n", getpid());
     // setting maschera segnali per SIGINT e SIGUSR1
-    sigset_t set_segnali;
     sigfillset(&set_segnali);
     sigdelset(&set_segnali, SIGUSR1);
     sigdelset(&set_segnali, SIGINT);
@@ -283,12 +288,24 @@ int main(int argc, char *argv[])
     else
         global_path = argv[1];
 
-    // while(1)
-    //{
-    // attendo ricezione di segnale SIGINT o SIGUSR1
-    pause();
-    printf("\n<parent>end\n");
-    //}
+    struct sigaction act;
+
+    memset(&act, 0, sizeof act);
+    sigaddset(&set_segnali, SIGUSR1);
+    sigaddset(&set_segnali, SIGINT);
+
+    act.sa_mask = set_segnali;
+    act.sa_handler = sigHandler;
+    act.sa_flags = 0;
+
+    sigaction(SIGINT, &act, NULL);
+    while (1)
+    {
+        // attendo ricezione di segnale SIGINT o SIGUSR1
+        pause();
+        printf("\n<parent>end\n");
+    }
+        //sigprocmask(SIG_UNBLOCK, &set_segnali, NULL);
 
     // return 0;
 }
