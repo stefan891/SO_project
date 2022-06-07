@@ -239,8 +239,7 @@ void sigHandler(int signal)
             if (pid != 0)
             {
 
-                while (wait(NULL) != -1)
-                    ;
+                while (wait(NULL) != -1);
 
                 sleep(1);
 
