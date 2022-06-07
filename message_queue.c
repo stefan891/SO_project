@@ -2,10 +2,10 @@
 #include "message_queue.h"
 
 // id diversi
-int createMessageQueue(key_t messqueKey)
+int createMessageQueue(key_t messqueKey,int msflg)
 {
 
-    int id_queue = msgget(messqueKey, IPC_CREAT | S_IRUSR | S_IWUSR);
+    int id_queue = msgget(messqueKey, msflg | S_IRUSR | S_IWUSR);
     if (id_queue == -1)
         ErrExit("msgget failed");
 

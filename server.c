@@ -38,16 +38,18 @@ int main(int argc, char *argv[])
         make_FIFO("fifo2");
         // shared memory
         // alloco la schared memory per rispondere al client, poi lo sblocco
-        int shm_id = alloc_shared_memory(SHMKEY1, 50 * sizeof(struct Responce));
+        int shm_id = alloc_shared_memory(SHMKEY1, 50 * sizeof(struct Responce),IPC_CREAT);
         struct Responce *shm_ptr = (struct Responce *)get_shared_memory(shm_id, 0);
         DEBUG_PRINT("memoria condivisa allocata e connessa\n");
 
         // inizializzazione shared memory di supporto
-        int shm_data_ready = alloc_shared_memory(SHM_SUPP, 50 * sizeof(bool));
+        int shm_data_ready = alloc_shared_memory(SHM_SUPP, 50 * sizeof(bool),IPC_CREAT);
         bool *data_ready = (bool *)get_shared_memory(shm_data_ready, 0);
+        for(int i=0;i<50;i++)
+            data_ready[i]=false;
 
         /// message queue
-        id_msgqueue = createMessageQueue(MSGQKEY);
+        id_msgqueue = createMessageQueue(MSGQKEY,IPC_CREAT);
         DEBUG_PRINT("MESSAGE QUEUE ID: %d", id_msgqueue);
 
         struct MsgQue msg_queue_responce;
@@ -91,9 +93,9 @@ int main(int argc, char *argv[])
         long error = 0;
 
         // limito la coda
-        struct msqid_ds ds = msqGetStats(id_msgqueue);
-        ds.msg_qbytes = sizeof(struct MsgQue) * MAX_MESS_CHANNEL;
-        msqSetStats(id_msgqueue, ds);
+       // struct msqid_ds ds = msqGetStats(id_msgqueue);
+       // ds.msg_qbytes = sizeof(struct MsgQue) * MAX_MESS_CHANNEL;
+       // msqSetStats(id_msgqueue, ds);
 
         /// leggo dalle 4 IPC (fifo 1-2,msgq,shmemory)
         while (count > 0)

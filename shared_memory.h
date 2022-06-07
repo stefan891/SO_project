@@ -16,7 +16,7 @@
  *
  * @return The shared memory ID.
  */
-int alloc_shared_memory(key_t shmKey, size_t size);
+int alloc_shared_memory(key_t shmKey, size_t size,int shmflg);
 
 /**
  * It attaches the shared memory segment identified by the shmid parameter to the address space of the calling process

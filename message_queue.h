@@ -13,7 +13,7 @@
  *
  * @return The id of the message queue
  */
-int createMessageQueue(key_t messqueKey);
+int createMessageQueue(key_t messqueKey,int msflg);
 
 /**
  * It removes the message queue with the given id
