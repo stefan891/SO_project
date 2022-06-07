@@ -32,16 +32,48 @@ struct Divide divideByFour(char *dirname)
 
     //calcolo la dimensione ed eventuale resto da aggiungere all'ultima parte
     //inserisco le 4 parti nella struttura
+    DEBUG_PRINT("dimensione %ld,resto %ld",dimensione,resto);
+    DEBUG_PRINT("path %s",dirname);
+
     if(fd!=-1)
     {
-        br+=read(fd,divide.part1,dimensione/4);
-        divide.part1[br]='\0';
+        DEBUG_PRINT("leggendo");
+        br=read(fd,divide.part1,dimensione/4);
+        if(br==-1)
+        {
+            DEBUG_PRINT("<warning>read problem p1 %s", strerror(errno));
+            divide.part1[0]='\0';
+        }
+        else
+            divide.part1[br]='\0';
+
         br+=read(fd,divide.part2,dimensione/4);
-        divide.part2[br]='\0';
+        if(br==-1)
+        {
+            DEBUG_PRINT("<warning>read problem p2 %s", strerror(errno));
+            divide.part2[0]='\0';
+        }
+        else
+            divide.part2[br]='\0';
+
         br+=read(fd,divide.part3,dimensione/4);
-        divide.part3[br]='\0';
+        if(br==-1)
+        {
+            DEBUG_PRINT("<warning>read problem p3 %s", strerror(errno));
+            divide.part3[0]='\0';
+        }
+        else
+            divide.part3[br]='\0';
+
+        DEBUG_PRINT("leggendo 4");
         br+=read(fd,divide.part4,(dimensione/4)+resto);
-        divide.part4[br]='\0';
+        if(br==-1)
+        {
+            DEBUG_PRINT("<warning>read problem p4 %s", strerror(errno));
+            divide.part4[0]='\0';
+        }
+        else
+            divide.part4[br]='\0';
 
         close(fd);
 
@@ -56,7 +88,6 @@ struct Divide divideByFour(char *dirname)
         divide.part3[0]='\0';
         divide.part4[0]='\0';
     }
-
 
     return divide;
 }
@@ -144,7 +175,6 @@ int readDir(const char *dirname,char **legit_files_path, int legit)
 
 int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,int n_file)
 {
-    printf("\nfilepath sorgente %s",source->filepath);
     for(int a=0;a<=n_file;a++)
     {
         //se trovo una corrispondenza di un file già scritto, aggiungo il pezzo nuovo
@@ -154,7 +184,7 @@ int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,in
             //se ne stavo già scrivendo un pezzo
             if (strcmp(source->filepath, dest[a][0].filepath) == 0 || strcmp(source->filepath, dest[a][1].filepath) == 0 ||
                     strcmp(source->filepath, dest[a][2].filepath) == 0 || strcmp(source->filepath, dest[a][3].filepath) == 0) {
-                printf("\ntrovata corrisp: %s#\nnumber %d",source->filepath,source->file_number);
+                printf("\n<reconstruct>trovata corrisp: %s#\nnumber %d",source->filepath,source->file_number);
                 fflush(stdout);
                 //parto da file_number-1 perchè si inizia da 0
                 strcpy(dest[a][source->file_number - 1].filepath, source->filepath);
@@ -168,7 +198,7 @@ int FileReconstruct(struct Responce *source,struct Responce **dest,int *count,in
         //se non trovo corrispondenza, allora è un file nuovo e lo aggiungo alla prima locazione libera
         if(a==n_file && *count<n_file)
         {
-            printf("\nFILE NUOVO %d: %s#\nnumber %d",*count,source->filepath,source->file_number);
+            printf("\n<reconstruct>FILE NUOVO %d: %s#\nnumber %d",*count,source->filepath,source->file_number);
 
             fflush(stdout);
             strcpy(dest[*count][source->file_number-1].filepath,source->filepath);

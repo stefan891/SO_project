@@ -8,9 +8,9 @@
 #include "shared_memory.h"
 
 
-int alloc_shared_memory(key_t shmKey, size_t size) {
+int alloc_shared_memory(key_t shmKey, size_t size,int shmflg) {
 
-    int shmid = shmget(shmKey, size, IPC_CREAT | S_IRUSR | S_IWUSR);
+    int shmid = shmget(shmKey, size, shmflg | S_IRUSR | S_IWUSR);
     if (shmid == -1)
         ErrExit("shmget failed");
 
