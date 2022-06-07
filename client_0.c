@@ -142,8 +142,6 @@ void sigHandler(int signal)
 
                     // struct MsgQue test;
                     bool sent[4] = {false};
-                    DEBUG_PRINT("adesso aspetto");
-                    sleep(7);
 
                     while (count > 0)
                     {

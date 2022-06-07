@@ -8,9 +8,17 @@
 #include "fifo.h"
 #include "message_queue.h"
 
-int global_fd1;
-int global_fd2;
-int id_msgqueue = 0;
+// id della fifo 1
+int global_fd1 = -1;
+// id della fifo 2
+int global_fd2 = -1;
+// id della message queue
+int id_msgqueue = -1;
+// puntatore della shared memory
+struct Responce *shm_ptr = NULL;
+// puntatore della shared memory di supporto
+
+// grandezza della message queue
 ssize_t mSize = sizeof(struct MsgQue) - sizeof(long);
 // conteggio numero di file per la funzione di ricostruzione
 int file_count = 0;
@@ -39,7 +47,7 @@ int main(int argc, char *argv[])
         // shared memory
         // alloco la schared memory per rispondere al client, poi lo sblocco
         int shm_id = alloc_shared_memory(SHMKEY1, 50 * sizeof(struct Responce));
-        struct Responce *shm_ptr = (struct Responce *)get_shared_memory(shm_id, 0);
+        shm_ptr = (struct Responce *)get_shared_memory(shm_id, 0);
         DEBUG_PRINT("memoria condivisa allocata e connessa\n");
 
         // inizializzazione shared memory di supporto
@@ -94,6 +102,8 @@ int main(int argc, char *argv[])
         struct msqid_ds ds = msqGetStats(id_msgqueue);
         ds.msg_qbytes = sizeof(struct MsgQue) * MAX_MESS_CHANNEL;
         msqSetStats(id_msgqueue, ds);
+        ds = msqGetStats(id_msgqueue);
+        DEBUG_PRINT("grandezza MESSAGE QUEUE: %ld", ds.msg_qbytes);
 
         /// leggo dalle 4 IPC (fifo 1-2,msgq,shmemory)
         while (count > 0)
@@ -262,6 +272,7 @@ int main(int argc, char *argv[])
         detach_shared_memory(data_ready);
         remove_shared_memory(shm_id);
         remove_shared_memory(shm_data_ready);
+
         // removeMessageQueue(id_msgqueue);
 
         printf("\nTUTTO CHIUSO");
