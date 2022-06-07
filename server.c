@@ -14,6 +14,7 @@ int id_msgqueue = 0;
 ssize_t mSize = sizeof(struct MsgQue) - sizeof(long);
 // conteggio numero di file per la funzione di ricostruzione
 int file_count = 0;
+static const struct Responce empty_responce;
 
 void sigHandler(int signal)
 {
@@ -100,6 +101,7 @@ int main(int argc, char *argv[])
         /// leggo dalle 4 IPC (fifo 1-2,msgq,shmemory)
         while (count > 0)
         {
+            risposta=empty_responce;
 
             /// FIFO 1
             error = 0;
@@ -130,8 +132,7 @@ int main(int argc, char *argv[])
             mSize = sizeof(struct MsgQue) - sizeof(long);
             if (msgrcv(id_msgqueue, &msg_queue_responce, mSize, 0, IPC_NOWAIT) == -1)
             {
-                if (errno == ENOMSG)
-                    ;
+                if (errno == ENOMSG);
                 // DEBUG_PRINT("<message queue>would have blocked");
                 else
                     ErrExit("msgrcv failed");

@@ -207,8 +207,9 @@ void sigHandler(int signal)
 
 
 
-
                     //#############################################################################################################################
+
+
                     printf("\npart1: %s\npart2: %s\npart3: %s\npart4: %s", divide.part1, divide.part2, divide.part3, divide.part4);
                     fflush(stdout);
                     //  decremento il secondo semaforo(legit)
