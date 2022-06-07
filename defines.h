@@ -59,10 +59,10 @@ struct Responce{
 
 struct Divide{
 
-    char part1[MSG_BYTES+100];
-    char part2[MSG_BYTES+100];
-    char part3[MSG_BYTES+100];
-    char part4[MSG_BYTES+1000];
+    char part1[MSG_BYTES+1];
+    char part2[MSG_BYTES+1];
+    char part3[MSG_BYTES+1];
+    char part4[MSG_BYTES+1];
 
 };
 

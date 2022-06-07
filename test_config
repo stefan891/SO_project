@@ -20,7 +20,7 @@ fi
 
 function gen () {
   for (( i = 1; i <= $1; i++ )); do
-    R=$((RANDOM % 400 + 4))
+    R=$((RANDOM % 1000))
     TEST=$(tr -dc A-Za-z0-9 </dev/urandom | head -c $R)
     if [ ! -f ./myDir/sendme_"$i" ]; then
       echo -n "$TEST" > ./myDir/sendme_"$i"
