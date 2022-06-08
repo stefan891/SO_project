@@ -16,7 +16,6 @@ sigset_t set_segnali;
 
 int id_msgqueue;
 
-
 static const struct Divide empty_divide;
 
 ssize_t mSize = sizeof(struct MsgQue) - sizeof(long);
@@ -48,7 +47,7 @@ void sigHandler(int signal)
         // lettura files nella directory
         char *legit_files_path[101] = {};
         int legit_files = readDir(path, legit_files_path, 0);
-        if(legit_files>100)
+        if (legit_files > 100)
         {
             DEBUG_PRINT("n files superiore a 100");
             exit(0);
@@ -81,14 +80,14 @@ void sigHandler(int signal)
         semOp(semaforo_supporto, (unsigned short)0, -1, 0);
 
         // mi aggancio alla shmem creata dal server (SUPPORTO E VERA)
-        int id_memoria = alloc_shared_memory(SHMKEY1, 50 * sizeof(struct Responce),0);
+        int id_memoria = alloc_shared_memory(SHMKEY1, 50 * sizeof(struct Responce), 0);
         struct Responce *ptr = (struct Responce *)get_shared_memory(id_memoria, 0);
 
-        int shm_data_ready = alloc_shared_memory(SHM_SUPP, 50 * sizeof(bool),0);
+        int shm_data_ready = alloc_shared_memory(SHM_SUPP, 50 * sizeof(bool), 0);
         bool *data_ready = (bool *)get_shared_memory(shm_data_ready, 0);
 
         // mi aggancio alla message queue
-        id_msgqueue = createMessageQueue(MSGQKEY,0);
+        id_msgqueue = createMessageQueue(MSGQKEY, 0);
         // DEBUG_PRINT("MESSAGE QUEUE ID: %d", id_msgqueue);
 
         // mi assicuro che il file number sia corretto
@@ -126,91 +125,86 @@ void sigHandler(int signal)
 
                     // divido il file in 4 parti, mi viene ritornata una struttura con 4 stringhe
                     struct Divide divide;
-                    divide=empty_divide;
-                    //divide = divideByFour(legit_files_path[i]);
+                    divide = empty_divide;
+                    // divide = divideByFour(legit_files_path[i]);
 
+                    //programma per la divisione dei file in 4 parti
                     //#############################################################################################################################
 
-                    //apro il file con fopen per leggere solo i caratteri
-                    int fd=open(legit_files_path[i],O_RDONLY);
+                    // apro il file con fopen per leggere solo i caratteri
+                    int fd = open(legit_files_path[i], O_RDONLY);
                     struct stat buf;
-                    fstat(fd,&buf);
-                    long resto=0;
-                    long dimensione=buf.st_size;
-                    long br=0;
-                    br=0;
+                    fstat(fd, &buf);
+                    long resto = 0;
+                    long dimensione = buf.st_size;
+                    long br = 0;
+                    br = 0;
 
-                    if(fd==-1)
+                    if (fd == -1)
                         printf("\nWARNING <divide by 4>open failed, revert file to 0 byte");
 
-                    //conto il numero caratteri nel file
-                    resto=dimensione%4;
+                    // conto il numero caratteri nel file
+                    resto = dimensione % 4;
 
-                    //calcolo la dimensione ed eventuale resto da aggiungere all'ultima parte
-                    //inserisco le 4 parti nella struttura
-                    DEBUG_PRINT("dimensione %ld,resto %ld",dimensione,resto);
-                    DEBUG_PRINT("path %s",legit_files_path[i]);
+                    // calcolo la dimensione ed eventuale resto da aggiungere all'ultima parte
+                    // inserisco le 4 parti nella struttura
+                    DEBUG_PRINT("dimensione %ld,resto %ld", dimensione, resto);
+                    DEBUG_PRINT("path %s", legit_files_path[i]);
 
-                    if(fd!=-1)
+                    if (fd != -1)
                     {
                         DEBUG_PRINT("leggendo");
-                        br=read(fd,divide.part1,dimensione/4);
-                        if(br==-1)
+                        br = read(fd, divide.part1, dimensione / 4);
+                        if (br == -1)
                         {
                             DEBUG_PRINT("<warning>read problem p1 %s", strerror(errno));
-                            divide.part1[0]='\0';
+                            divide.part1[0] = '\0';
                         }
                         else
-                            divide.part1[br]='\0';
+                            divide.part1[br] = '\0';
 
-                        br+=read(fd,divide.part2,dimensione/4);
-                        if(br==-1)
+                        br += read(fd, divide.part2, dimensione / 4);
+                        if (br == -1)
                         {
                             DEBUG_PRINT("<warning>read problem p2 %s", strerror(errno));
-                            divide.part2[0]='\0';
+                            divide.part2[0] = '\0';
                         }
                         else
-                            divide.part2[br]='\0';
+                            divide.part2[br] = '\0';
 
-                        br+=read(fd,divide.part3,dimensione/4);
-                        if(br==-1)
+                        br += read(fd, divide.part3, dimensione / 4);
+                        if (br == -1)
                         {
                             DEBUG_PRINT("<warning>read problem p3 %s", strerror(errno));
-                            divide.part3[0]='\0';
+                            divide.part3[0] = '\0';
                         }
                         else
-                            divide.part3[br]='\0';
+                            divide.part3[br] = '\0';
 
                         DEBUG_PRINT("leggendo 4");
-                        br+=read(fd,divide.part4,(dimensione/4)+resto);
-                        if(br==-1)
+                        br += read(fd, divide.part4, (dimensione / 4) + resto);
+                        if (br == -1)
                         {
                             DEBUG_PRINT("<warning>read problem p4 %s", strerror(errno));
-                            divide.part4[0]='\0';
+                            divide.part4[0] = '\0';
                         }
                         else
-                            divide.part4[br]='\0';
+                            divide.part4[br] = '\0';
 
                         close(fd);
 
-                        if(br!=dimensione)
+                        if (br != dimensione)
                             ErrExit("\n<divide by 4>byte read not equal to file size");
-
                     }
                     else
                     {
-                        divide.part1[0]='\0';
-                        divide.part2[0]='\0';
-                        divide.part3[0]='\0';
-                        divide.part4[0]='\0';
+                        divide.part1[0] = '\0';
+                        divide.part2[0] = '\0';
+                        divide.part3[0] = '\0';
+                        divide.part4[0] = '\0';
                     }
 
-
-
-
                     //#############################################################################################################################
-                    printf("\npart1: %s\npart2: %s\npart3: %s\npart4: %s", divide.part1, divide.part2, divide.part3, divide.part4);
-                    fflush(stdout);
                     //  decremento il secondo semaforo(legit)
                     semOp(semaforo_mutex, 1, -1, IPC_NOWAIT);
                     // sblocco figlio successivo (primo semaforo)
@@ -221,7 +215,7 @@ void sigHandler(int signal)
                     // tutti i figli,una volta letto le 4 parti, vengono liberati insieme
                     DEBUG_PRINT("figlio %d file letti", i);
 
-                    // ciclo while per mandare i messaggi
+                    // numero di pezzi da mandare
                     int count = 4;
 
                     static const struct Responce empty_responce;
@@ -232,11 +226,10 @@ void sigHandler(int signal)
                     // struct MsgQue test;
                     bool sent[4] = {false};
 
+                    // ciclo while per mandare i messaggi
                     while (count > 0)
                     {
-                        // sleep(1);
                         /// scrittura su fifo 1
-                        // semOp(semaforo_ipc, 0, -1, 0)
                         if (sent[0] == false)
                         {
                             if (semWaitNoBloc(semaforo_ipc, 0) == 0)
@@ -249,7 +242,6 @@ void sigHandler(int signal)
                         }
 
                         /// scrittura su fifo 2
-                        // semOp(semaforo_ipc, 1, -1, 0);
                         if (sent[1] == false)
                         {
                             if (semWaitNoBloc(semaforo_ipc, 1) == 0)
@@ -262,7 +254,6 @@ void sigHandler(int signal)
                         }
 
                         /// scrittura su message queue
-                        // memset(&msg_queue, 0, sizeof(msg_queue));
                         mSize = sizeof(struct MsgQue) - sizeof(long);
                         if (sent[2] == false)
                         {
@@ -284,7 +275,6 @@ void sigHandler(int signal)
                         }
 
                         /// scrittura shared memory
-                        // semOp(semaforo_ipc, 3, -1, IPC_NOWAIT);
                         if (sent[3] == false)
                         {
                             if (semWaitNoBloc(semaforo_ipc, 3) == 0)
@@ -323,25 +313,24 @@ void sigHandler(int signal)
             /// PARENT
             // aspetto tutti i figli e rimuovo i semafori del client
 
-                while (wait(NULL) != -1);
+            while (wait(NULL) != -1)
+                ;
 
+            struct MsgQue msg_queue_responce;
+            if (msgrcv(id_msgqueue, &msg_queue_responce, mSize, 2, 0) == -1)
+            {
+                ErrExit("msgrcv failed");
+            }
+            else
+                DEBUG_PRINT("<client>ricevuto messaggio fine lavori da server");
 
-                struct MsgQue msg_queue_responce;
-                if (msgrcv(id_msgqueue, &msg_queue_responce, mSize, 2, 0) == -1)
-                {
-                    ErrExit("msgrcv failed");
-                }
-                else
-                    DEBUG_PRINT("<client>ricevuto messaggio fine lavori da server");
-
-                // libero tutte le zone heap allocate, shared memory e semafori
-                for (int i = 0; i < legit_files; i++)
-                    free(legit_files_path[i]);
-                detach_shared_memory(ptr);
-                detach_shared_memory(data_ready);
-                removeSemaphore(semaforo_mutex);
-                return;
-
+            // libero tutte le zone heap allocate, shared memory e semafori
+            for (int i = 0; i < legit_files; i++)
+                free(legit_files_path[i]);
+            detach_shared_memory(ptr);
+            detach_shared_memory(data_ready);
+            removeSemaphore(semaforo_mutex);
+            return;
         }
         else
             ErrExit("no files to read");
@@ -372,6 +361,7 @@ int main(int argc, char *argv[])
 
     struct sigaction act;
 
+    // blocco di tutti i segnali durante l'esecuzione del sighandler
     memset(&act, 0, sizeof act);
     sigaddset(&set_segnali, SIGUSR1);
     sigaddset(&set_segnali, SIGINT);
@@ -387,7 +377,7 @@ int main(int argc, char *argv[])
         pause();
         printf("\n<parent>end\n");
     }
-        //sigprocmask(SIG_UNBLOCK, &set_segnali, NULL);
+    sigprocmask(SIG_UNBLOCK, &set_segnali, NULL);
 
-    // return 0;
+    return 0;
 }
