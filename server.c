@@ -8,9 +8,21 @@
 #include "fifo.h"
 #include "message_queue.h"
 
-int global_fd1;
-int global_fd2;
-int id_msgqueue = 0;
+// id della fifo 1
+int global_fd1 = -1;
+// id della fifo 2
+int global_fd2 = -1;
+// id della message queue
+int id_msgqueue = -1;
+// puntatore della shared memory
+struct Responce *shm_ptr = NULL;
+// puntatore della shared memory di supporto
+bool *data_ready = NULL;
+// shared memory di supporto
+int shm_data_ready = -1;
+// shared memory
+int shm_id = -1;
+// grandezza della message queue
 ssize_t mSize = sizeof(struct MsgQue) - sizeof(long);
 // conteggio numero di file per la funzione di ricostruzione
 int file_count = 0;
@@ -23,6 +35,10 @@ void sigHandler(int signal)
     close_FIFO(global_fd1, "fifo1");
     close_FIFO(global_fd2, "fifo2");
     removeMessageQueue(id_msgqueue);
+    detach_shared_memory(shm_ptr);
+    detach_shared_memory(data_ready);
+    remove_shared_memory(shm_id);
+    remove_shared_memory(shm_data_ready);
     exit(0);
 }
 
@@ -39,20 +55,21 @@ int main(int argc, char *argv[])
         make_FIFO("fifo2");
         // shared memory
         // alloco la schared memory per rispondere al client, poi lo sblocco
-        int shm_id = alloc_shared_memory(SHMKEY1, 50 * sizeof(struct Responce),IPC_CREAT);
-        struct Responce *shm_ptr = (struct Responce *)get_shared_memory(shm_id, 0);
+        shm_id = alloc_shared_memory(SHMKEY1, 50 * sizeof(struct Responce), IPC_CREAT);
+        shm_ptr = (struct Responce *)get_shared_memory(shm_id, 0);
         DEBUG_PRINT("memoria condivisa allocata e connessa\n");
 
         // inizializzazione shared memory di supporto
-        int shm_data_ready = alloc_shared_memory(SHM_SUPP, 50 * sizeof(bool),IPC_CREAT);
-        bool *data_ready = (bool *)get_shared_memory(shm_data_ready, 0);
-        for(int i=0;i<50;i++)
-            data_ready[i]=false;
+        shm_data_ready = alloc_shared_memory(SHM_SUPP, 50 * sizeof(bool), IPC_CREAT);
+        data_ready = (bool *)get_shared_memory(shm_data_ready, 0);
+        for (int i = 0; i < 50; i++)
+            data_ready[i] = false;
 
         /// message queue
-        id_msgqueue = createMessageQueue(MSGQKEY,IPC_CREAT);
+        id_msgqueue = createMessageQueue(MSGQKEY, IPC_CREAT);
         DEBUG_PRINT("MESSAGE QUEUE ID: %d", id_msgqueue);
 
+        //variabile per ricevere il messaggio dalla message queue
         struct MsgQue msg_queue_responce;
 
         /// comunicazione con il client_0
@@ -93,10 +110,11 @@ int main(int argc, char *argv[])
         file_count = 0;
         long error = 0;
 
-        // limito la coda
-       // struct msqid_ds ds = msqGetStats(id_msgqueue);
-       // ds.msg_qbytes = sizeof(struct MsgQue) * MAX_MESS_CHANNEL;
-       // msqSetStats(id_msgqueue, ds);
+         //limito la coda
+         //funziona solo se fatto partire in modalità super user (sudo)
+         struct msqid_ds ds = msqGetStats(id_msgqueue);
+         ds.msg_qbytes = sizeof(struct MsgQue) * MAX_MESS_CHANNEL;
+         msqSetStats(id_msgqueue, ds);
 
         /// leggo dalle 4 IPC (fifo 1-2,msgq,shmemory)
         while (count > 0)
@@ -128,12 +146,10 @@ int main(int argc, char *argv[])
             }
 
             /// MESSAGE QUEUE
-            // struct MsgQue support;
             mSize = sizeof(struct MsgQue) - sizeof(long);
             if (msgrcv(id_msgqueue, &msg_queue_responce, mSize, 0, IPC_NOWAIT) == -1)
             {
                 if (errno == ENOMSG);
-                // DEBUG_PRINT("<message queue>would have blocked");
                 else
                     ErrExit("msgrcv failed");
             }
@@ -210,12 +226,13 @@ int main(int argc, char *argv[])
             char riga[MSG_BYTES + 150];
             strcpy(riga, "");
 
+            //ricostruzione del file concatenando tutto il necessario
             for (int a = 0; a < 4; a++)
             {
                 /*  printf("\n\n[parte %d file %s pid %d]\n%s", ricostruzione_file[i][a].file_number,
                          ricostruzione_file[i][a].filepath,
                          ricostruzione_file[i][a].additional, ricostruzione_file[i][a].content);*/
-                fflush(stdout);
+               // fflush(stdout);
 
                 strcpy(riga, "\n\n[parte ");
                 sprintf(numero, "%d", ricostruzione_file[i][a].file_number);
@@ -254,6 +271,11 @@ int main(int argc, char *argv[])
         fflush(stdout);
         close_FIFO(global_fd1, "fifo1");
         close_FIFO(global_fd2, "fifo2");
+        removeMessageQueue(id_msgqueue);
+        detach_shared_memory(shm_ptr);
+        detach_shared_memory(data_ready);
+        remove_shared_memory(shm_id);
+        remove_shared_memory(shm_data_ready);
 
         for (int i = 0; i < n_file; i++)
             free(ricostruzione_file[i]);
@@ -261,10 +283,7 @@ int main(int argc, char *argv[])
 
         removeSemaphore(semaforo_supporto);
         removeSemaphore(semaforo_ipc);
-        detach_shared_memory(shm_ptr);
-        detach_shared_memory(data_ready);
-        remove_shared_memory(shm_id);
-        remove_shared_memory(shm_data_ready);
+
         // removeMessageQueue(id_msgqueue);
 
         printf("\nTUTTO CHIUSO");

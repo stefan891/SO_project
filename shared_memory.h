@@ -7,6 +7,7 @@
 #define _SHARED_MEMORY_HH
 
 #include <stdlib.h>
+#include "defines.h"
 
 /**
  * It creates a shared memory segment of the specified size, and returns the shared memory ID

@@ -35,6 +35,8 @@ void detach_shared_memory(void *ptr_sh) {
     //esegue il detach della memoria condivisa
     if (shmdt(ptr_sh) == -1)
         ErrExit("shmdt failed");
+    else
+        print_msg("SHARED MEMORY DETACHED SUCCESSFULLY\n");
 }
 
 /**
@@ -45,4 +47,6 @@ void remove_shared_memory(int shmid) {
 
     if (shmctl(shmid, IPC_RMID, NULL) == -1)
         ErrExit("<shmem> remove failed");
+    else
+        print_msg("SHARED MEMORY REMOVED SUCCESSFULLY\n");
 }
