@@ -144,7 +144,7 @@ int readDir(const char *dirname,char **legit_files_path, int legit)
             stat(temp_path1, &statbuf);
 
             // aggiungo solo files minori di 4kb e che iniziano per "sendme_" e il cui path è <100 caratteri
-            if (statbuf.st_size < 4096 && strncmp("sendme_",dentry->d_name,7)==0 && strlen(temp_path1)<100)
+            if (statbuf.st_size < 4096 && strncmp("sendme_",dentry->d_name,7)==0 && strlen(temp_path1)<PATH_SIZE)
             {
                 legit++;
                 printf("\n %s LEGIT %d",dentry->d_name,legit);

@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
             if (fd == -1)
                 ErrExit("open failed");
 
-            char riga[MSG_BYTES + 150];
+            char riga[MSG_BYTES + PATH_SIZE];
             strcpy(riga, "");
 
             //ricostruzione del file concatenando tutto il necessario
